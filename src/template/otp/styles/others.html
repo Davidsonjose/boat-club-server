@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, width=device-width" />
+
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Satoshi:wght@300;400;500;700&display=swap"
+    />
+
+    <link rel="stylesheet" href="styles/signup.css" />
+    <style>
+      body {
+        margin: 0;
+        line-height: normal;
+      }
+
+      .main-background {
+        position: relative;
+        background-color: #fff;
+        width: 100%;
+        height: 780px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        padding: 0px 0px 40px;
+        box-sizing: border-box;
+        align-items: center;
+        justify-content: center;
+        gap: 64px;
+        text-align: center;
+        font-size: 12px;
+        color: #000;
+        font-family: Satoshi;
+      }
+
+      .main-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+      }
+
+      .flex-container {
+        position: absolute;
+        top: 40px;
+        left: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 40px;
+      }
+      .main-flex-container {
+        width: 568px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .image-container {
+        position: relative;
+        border-radius: 15px;
+        background-color: #fff;
+        width: 30px;
+        height: 30px;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+
+      .logo-style {
+        position: absolute;
+        top: calc(50% - 12.15px);
+        left: calc(50% - 13.65px);
+        width: 27.15px;
+        height: 24.3px;
+        object-fit: cover;
+      }
+
+      .content-header {
+        border-radius: 100px;
+        background-color: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: row;
+        padding: 8px 12px;
+        align-items: center;
+        justify-content: center;
+      }
+      .header-style {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .content-container {
+        border-radius: 20px;
+        background-color: #fafaff;
+        box-shadow: 0px 20px 25px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        padding: 40px;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 24px;
+        text-align: left;
+        font-size: 36px;
+      }
+
+      .text-content {
+        position: relative;
+        font-size: 16px;
+        line-height: 30px;
+        display: inline-block;
+        width: 488px;
+      }
+
+      .otp-container {
+        border-radius: 16px;
+        background-color: #f1f1ff;
+        width: 488px;
+        display: flex;
+        flex-direction: column;
+        padding: 24px;
+        box-sizing: border-box;
+        align-items: center;
+        justify-content: center;
+        color: #4637ca;
+      }
+
+      .otp-text-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .otp-text {
+        position: relative;
+        letter-spacing: 0.2em;
+      }
+
+      .support-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        font-size: 16px;
+      }
+
+      .support-question {
+        position: relative;
+        line-height: 32px;
+        font-weight: 300;
+        display: inline-block;
+        width: 488px;
+      }
+
+      .support-reply-text {
+        position: relative;
+        line-height: 32px;
+        font-weight: 300;
+        display: inline-block;
+        width: 488px;
+      }
+
+      .footer-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        text-align: left;
+        font-size: 16px;
+      }
+
+      .footer-header {
+        position: relative;
+        line-height: 32px;
+        font-weight: 300;
+        display: inline-block;
+        width: 568px;
+      }
+
+      .copy-right {
+        position: relative;
+        line-height: 32px;
+        font-weight: 300;
+        display: inline-block;
+        width: 568px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-background">
+      <div class="main-container">
+        <div style="position: relative; width: 648px; height: 598px">
+          <div class="flex-container">
+            <div class="main-flex-container">
+              <div class="image-container">
+                <img class="logo-style" alt="" src="./public/image-1@2x.png" />
+              </div>
+              <div class="content-header">
+                <div class="header-style">
+                  <div style="position: relative; line-height: 24px">
+                    User Profile
+                  </div>
+                  <img
+                    style="position: relative; width: 16px; height: 16px"
+                    alt=""
+                    src="./public/vuesaxlinearprofile1.svg"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="content-container">
+              <b style="position: relative; text-transform: capitalize"
+                >Let’s get you signed in.</b
+              >
+              <div class="text-content">
+                <p style="margin-block-start: 0; margin-block-end: 26px">
+                  Hi Dominic,
+                </p>
+                <p style="margin: 0">
+                  Please copy and paste the 5-digit code below into the number
+                  fields of your sign-in process.
+                </p>
+              </div>
+              <div class="otp-container">
+                <div class="otp-text-container">
+                  <b class="otp-text">{{ otpCode }}</b>
+                </div>
+              </div>
+              <div class="support-container">
+                <div class="support-question">
+                  Have questions or trouble logging in?
+                </div>
+                <div class="support-reply-text">
+                  <span>Just reply to this email or contact </span>
+                  <span style="text-decoration: underline; color: #4637ca"
+                    >hi@chevyview.com</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-container">
+        <div class="footer-header">
+          If you did not take this action, please contact us immediately at
+          <span style="text-decoration: underline">hi@chevyview.com</span>
+        </div>
+        <div class="copy-right">
+          Copyright © 2023 Balosh Technologies Limited. All rights reserved.
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

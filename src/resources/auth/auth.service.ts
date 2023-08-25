@@ -45,6 +45,7 @@ export class AuthService {
     }
   }
 
+  //
   async getAllUser(): Promise<User[]> {
     return this.authRepository.getAllUsers();
   }

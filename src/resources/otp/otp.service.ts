@@ -10,6 +10,8 @@ import { NodemailerService } from 'src/helpers/nodemailer.service';
 import { Repository } from 'typeorm';
 import { CreateOtpDto, OtpChannelType, VerifyOtpDto } from 'src/dto/otp';
 import { ActivityService } from '../activity/activity.service';
+import * as path from 'path';
+import * as ejs from 'ejs';
 
 @Injectable()
 export class OtpService {
@@ -35,13 +37,21 @@ export class OtpService {
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 10); // OTP expiration time
 
+    const templatePath = path.resolve(
+      __dirname,
+      '../../template/otp',
+      'sign-up.html',
+    );
+
+    const template = await ejs.renderFile(templatePath, { otpCode: otp });
+    console.log(template, 'rendered template');
     await this.otpVerificationRepository.save({
       userId,
       otp,
       expiresAt,
       channel: OtpChannelType.EMAIL,
     });
-    await this.nodemailerService.sendMail(email, otp);
+    await this.nodemailerService.sendMail(email, template, otp);
   }
 
   async verifyOtp(verifyOtpDto: VerifyOtpDto): Promise<boolean> {
@@ -49,6 +59,8 @@ export class OtpService {
     const record = await this.otpVerificationRepository.findOne({
       where: { userId, otp },
     });
+
+    //
 
     if (!record) {
       throw new BadRequestException(

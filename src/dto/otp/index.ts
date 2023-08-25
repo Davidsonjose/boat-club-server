@@ -61,3 +61,47 @@ export class VerifyOtpDto {
   @ApiProperty()
   activityHash?: string;
 }
+
+export enum CodeStatus {
+  CHECKED_IN = 'CHECKED_IN',
+  CHECKED_OUT = 'CHECKED_OUT',
+  INACTIVE = 'INACTIVE',
+}
+
+export class CodeReturns {
+  @ApiProperty({ enum: CodeStatus, enumName: 'CodeStatus' })
+  status: CodeStatus;
+
+  @ApiProperty()
+  expiresAt: Date;
+}
+export class CodeActionPaylod {
+  @ApiProperty()
+  message: 'Completed successfully';
+
+  @ApiProperty()
+  payload: CodeReturns;
+
+  @ApiProperty()
+  nHbits: 1;
+}
+
+export enum ActionTypeParams {
+  VERIFY = 'VERIFY',
+  CHECK_OUT = 'CHECK_OUT',
+  CHECKED_IN = 'CHECK_IN',
+}
+export class MakeActionDto {
+  // @ApiParam()
+  @ApiProperty({ enum: ActionTypeParams, enumName: 'Action Types' })
+  activityType: ActionTypeParams;
+
+  @ApiProperty({ enum: CodeStatus, enumName: 'CodeStatus' })
+  status: CodeStatus;
+}
+
+// export class MakeActionData {
+//   @ApiProperty()
+//   scheme: string;
+
+// }

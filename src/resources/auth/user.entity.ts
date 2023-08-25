@@ -101,6 +101,12 @@ export class User extends BaseEntity {
   @Column()
   companyId: string;
 
+  @Column({ default: false })
+  verified: boolean;
+
+  @Column({ default: false })
+  deleted: boolean;
+
   @OneToMany(() => Notifications, (notification) => notification.user)
   notifications: Notifications[];
 

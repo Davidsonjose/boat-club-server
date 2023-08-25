@@ -15,6 +15,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { UserRepository } from 'src/repository/user.repository';
 import { CompanyModule } from '../company/company.module';
 import { ActivityModule } from '../activity/activity.module';
+import { OtpModule } from '../otp/otp.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ActivityModule } from '../activity/activity.module';
     SettingsModule,
     CompanyModule,
     ActivityModule,
+    OtpModule,
     // UserModule,
   ],
   providers: [

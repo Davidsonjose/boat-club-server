@@ -68,4 +68,7 @@ export const activityUsageMap: ActivityUsageData = {
   SETTINGS_UPDDATE: 1,
   SIGNIN: 1,
   UPDATE_PIN: 2,
+  SIGNUP: 1,
 };
+
+//

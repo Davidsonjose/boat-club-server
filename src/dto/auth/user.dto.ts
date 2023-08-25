@@ -336,6 +336,7 @@ export interface ActivityUsageData {
   SETTINGS_UPDDATE: number;
   SIGNIN: number;
   UPDATE_PIN: number;
+  SIGNUP: number;
 }
 
 export class ForgotVerifyPayload {

@@ -14,6 +14,6 @@ import { ActivityModule } from '../activity/activity.module';
   ],
   providers: [OtpService, NodemailerService],
   controllers: [OtpController],
-  exports: [NodemailerService],
+  exports: [NodemailerService, OtpService],
 })
 export class OtpModule {}

@@ -20,6 +20,7 @@ import { addDays } from 'date-fns';
 import { CompanyService } from 'src/resources/company/company.service';
 import { ActivityService } from 'src/resources/activity/activity.service';
 import { ActivityEnumType } from 'src/dto/activity/activity.dto';
+import { OtpService } from 'src/resources/otp/otp.service';
 @Injectable()
 export class AuthRepository {
   constructor(
@@ -34,6 +35,7 @@ export class AuthRepository {
     private refreshTokenRepository: Repository<RefreshToken>,
     private companyService: CompanyService,
     private activityService: ActivityService,
+    private otpService: OtpService,
   ) {}
 
   async createUser(
@@ -100,6 +102,8 @@ export class AuthRepository {
       activityHash: activityHash,
       user: others,
     };
+
+    this.otpService.sendOtpEmail(email, newuser.id);
     return info;
   }
 

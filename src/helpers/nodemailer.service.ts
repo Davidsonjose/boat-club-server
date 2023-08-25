@@ -27,13 +27,14 @@ export class NodemailerService {
     // });
   }
 
-  async sendMail(email: string, otp?: string): Promise<void> {
+  async sendMail(email: string, template: string, otp?: string): Promise<void> {
     try {
       const mailOptions = {
         from: 'info@lfzaccess.com', // Change this to your email
         to: email,
         subject: 'OTP Verification',
-        text: `Your OTP: ${otp}`,
+        // text: `Your OTP: ${otp}`,
+        html: template,
       };
       await this.transporter.sendMail(mailOptions);
     } catch (error) {
