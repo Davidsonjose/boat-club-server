@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsDate,
+  IsDateString,
   IsEmail,
   IsNotEmpty,
   IsNumber,
@@ -82,6 +84,11 @@ export class CreateUserDto {
   @IsString()
   @ApiProperty()
   dialCode: string;
+
+  @IsNotEmpty()
+  @IsDateString()
+  @ApiProperty()
+  dateOfBirth: Date;
 
   @ApiProperty()
   referralCode?: string;

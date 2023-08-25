@@ -53,6 +53,7 @@ export class AuthRepository {
       referralCode,
       profileImageUrl,
       companyId,
+      dateOfBirth,
     } = createUserDto;
 
     const settings = await this.settingsService.createUserSettings(
@@ -79,6 +80,7 @@ export class AuthRepository {
       pwd: createUserDto.pwd,
       companyId,
       company: singleCompany,
+      dateOfBirth,
     });
     await newuser.save();
 

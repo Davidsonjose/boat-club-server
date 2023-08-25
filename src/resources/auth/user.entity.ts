@@ -4,6 +4,7 @@ import {
   BeforeInsert,
   BeforeUpdate,
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -107,8 +108,14 @@ export class User extends BaseEntity {
   @Column({ default: false })
   deleted: boolean;
 
+  @Column({ type: 'date' })
+  dateOfBirth: Date;
+
   @OneToMany(() => Notifications, (notification) => notification.user)
   notifications: Notifications[];
+
+  @CreateDateColumn()
+  createdAt: Date;
 
   @BeforeInsert()
   async hashPasswordBeforeInsert() {
