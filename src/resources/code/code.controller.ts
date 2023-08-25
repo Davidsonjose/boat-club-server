@@ -11,11 +11,11 @@ import { CodeActionPaylod, MakeActionDto } from 'src/dto/otp';
 export class CodeController {
   constructor(private codeService: CodeService) {}
 
-  @Post('/create')
-  createCode(@Body() body): Promise<Code> {
-    const { code } = body;
-    return this.codeService.createCode(code);
-  }
+  // @Post('/create')
+  // createCode(@Body() body): Promise<Code> {
+  //   const { code } = body;
+  //   return this.codeService.createCode(code);
+  // }
 
   @Post('/action/:actionType')
   @ApiOkResponse({ description: 'Successful', type: CodeActionPaylod })
