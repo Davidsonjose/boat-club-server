@@ -59,7 +59,7 @@ export class AppModule {
         'This is the swagger documentation of some of the quixcel estates endpoints.',
       )
       .setVersion('1.0')
-      .addServer('https://quixcel-estates-server.herokuapp.com/api/v1') // server url
+      .addServer('https://quixcel-estates-server-0a61bd1c8d09.herokuapp.com') // server url
       // .addTag('') // Add tags if needed
       .build();
 

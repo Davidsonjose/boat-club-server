@@ -29,6 +29,9 @@ import {
   RefreshTokenPayload,
 } from 'src/dto/auth/auth-token.dto';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { responseError, safeResponse } from 'src/helpers/http-response';
+import { enrichWithErrorDetail } from 'src/helpers/axiosError';
+import { systemResponses } from 'src/res/systemResponse';
 
 @Controller('auth')
 @ApiTags('Authentication')
@@ -43,14 +46,29 @@ export class AuthController {
   @ApiOkResponse({ description: 'Successful', type: SignUpPaylod })
   async createUser(@Body() createUserDto: CreateUserDto, @Req() req) {
     const ipAddress = req.headers['x-forwarded-for'] || req.ip;
-
-    return this.authService.createUser(createUserDto, ipAddress);
+    try {
+      return this.authService.createUser(createUserDto, ipAddress);
+    } catch (err) {
+      const errMsg = safeResponse(enrichWithErrorDetail(err).error);
+      throw responseError({
+        cause: err,
+        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+      });
+    }
   }
 
   @Post('/signIn')
   @ApiOkResponse({ description: 'Successful', type: SignInPayload })
   async signIn(@Body() signInUserDto: SignInUserDto) {
-    return await this.authService.signIn(signInUserDto);
+    try {
+      return await this.authService.signIn(signInUserDto);
+    } catch (err) {
+      const errMsg = safeResponse(enrichWithErrorDetail(err).error);
+      throw responseError({
+        cause: err,
+        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+      });
+    }
   }
 
   @Post('/refresh')
@@ -72,9 +90,17 @@ export class AuthController {
     @Body()
     forgotPasswordVerificationDto: ForgotPasswordVerificationDto,
   ): Promise<ForgotVerifyPayload> {
-    return await this.userService.forgotPasswordVerify(
-      forgotPasswordVerificationDto,
-    );
+    try {
+      return await this.userService.forgotPasswordVerify(
+        forgotPasswordVerificationDto,
+      );
+    } catch (err) {
+      const errMsg = safeResponse(enrichWithErrorDetail(err).error);
+      throw responseError({
+        cause: err,
+        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+      });
+    }
     // return await this.authService.forget;
   }
 }

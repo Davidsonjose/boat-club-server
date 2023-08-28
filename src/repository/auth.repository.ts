@@ -43,70 +43,76 @@ export class AuthRepository {
     createSettingDto: CreateSettingDto,
     createUserLocationDto: CreateUserLocationDto,
   ) {
-    const {
-      username,
-      firstName,
-      lastName,
-      email,
-      phoneNumber,
-      dialCode,
-      referralCode,
-      profileImageUrl,
-      companyId,
-      dateOfBirth,
-    } = createUserDto;
+    try {
+      const {
+        username,
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
+        dialCode,
+        referralCode,
+        profileImageUrl,
+        companyId,
+        dateOfBirth,
+      } = createUserDto;
 
-    const settings = await this.settingsService.createUserSettings(
-      createSettingDto,
-    );
-    const location = await this.locationService.createUserLocation(
-      createUserLocationDto,
-    );
-    const singleCompany = await this.companyService.getSingleCompany(companyId);
+      const settings = await this.settingsService.createUserSettings(
+        createSettingDto,
+      );
+      const location = await this.locationService.createUserLocation(
+        createUserLocationDto,
+      );
+      const singleCompany = await this.companyService.getSingleCompany(
+        companyId,
+      );
 
-    const newuser = this.userRepository.create({
-      username: username?.toLowerCase(),
-      firstName,
-      lastName,
-      email: email?.toLowerCase(),
-      phoneNumber,
-      dialCode,
-      profileImageUrl,
-      pin: createUserDto.pin,
-      referralCode,
-      settings: settings,
-      location: location,
-      country: location.country,
-      pwd: createUserDto.pwd,
-      companyId,
-      company: singleCompany,
-      dateOfBirth,
-    });
-    await newuser.save();
+      const newuser = this.userRepository.create({
+        username: username?.toLowerCase(),
+        firstName,
+        lastName,
+        email: email?.toLowerCase(),
+        phoneNumber,
+        dialCode,
+        profileImageUrl,
+        pin: createUserDto.pin,
+        referralCode,
+        settings: settings,
+        location: location,
+        country: location.country,
+        pwd: createUserDto.pwd,
+        companyId,
+        company: singleCompany,
+        dateOfBirth,
+      });
+      await newuser.save();
 
-    settings.user = newuser;
-    settings.userId = newuser.id;
-    location.user = newuser;
-    location.userId = newuser.id;
-    await settings.save();
-    await location.save();
+      settings.user = newuser;
+      settings.userId = newuser.id;
+      location.user = newuser;
+      location.userId = newuser.id;
+      await settings.save();
+      await location.save();
 
-    const { pin, pwd, hash, ...others } = newuser;
+      const { pin, pwd, hash, ...others } = newuser;
 
-    const tokens = await this.generateAccessAndRefresh(newuser);
+      const tokens = await this.generateAccessAndRefresh(newuser);
 
-    const activityHash = await this.generateAuthActivityHash(
-      newuser,
-      ActivityEnumType.SIGNUP,
-    );
-    const info = {
-      ...tokens,
-      activityHash: activityHash,
-      user: others,
-    };
+      const activityHash = await this.generateAuthActivityHash(
+        newuser,
+        ActivityEnumType.SIGNUP,
+      );
+      const info = {
+        ...tokens,
+        activityHash: activityHash,
+        user: others,
+      };
 
-    this.otpService.sendOtpEmail(email, newuser.id);
-    return info;
+      this.otpService.sendOtpEmail(email, newuser.id);
+      return info;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async getAllUsers(): Promise<User[]> {
@@ -138,26 +144,30 @@ export class AuthRepository {
   }
 
   async signIn(signInUserDto: SignInUserDto): Promise<LoginPayload> {
-    const { email, pwd } = signInUserDto;
-    const user = await this.getSingleUser(email?.toLowerCase());
-    const isPasswordValid = await user.comparePassword(pwd);
+    try {
+      const { email, pwd } = signInUserDto;
+      const user = await this.getSingleUser(email?.toLowerCase());
+      const isPasswordValid = await user.comparePassword(pwd);
 
-    if (!isPasswordValid) {
-      throw new UnauthorizedException(`Incorrect Credentials`);
+      if (!isPasswordValid) {
+        throw new UnauthorizedException(`Incorrect Credentials`);
+      }
+      const tokens = await this.generateAccessAndRefresh(user);
+      const userdetails = this.userModifiedData(user);
+
+      const activityHash = await this.generateAuthActivityHash(
+        user,
+        ActivityEnumType.SIGNIN,
+      );
+      return {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        activityHash,
+        user: { message: `Welcome ${user?.username} 👋`, ...userdetails },
+      };
+    } catch (error) {
+      throw error;
     }
-    const tokens = await this.generateAccessAndRefresh(user);
-    const userdetails = this.userModifiedData(user);
-
-    const activityHash = await this.generateAuthActivityHash(
-      user,
-      ActivityEnumType.SIGNIN,
-    );
-    return {
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
-      activityHash,
-      user: { message: `Welcome ${user?.username} 👋`, ...userdetails },
-    };
   }
 
   async generateAccessToken(user: User): Promise<string> {

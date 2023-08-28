@@ -51,13 +51,11 @@ export class AuthService {
   }
 
   async signIn(signInUserDto: SignInUserDto) {
-    const { email } = signInUserDto;
-
-    // const user = await this.authRepository.getSingleUser(email);
-    // if (!user) {
-    //   throw new UnauthorizedException('Invalid Credentials');
-    // }
-    return this.authRepository.signIn(signInUserDto);
+    try {
+      return this.authRepository.signIn(signInUserDto);
+    } catch (error) {
+      throw error;
+    }
   }
 
   async refreshUserToken(
