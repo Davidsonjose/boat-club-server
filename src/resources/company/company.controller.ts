@@ -3,6 +3,9 @@ import { CompanyService } from './company.service';
 import { Company } from './company.entity';
 import { ApiBadRequestResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateCompanyDto } from 'src/dto/company/company.dto';
+import { responseError, safeResponse } from 'src/helpers/http-response';
+import { enrichWithErrorDetail } from 'src/helpers/axiosError';
+import { systemResponses } from 'src/res/systemResponse';
 
 @ApiTags('Company')
 @Controller('company')
@@ -18,7 +21,15 @@ export class CompanyController {
   async createCompany(
     @Body() createCompany: CreateCompanyDto,
   ): Promise<Company> {
-    return this.companyService.createCompany(createCompany);
+    try {
+      return this.companyService.createCompany(createCompany);
+    } catch (err) {
+      const errMsg = safeResponse(enrichWithErrorDetail(err).error);
+      throw responseError({
+        cause: err,
+        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+      });
+    }
   }
 
   @Get('/:schemeId')
@@ -29,6 +40,14 @@ export class CompanyController {
   })
   @ApiBadRequestResponse({ description: 'Invalid input data.' })
   async getSingleCompany(@Param('id') scheme: string): Promise<Company> {
-    return this.companyService.getSingleCompany(scheme);
+    try {
+      return this.companyService.getSingleCompany(scheme);
+    } catch (err) {
+      const errMsg = safeResponse(enrichWithErrorDetail(err).error);
+      throw responseError({
+        cause: err,
+        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+      });
+    }
   }
 }

@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  Put,
   Req,
   Request,
   UseGuards,
@@ -13,6 +14,7 @@ import { User } from './user.entity';
 import { AuthService } from './auth.service';
 import {
   CreateUserDto,
+  ForgotPasswordUpdateDto,
   ForgotPasswordVerificationDto,
   ForgotVerifyPayload,
   SignInPayload,
@@ -32,6 +34,12 @@ import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { responseError, safeResponse } from 'src/helpers/http-response';
 import { enrichWithErrorDetail } from 'src/helpers/axiosError';
 import { systemResponses } from 'src/res/systemResponse';
+import {
+  ForgotPasswordVerifyPayload,
+  VerifyForgotOtpDto,
+  VerifyOtpDto,
+} from 'src/dto/otp';
+import { OtpService } from '../otp/otp.service';
 
 @Controller('auth')
 @ApiTags('Authentication')
@@ -40,6 +48,7 @@ export class AuthController {
     private authService: AuthService,
     private locationService: LocationService,
     private userService: UserService,
+    private otpService: OtpService,
   ) {}
 
   @Post('/signUp')
@@ -85,7 +94,10 @@ export class AuthController {
   }
 
   @Post('/forgot_password_verify')
-  @ApiOkResponse({ description: 'Successful' })
+  @ApiOkResponse({
+    description: 'Successful',
+    type: ForgotPasswordVerifyPayload,
+  })
   async forgetPasswordVerify(
     @Body()
     forgotPasswordVerificationDto: ForgotPasswordVerificationDto,
@@ -101,6 +113,44 @@ export class AuthController {
         message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
       });
     }
-    // return await this.authService.forget;
+  }
+
+  @Post('/forgot_verify_otp')
+  @ApiOkResponse({
+    description: 'Successful',
+  })
+  async verifyForgotOtp(
+    @Body()
+    verifyForgotOtp: VerifyForgotOtpDto,
+  ) {
+    try {
+      return await this.otpService.verifyOtp({
+        userId: verifyForgotOtp.userId,
+        ...verifyForgotOtp,
+      });
+    } catch (err) {
+      const errMsg = safeResponse(enrichWithErrorDetail(err).error);
+      throw responseError({
+        cause: err,
+        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+      });
+    }
+  }
+
+  @Put('/forgot_password_update')
+  @ApiOkResponse({ description: 'Successful' })
+  async forgetPasswordUpdate(
+    @Body()
+    forgotPasswordUpdateDto: ForgotPasswordUpdateDto,
+  ) {
+    try {
+      await this.userService.forgotPasswordUpdate(forgotPasswordUpdateDto);
+    } catch (err) {
+      const errMsg = safeResponse(enrichWithErrorDetail(err).error);
+      throw responseError({
+        cause: err,
+        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+      });
+    }
   }
 }

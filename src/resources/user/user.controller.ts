@@ -129,6 +129,7 @@ export class UserController {
       });
     }
   }
+
   @Put('/pin/verify')
   @UseGuards(AuthGuard())
   @ApiOkResponse({ description: 'Successful' })

@@ -16,23 +16,31 @@ export class CompanyRepository {
   ) {}
 
   async getSingleCompany(companyId: string): Promise<Company> {
-    return this.companyRepository.findOne({
-      where: { id: companyId },
-    });
+    try {
+      return this.companyRepository.findOne({
+        where: { id: companyId },
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   async createCompany(createCompanyDto: CreateCompanyDto) {
-    const { name, address, code, email, phone, dialCode } = createCompanyDto;
-    const company: Company = this.companyRepository.create({
-      name: name?.toLowerCase(),
-      address,
-      email: email?.toLowerCase(),
-      phone,
-      dialCode,
-      // id: '0bfb725a-f575-4bb1-8ddb-ca0265b213a2',
-    });
+    try {
+      const { name, address, code, email, phone, dialCode } = createCompanyDto;
+      const company: Company = this.companyRepository.create({
+        name: name?.toLowerCase(),
+        address,
+        email: email?.toLowerCase(),
+        phone,
+        dialCode,
+        // id: '0bfb725a-f575-4bb1-8ddb-ca0265b213a2',
+      });
 
-    await this.companyRepository.save(company);
-    return company;
+      await this.companyRepository.save(company);
+      return company;
+    } catch (error) {
+      throw error;
+    }
   }
 }

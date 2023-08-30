@@ -16,7 +16,7 @@ export class OtpController {
   @ApiOkResponse({ description: 'Successful', type: OtpDataPayload })
   async SendOtp(@Body() createOtpDto: CreateOtpDto, @GetUser() user: User) {
     return await this.otpService.generateAndSendOtp({
-      userId: user.id,
+      user: user,
       ...createOtpDto,
     });
   }

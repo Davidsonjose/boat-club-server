@@ -14,8 +14,10 @@ import { ActivityEnumType } from 'src/dto/activity/activity.dto';
 import { ActivityService } from 'src/resources/activity/activity.service';
 import {
   ActivityUsageEnum,
+  ForgotPasswordUpdateDto,
   ForgotPasswordVerificationDto,
   ForgotVerifyPayload,
+  RequestTypeEnum,
   UpdateEmailDto,
   UpdatePasswordDto,
   UpdatePhoneDto,
@@ -24,12 +26,14 @@ import {
   VerifyPinDto,
 } from 'src/dto/auth/user.dto';
 import { Activities } from 'src/resources/activity/activity.entity';
+import { OtpService } from 'src/resources/otp/otp.service';
 @Injectable()
 export class UserRepository {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private activityService: ActivityService,
+    private otpService: OtpService,
   ) {}
 
   async getAllUsers(): Promise<User[]> {
@@ -37,13 +41,18 @@ export class UserRepository {
   }
 
   async getSingleUser(email: string, type?: string): Promise<User> {
-    if (type == 'auth') {
+    if (type == RequestTypeEnum.AUTH) {
       let singleuser = await this.userRepository
         .createQueryBuilder('user')
         .leftJoinAndSelect('user.location', 'location')
         .leftJoinAndSelect('user.settings', 'settings')
+        .leftJoinAndSelect('user.company', 'company')
         .where('user.id = :email', { email })
         .getOne();
+
+      if (!singleuser) {
+        throw new UnauthorizedException('Unauthorized access');
+      }
       return singleuser;
     }
 
@@ -51,6 +60,7 @@ export class UserRepository {
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.location', 'location')
       .leftJoinAndSelect('user.settings', 'settings')
+      .leftJoinAndSelect('user.company', 'company')
       .where('user.email = :email', { email })
       .getOne();
 
@@ -165,6 +175,32 @@ export class UserRepository {
     return;
   }
 
+  async forgotPasswordUpdate(
+    forgotPasswordUpdateDto: ForgotPasswordUpdateDto,
+  ): Promise<void> {
+    const user = await this.getSingleUser(
+      forgotPasswordUpdateDto.userId,
+      RequestTypeEnum.AUTH,
+    );
+    const singleActivity = await this.verifyUserActivity(
+      forgotPasswordUpdateDto.activityHash,
+      user,
+      // ActivityUsageEnum.TWO_AUTHENTICATION,
+      this.activityService.getActivitiesUsage(ActivityEnumType.FORGOT_PASSWORD),
+    );
+
+    await this.activityService.updateActivityStatus({
+      activityHash: singleActivity.activityHash,
+      userId: user.id,
+      activityType: singleActivity.activityType,
+    });
+    // return;
+
+    user.pwd = forgotPasswordUpdateDto.pwd;
+    await this.userRepository.save(user);
+    return;
+  }
+
   async updateProfile(updateProfileDto: UpdateProfileDto, user: User) {
     const isUsernameAvailable = await this.isUsernameAvailable(
       updateProfileDto.username,
@@ -252,11 +288,16 @@ export class UserRepository {
         ActivityEnumType.FORGOT_PASSWORD,
       );
 
+      await this.otpService.sendOtpEmail(
+        singleUser,
+        ActivityEnumType.FORGOT_PASSWORD,
+      );
       const forgotPayloadInfo: ForgotVerifyPayload = {
         message:
           'You get a verification code to reset your password if your email is valid',
         foundUser: true,
         activityHash,
+        userId: singleUser.id,
       };
       // return;
       return forgotPayloadInfo;
@@ -266,6 +307,7 @@ export class UserRepository {
           'You get a verification code to reset your password if your email is valid',
         foundUser: false,
         activityHash: null,
+        userId: null,
       };
       return forgotPayloadInfo;
     }

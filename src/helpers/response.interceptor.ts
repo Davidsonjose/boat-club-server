@@ -17,7 +17,7 @@ export class ResponseInterceptor implements NestInterceptor {
         status: true,
         message: this.successMessage,
         payload: data,
-        nbHits: data.length ? data?.length : 0,
+        nbHits: data?.length ? data?.length : 0,
       })),
     );
   }

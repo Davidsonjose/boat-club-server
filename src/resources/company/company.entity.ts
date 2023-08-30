@@ -27,6 +27,9 @@ export class Company extends BaseEntity {
   @Column()
   dialCode: string;
 
+  @Column({ default: '' })
+  logoUrl: string;
+
   @OneToMany(() => User, (user) => user.company)
   users: User[];
 }

@@ -8,6 +8,7 @@ import { LocationModule } from '../location/location.module';
 import { SettingsModule } from '../settings/settings.module';
 import { PassportModule } from '@nestjs/passport';
 import { ActivityModule } from '../activity/activity.module';
+import { OtpModule } from '../otp/otp.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
@@ -15,6 +16,7 @@ import { ActivityModule } from '../activity/activity.module';
     LocationModule,
     SettingsModule,
     ActivityModule,
+    OtpModule,
   ],
   providers: [UserService, UserRepository],
   controllers: [UserController],

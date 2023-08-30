@@ -1,8 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { User } from 'src/resources/auth/user.entity';
 
 export class CreateOtpDto {
-  userId?: string;
+  user?: User;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -20,6 +21,11 @@ export class CreateOtpDto {
 
   @ApiProperty()
   email?: string;
+
+  @ApiProperty()
+  @MinLength(10)
+  @IsNotEmpty()
+  activityHash: string;
 }
 
 export enum OtpChannelType {
@@ -39,6 +45,31 @@ export class OtpDataPayload {
 }
 
 export class VerifyOtpDto {
+  userId?: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  otp: string;
+
+  @ApiProperty({ enum: OtpChannelType, enumName: 'Otp Channel Type' })
+  @IsNotEmpty()
+  channel: OtpChannelType;
+
+  @ApiProperty()
+  phone?: string;
+
+  @ApiProperty()
+  diaCode?: string;
+
+  @ApiProperty()
+  email?: string;
+
+  @ApiProperty()
+  activityHash?: string;
+}
+export class VerifyForgotOtpDto {
+  @ApiProperty()
+  @IsNotEmpty()
   userId?: string;
 
   @ApiProperty()
@@ -86,6 +117,30 @@ export class CodeActionPaylod {
   nHbits: 1;
 }
 
+export class ForgotVerifyReturn {
+  @ApiProperty()
+  message: 'You get a verification code to reset your password if your email is valid';
+
+  @ApiProperty()
+  foundUser: boolean;
+
+  @ApiProperty()
+  activityHash: string;
+
+  @ApiProperty()
+  userId: string;
+}
+export class ForgotPasswordVerifyPayload {
+  @ApiProperty()
+  message: 'Successfull';
+
+  @ApiProperty()
+  payload: ForgotVerifyReturn;
+
+  @ApiProperty()
+  nHbits: 1;
+}
+
 export enum ActionTypeParams {
   VERIFY = 'VERIFY',
   CHECK_OUT = 'CHECK_OUT',
@@ -105,3 +160,9 @@ export class MakeActionDto {
 //   scheme: string;
 
 // }
+
+export enum OtpEmailTypeEnum {
+  FORGOT_PASSWORD = 'FORGOT_PASSWORD',
+  SIGNUP = 'SIGNUP',
+  VERIFY_EMAIL = 'VERIFY_EMAIL',
+}

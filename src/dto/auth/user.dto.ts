@@ -26,6 +26,11 @@ export enum ActivityUsageEnum {
   TWO_AUTHENTICATION = 1,
 }
 
+export enum RequestTypeEnum {
+  AUTH = 'auth',
+  DEFAULT = 'default',
+}
+
 export class CreateUserLocationDto {
   @ApiProperty()
   ipAddress: string;
@@ -333,6 +338,19 @@ export class ForgotPasswordVerificationDto {
   email: string;
 }
 
+export class ForgotPasswordUpdateDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  userId: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  pwd: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  activityHash: string;
+}
 export interface ActivityUsageData {
   CHANGE_EMAIL: number;
   CHANGE_PASSWORD: number;
@@ -355,4 +373,7 @@ export class ForgotVerifyPayload {
 
   @ApiProperty()
   activityHash: string | null;
+
+  @ApiProperty()
+  userId: string;
 }

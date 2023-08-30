@@ -8,10 +8,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { OtpVerification } from './otpVerification';
 import { NodemailerService } from 'src/helpers/nodemailer.service';
 import { Repository } from 'typeorm';
-import { CreateOtpDto, OtpChannelType, VerifyOtpDto } from 'src/dto/otp';
+import {
+  CreateOtpDto,
+  OtpChannelType,
+  OtpEmailTypeEnum,
+  VerifyOtpDto,
+} from 'src/dto/otp';
 import { ActivityService } from '../activity/activity.service';
 import * as path from 'path';
 import * as ejs from 'ejs';
+import { User } from '../auth/user.entity';
+import { ActivityEnumType } from 'src/dto/activity/activity.dto';
 
 @Injectable()
 export class OtpService {
@@ -24,34 +31,66 @@ export class OtpService {
 
   async generateAndSendOtp(createOtpDto: CreateOtpDto): Promise<any> {
     console.log('ongoing');
-    const { channel, email, userId } = createOtpDto;
-
+    const { channel, email, user } = createOtpDto;
+    const singleActivity = await this.activityService.getSingleActivity(
+      createOtpDto.activityHash,
+      user.id,
+    );
     if (channel == OtpChannelType.EMAIL) {
-      await this.sendOtpEmail(email, userId);
+      await this.sendOtpEmail(user, singleActivity.activityType);
       return { message: 'Email sent successfully' };
     }
   }
 
-  async sendOtpEmail(email: string, userId: string) {
+  async sendOtpEmail(user: User, emailType: ActivityEnumType) {
     const otp = this.generateRandomOtp();
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 10); // OTP expiration time
 
-    const templatePath = path.resolve(
-      __dirname,
-      '../../template/otp',
-      'sign-up.html',
-    );
-
-    const template = await ejs.renderFile(templatePath, { otpCode: otp });
-    console.log(template, 'rendered template');
     await this.otpVerificationRepository.save({
-      userId,
+      userId: user.id,
       otp,
       expiresAt,
       channel: OtpChannelType.EMAIL,
     });
-    await this.nodemailerService.sendMail(email, template, otp);
+
+    await this.sendMailTemplate(emailType, user, otp);
+  }
+
+  async sendMailTemplate(
+    emailType: ActivityEnumType,
+    user: User,
+    otp: string,
+  ): Promise<void> {
+    // console.log(emailType, user);
+    if (emailType == ActivityEnumType.SIGNUP) {
+      const signUpTemplate = path.resolve(
+        __dirname,
+        '../../template/otp',
+        'sign-up.html',
+      );
+
+      const template = await ejs.renderFile(signUpTemplate, {
+        otpCode: otp,
+        company: user.company,
+        user,
+      });
+      await this.nodemailerService.sendMail(user.email, template, otp);
+    } else if (emailType == ActivityEnumType.SIGNIN) {
+    } else if (emailType == ActivityEnumType.FORGOT_PASSWORD) {
+      const resetPasswordTemplate = path.resolve(
+        __dirname,
+        '../../template/otp',
+        'forgot-password.html',
+      );
+
+      const template = await ejs.renderFile(resetPasswordTemplate, {
+        otpCode: otp,
+        company: user.company,
+        user,
+      });
+      await this.nodemailerService.sendMail(user.email, template, otp);
+    }
   }
 
   async verifyOtp(verifyOtpDto: VerifyOtpDto): Promise<boolean> {

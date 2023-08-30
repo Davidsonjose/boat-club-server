@@ -71,6 +71,11 @@ export class ActivityService {
           );
         }
 
+        // if (record.expectedUsage == ActivityUsageEnum.TWO_AUTHENTICATION + 1) {
+        //   if (record.usage !== ActivityUsageEnum.TWO_AUTHENTICATION) {
+        //   }
+        // }
+
         // check if the activity has been used
         // if (record.expectedUsage == record.usage) {
         //   throw new BadRequestException(
@@ -140,8 +145,11 @@ export class ActivityService {
         record.usage = ActivityUsageEnum.ONE_AUTHENTICATION;
         await this.activityRepository.save(record);
         return true;
-      } else if (record.expectedUsage == ActivityUsageEnum.TWO_AUTHENTICATION) {
-        record.expectedUsage = record.usage + 1;
+      } else if (
+        record.expectedUsage ==
+        ActivityUsageEnum.TWO_AUTHENTICATION + 1
+      ) {
+        record.usage = record.usage + 1;
         await this.activityRepository.save(record);
         return true;
       }
@@ -156,16 +164,20 @@ export class ActivityService {
 
   async verifyActivityUsage(verifyActivityUsage: VerifyActivityUsage) {
     const { activityHash, userId, activityUsage } = verifyActivityUsage;
-
+    console.log(activityUsage);
     const record = await this.getSingleActivity(activityHash, userId);
 
     if (activityUsage == ActivityUsageEnum.ONE_AUTHENTICATION) {
       return;
-    } else if (activityUsage == ActivityUsageEnum.TWO_AUTHENTICATION) {
-      if (record.usage == ActivityUsageEnum.ONE_AUTHENTICATION) {
-        throw new BadRequestException(
-          `Activity hash must have been used at least once before performing this action`,
-        );
+    } else if (activityUsage == ActivityUsageEnum.TWO_AUTHENTICATION + 1) {
+      if (record.usage >= 2) {
+        return;
+      } else {
+        if (record.usage !== ActivityUsageEnum.TWO_AUTHENTICATION) {
+          throw new BadRequestException(
+            `Activity hash must have been used at least once before performing this action`,
+          );
+        }
       }
     }
   }

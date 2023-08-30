@@ -23,38 +23,44 @@ export class CompanyService {
   ) {}
 
   async getSingleCompany(id: string): Promise<Company> {
-    const find = await this.companyRepository.getSingleCompany(id);
+    try {
+      const find = await this.companyRepository.getSingleCompany(id);
 
-    if (!find) {
-      this.logger.error(
-        `User trying to use endpoint to get company enpoint with a invalid company id: ${id}}`,
-      );
-      throw new NotFoundException(`Invalid Scheme`);
+      if (!find) {
+        this.logger.error(
+          `User trying to use endpoint to get company enpoint with a invalid company id: ${id}}`,
+        );
+        throw new NotFoundException(`Invalid Scheme`);
+      }
+
+      return find;
+    } catch (error) {
+      throw error;
     }
-
-    return find;
   }
 
   async createCompany(companyDto: CreateCompanyDto): Promise<Company> {
-    const { name, code } = companyDto;
-    const find = await this.codeRepository.findOne({
-      where: { code: Number(code) },
-    });
+    try {
+      const { name, code } = companyDto;
+      const find = await this.codeRepository.findOne({
+        where: { code: Number(code) },
+      });
 
-    if (!find) {
-      this.logger.error(
-        `Failed to get code. Filters: ${JSON.stringify(companyDto)}`,
-      );
-      throw new UnauthorizedException();
-    }
-    if (find.status == CodeStatus.USED) {
-      throw new UnauthorizedException();
-    }
-    find.status = CodeStatus.USED;
-    await this.codeRepository.save(find);
+      if (!find) {
+        this.logger.error(
+          `Failed to get code. Filters: ${JSON.stringify(companyDto)}`,
+        );
+        throw new UnauthorizedException();
+      }
+      if (find.status == CodeStatus.USED) {
+        throw new UnauthorizedException();
+      }
+      find.status = CodeStatus.USED;
+      await this.codeRepository.save(find);
 
-    //
-    return await this.companyRepository.createCompany(companyDto);
-    // const company = this.companyRepository.cre
+      return await this.companyRepository.createCompany(companyDto);
+    } catch (error) {
+      throw error;
+    }
   }
 }

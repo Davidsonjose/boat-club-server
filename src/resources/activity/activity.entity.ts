@@ -26,7 +26,7 @@ export class Activities extends BaseEntity {
   @Column()
   userId: string;
 
-  @Column({ default: 1 })
+  @Column({ default: 0 })
   usage: number;
 
   @Column()

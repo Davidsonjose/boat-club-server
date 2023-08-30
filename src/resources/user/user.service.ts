@@ -3,6 +3,7 @@ import { User } from '../auth/user.entity';
 import { UserRepository } from 'src/repository/user.repository';
 import { Settings } from '../settings/settings.entity';
 import {
+  ForgotPasswordUpdateDto,
   ForgotPasswordVerificationDto,
   ForgotVerifyPayload,
   UpdateEmailDto,
@@ -24,6 +25,7 @@ export class UserService {
   async verifyEmail(user: User) {
     return await this.userRepository.verifyEmail(user);
   }
+
   async verifyPhone(user: User) {
     return await this.userRepository.verifyPhone(user);
   }
@@ -53,6 +55,16 @@ export class UserService {
     user: User,
   ): Promise<void> {
     await this.userRepository.updatePassword(updatePasswordDto, user);
+  }
+
+  async forgotPasswordUpdate(forgotPasswordUpdateDto: ForgotPasswordUpdateDto) {
+    try {
+      return await this.userRepository.forgotPasswordUpdate(
+        forgotPasswordUpdateDto,
+      );
+    } catch (error) {
+      throw error;
+    }
   }
 
   async updateProfile(

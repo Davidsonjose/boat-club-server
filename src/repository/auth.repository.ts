@@ -108,7 +108,7 @@ export class AuthRepository {
         user: others,
       };
 
-      this.otpService.sendOtpEmail(email, newuser.id);
+      this.otpService.sendOtpEmail(newuser, ActivityEnumType.SIGNUP);
       return info;
     } catch (error) {
       throw error;
