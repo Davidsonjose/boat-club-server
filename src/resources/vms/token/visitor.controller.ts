@@ -1,6 +1,11 @@
-import { Body, Controller, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { CreateTokenDto } from 'src/dto/token';
+import {
+  CreateTokenDto,
+  VerifyActionParam,
+  VerifyVisitDto,
+  VerifyVisitPayload,
+} from 'src/dto/token';
 import { Visitor } from './visitor.entity';
 import { VisitorService } from './visitor.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -25,12 +30,22 @@ export class VisitorController {
     },
   })
   @UseGuards(AuthGuard())
+  @ApiOkResponse({ description: 'Successful' })
   async createToken(
     @Body() createTokenDto: CreateTokenDto,
     @GetUser() user: User,
   ): Promise<Visitor> {
     return this.visitorService.createVisit(createTokenDto, user);
   }
+
+  @Post('/verify')
+  @ApiOkResponse({ description: 'Successful', type: VerifyVisitPayload })
+  async verifyVisit(
+    @Body() verifyVisitDto: VerifyVisitDto,
+    @Query() verifyActionParam: VerifyActionParam,
+  ) {}
+
+  // @UseGuards()
 
   // @Put()
   // @ApiOkResponse({

@@ -7,10 +7,17 @@ import {
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { CreateTokenDto } from 'src/dto/token';
+import {
+  CreateTokenDto,
+  VerifyActionParam,
+  VerifyVisitDto,
+  VerifyVisitPayload,
+  VisitorActionTypes,
+} from 'src/dto/token';
 import { Visitor } from './visitor.entity';
 import { GenerateRandom } from 'src/helpers/generate-random';
 import { User } from 'src/resources/auth/user.entity';
+import { CodeStatus } from 'src/dto/otp';
 @Injectable()
 export class VisitorService {
   private logger = new Logger('TaskService', { timestamp: true });
@@ -77,5 +84,69 @@ export class VisitorService {
 
     await this.visitorRepository.save(newtoken);
     return newtoken;
+  }
+
+  async verifyVisit(
+    verifyVisitDto: VerifyVisitDto,
+    verifyAction: VerifyActionParam,
+  ) {
+    try {
+      if (verifyAction.action == VisitorActionTypes.VERIFY) {
+        return await this.getSingleExternalCode(verifyVisitDto.code);
+      } else if (verifyAction.action == VisitorActionTypes.CHECK_IN) {
+        return await this.updateVisitStatus(
+          verifyVisitDto.code,
+          CodeStatus.CHECKED_IN,
+        );
+      } else if (verifyAction.action == VisitorActionTypes.CHECK_OUT) {
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getSingleExternalCode(code: string) {
+    try {
+      const singleCode = await this.getSingleVisit(code);
+
+      const info: VerifyVisitPayload = {
+        status: singleCode.status,
+        code: code,
+      };
+      return info;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateVisitStatus(code: string, status: CodeStatus) {
+    try {
+      const record = await this.getSingleVisit(code);
+      if (record.completed) {
+        throw new BadRequestException(
+          `Unable to update visit status for a completed visit`,
+        );
+      }
+
+      if (record.cancelled) {
+        throw new BadRequestException(
+          `Unable to update visit status for a cancelled visit`,
+        );
+      }
+
+      if (
+        record.status == CodeStatus.INACTIVE &&
+        status == CodeStatus.CHECKED_IN
+      ) {
+        record.status = status;
+        record.usage = record.usage + 1;
+        await this.visitorRepository.save(record);
+        const info: VerifyVisitPayload = await this.getSingleExternalCode(code);
+
+        return info;
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 }

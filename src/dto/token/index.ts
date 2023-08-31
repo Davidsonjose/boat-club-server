@@ -12,10 +12,6 @@ export class CreateTokenDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  code: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
   oneTime: boolean;
 
   @ApiProperty()
@@ -32,7 +28,33 @@ export class CreateTokenDto {
 
 export enum CodeStatus {
   INACTIVE = 'INACTIVE',
-  ACTIVE = 'ACTIVE',
   EXPIRED = 'EXPIRED',
   CANCELLED = 'CANCELLED',
+  COMPLETED = 'COMPLETED',
+  CHECKED_IN = 'CHECKED_IN',
+  CHECKED_OUT = 'CHECKED_OUT',
+}
+
+export enum VisitorActionTypes {
+  VERIFY = 'VERIFY',
+  CHECK_IN = 'CHECK_IN',
+  CHECK_OUT = 'CHECK_OUT',
+}
+
+export class VerifyActionParam {
+  @ApiProperty({ enum: VisitorActionTypes })
+  action: VisitorActionTypes;
+}
+
+export class VerifyVisitDto {
+  @ApiProperty()
+  code: string;
+}
+
+export class VerifyVisitPayload {
+  @ApiProperty({ enum: CodeStatus, type: CodeStatus, enumName: 'Visit Status' })
+  status: CodeStatus;
+
+  @ApiProperty()
+  code: string;
 }
