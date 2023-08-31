@@ -61,7 +61,11 @@ export class ActivityService {
     //check if record exists
     if (record) {
       // verify if the records activity type matches the request activity type
-      if (record.activityType == activityType) {
+      if (
+        record.activityType == activityType ||
+        record.activityType == ActivityEnumType.SIGNIN ||
+        record.activityType == ActivityEnumType.SIGNUP
+      ) {
         const now = new Date();
 
         // verify if the records activity hash is still valid and has not expired

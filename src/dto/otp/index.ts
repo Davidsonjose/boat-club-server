@@ -166,3 +166,24 @@ export enum OtpEmailTypeEnum {
   SIGNUP = 'SIGNUP',
   VERIFY_EMAIL = 'VERIFY_EMAIL',
 }
+
+export interface CreateGuest {
+  fullName: string;
+  phoneNumber: string;
+}
+
+// export {
+//   visitorId: 2,
+//   code: 123434,
+//   expiresAt: 2022,
+//   validFrom: 2021
+//   host: {
+//     name: "davidson",
+//     id: 1
+//   },
+//   guest: {
+//     fullName: visitor.fullName,
+//     id: visitor.id,
+//     phoneNumber: visitor.phoneNumber,
+//   }
+// }

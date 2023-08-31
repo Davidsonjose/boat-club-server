@@ -6,10 +6,11 @@ import { Visitor } from './visitor.entity';
 import { VisitorService } from './visitor.service';
 import { VisitorController } from './visitor.controller';
 import { PassportModule } from '@nestjs/passport';
+import { Guest } from '../guest/guest.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Visitor]),
+    TypeOrmModule.forFeature([Visitor, Guest]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     CompanyModule,
   ],

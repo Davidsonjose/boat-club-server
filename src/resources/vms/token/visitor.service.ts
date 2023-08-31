@@ -17,7 +17,8 @@ import {
 import { Visitor } from './visitor.entity';
 import { GenerateRandom } from 'src/helpers/generate-random';
 import { User } from 'src/resources/auth/user.entity';
-import { ActionTypeParams, CodeStatus } from 'src/dto/otp';
+import { ActionTypeParams, CodeStatus, CreateGuest } from 'src/dto/otp';
+import { Guest } from '../guest/guest.entity';
 @Injectable()
 export class VisitorService {
   private logger = new Logger('TaskService', { timestamp: true });
@@ -25,6 +26,9 @@ export class VisitorService {
     @InjectRepository(Visitor)
     private visitorRepository: Repository<Visitor>,
     private generateRandom: GenerateRandom,
+
+    @InjectRepository(Guest)
+    private guestRepository: Repository<Guest>,
   ) {}
 
   async getSingleVisit(code: string): Promise<Visitor> {
@@ -75,8 +79,6 @@ export class VisitorService {
       validFrom,
       oneTime,
       code,
-      fullName,
-      phoneNumber,
       userId: user.id,
       host: user,
       purposeOfVisit,
@@ -95,10 +97,19 @@ export class VisitorService {
 
     return await this.visitorRepository
       .createQueryBuilder('visitor')
-      .leftJoinAndSelect('visitor.host', 'user', 'user.id = :userId', {
+      .leftJoinAndSelect('visitor.host', 'host', 'host.id = :userId', {
         userId: user.id,
       })
-      .select(['visitor.id', 'visitor.code', 'user.id', 'user.name']) // Select specific columns
+      .select([
+        'visitor.id',
+        'visitor.code',
+        'visitor.expiresAt',
+        'visitor.validFrom',
+        'visitor.cancelled',
+        'visitor.status',
+        'host.id',
+        'host.name', // Include only the id and name columns from the associated User (host)
+      ])
       .getMany();
   }
 
@@ -210,5 +221,16 @@ export class VisitorService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async createGuest(createGuest: CreateGuest) {
+    const { fullName, phoneNumber } = createGuest;
+    const newguest: Guest = this.guestRepository.create({
+      fullName,
+      phoneNumber,
+    });
+
+    await this.guestRepository.save(newguest);
+    return newguest;
   }
 }
