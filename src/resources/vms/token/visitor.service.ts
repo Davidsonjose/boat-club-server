@@ -40,7 +40,6 @@ export class VisitorService {
     user: User,
   ): Promise<Visitor> {
     const {
-      code,
       validFrom,
       expiresAt,
       oneTime,
@@ -53,6 +52,7 @@ export class VisitorService {
       throw new BadRequestException('validFrom must be earlier than expiresAt');
     }
 
+    const code = this.generateRandom.generateRandomToken(6);
     let find = await this.visitorRepository.findOne({
       where: { code: code },
     });
