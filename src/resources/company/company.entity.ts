@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../auth/user.entity';
+import { Visitor } from '../vms/token/visitor.entity';
 
 @Entity()
 export class Company extends BaseEntity {

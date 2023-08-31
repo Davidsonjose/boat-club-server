@@ -11,6 +11,7 @@ import { RefreshToken } from 'src/resources/auth/refreshToken.entity';
 import { Company } from 'src/resources/company/company.entity';
 import { Activities } from 'src/resources/activity/activity.entity';
 import { Code } from 'src/resources/code/code.entity';
+import { Visitor } from 'src/resources/vms/token/visitor.entity';
 
 export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
   imports: [ConfigModule],
@@ -41,6 +42,7 @@ export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
         Company,
         Activities,
         Code,
+        Visitor,
       ],
       synchronize: true,
     };

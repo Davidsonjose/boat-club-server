@@ -16,6 +16,7 @@ import { OtpModule } from './resources/otp/otp.module';
 import { CodeModule } from './resources/code/code.module';
 import { ResponseInterceptor } from './helpers/response.interceptor';
 import { ActivityModule } from './resources/activity/activity.module';
+import { VisitorModule } from './resources/vms/token/visitor.module';
 
 @Module({
   // providers: [
@@ -48,6 +49,7 @@ import { ActivityModule } from './resources/activity/activity.module';
     OtpModule,
     CodeModule,
     ActivityModule,
+    VisitorModule,
   ],
   controllers: [AppController],
 })

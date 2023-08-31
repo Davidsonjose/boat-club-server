@@ -20,6 +20,7 @@ import * as bcrypt from 'bcrypt';
 import { ApiProperty } from '@nestjs/swagger';
 import { Company } from '../company/company.entity';
 import { Activities } from '../activity/activity.entity';
+import { Visitor } from '../vms/token/visitor.entity';
 @Entity()
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -116,6 +117,9 @@ export class User extends BaseEntity {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @OneToMany(() => Visitor, (visitor) => visitor.host)
+  visitors: Visitor[];
 
   @BeforeInsert()
   async hashPasswordBeforeInsert() {
