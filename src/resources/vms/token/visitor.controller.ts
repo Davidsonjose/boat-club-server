@@ -1,4 +1,13 @@
-import { Body, Controller, Post, Put, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import {
   CreateTokenDto,
@@ -38,12 +47,28 @@ export class VisitorController {
     return this.visitorService.createVisit(createTokenDto, user);
   }
 
+  @Get()
+  @UseGuards(AuthGuard())
+  @ApiOkResponse({ description: 'Successful' })
+  async getUserVisitor(@GetUser() user: User): Promise<Visitor[]> {
+    return this.visitorService.getUserVisitor(user);
+  }
+
+  @Put('/cancel/:code')
+  @UseGuards(AuthGuard())
+  @ApiOkResponse({ description: 'Successful' })
+  async cancelVisit(@Param() code: string) {
+    return this.visitorService.cancelVisit(code);
+  }
+
   @Post('/verify')
   @ApiOkResponse({ description: 'Successful', type: VerifyVisitPayload })
   async verifyVisit(
     @Body() verifyVisitDto: VerifyVisitDto,
     @Query() verifyActionParam: VerifyActionParam,
-  ) {}
+  ) {
+    await this.visitorService.verifyVisit(verifyVisitDto, verifyActionParam);
+  }
 
   // @UseGuards()
 

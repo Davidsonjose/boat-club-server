@@ -17,7 +17,7 @@ import {
 import { Visitor } from './visitor.entity';
 import { GenerateRandom } from 'src/helpers/generate-random';
 import { User } from 'src/resources/auth/user.entity';
-import { CodeStatus } from 'src/dto/otp';
+import { ActionTypeParams, CodeStatus } from 'src/dto/otp';
 @Injectable()
 export class VisitorService {
   private logger = new Logger('TaskService', { timestamp: true });
@@ -86,6 +86,22 @@ export class VisitorService {
     return newtoken;
   }
 
+  async getUserVisitor(user: User): Promise<Visitor[]> {
+    // return await this.visitorRepository.find({
+    //   where: { userId: user.id },
+    //   relations: ['host'],
+    //   select: ['id', 'f']
+    // });
+
+    return await this.visitorRepository
+      .createQueryBuilder('visitor')
+      .leftJoinAndSelect('visitor.host', 'user', 'user.id = :userId', {
+        userId: user.id,
+      })
+      .select(['visitor.id', 'visitor.code', 'user.id', 'user.name']) // Select specific columns
+      .getMany();
+  }
+
   async verifyVisit(
     verifyVisitDto: VerifyVisitDto,
     verifyAction: VerifyActionParam,
@@ -96,7 +112,7 @@ export class VisitorService {
       } else if (verifyAction.action == VisitorActionTypes.CHECK_IN) {
         return await this.updateVisitStatus(
           verifyVisitDto.code,
-          CodeStatus.CHECKED_IN,
+          VisitorActionTypes.CHECK_IN,
         );
       } else if (verifyAction.action == VisitorActionTypes.CHECK_OUT) {
       }
@@ -105,7 +121,7 @@ export class VisitorService {
     }
   }
 
-  async getSingleExternalCode(code: string) {
+  async getSingleExternalCode(code: string): Promise<VerifyVisitPayload> {
     try {
       const singleCode = await this.getSingleVisit(code);
 
@@ -119,7 +135,10 @@ export class VisitorService {
     }
   }
 
-  async updateVisitStatus(code: string, status: CodeStatus) {
+  async updateVisitStatus(
+    code: string,
+    actionType: VisitorActionTypes,
+  ): Promise<VerifyVisitPayload> {
     try {
       const record = await this.getSingleVisit(code);
       if (record.completed) {
@@ -136,15 +155,58 @@ export class VisitorService {
 
       if (
         record.status == CodeStatus.INACTIVE &&
-        status == CodeStatus.CHECKED_IN
+        actionType == VisitorActionTypes.CHECK_IN
       ) {
-        record.status = status;
+        record.status = CodeStatus.CHECKED_IN;
         record.usage = record.usage + 1;
+
+        if (record.oneTime) {
+          record.completed = true;
+        }
         await this.visitorRepository.save(record);
         const info: VerifyVisitPayload = await this.getSingleExternalCode(code);
 
         return info;
+      } else if (
+        record.status == CodeStatus.CHECKED_IN &&
+        actionType == VisitorActionTypes.CHECK_OUT
+      ) {
+        record.status = CodeStatus.CHECKED_OUT;
+        record.usage = record.usage + 1;
+        if (record.oneTime) {
+          record.completed = true;
+        }
+
+        await this.visitorRepository.save(record);
+        const info: VerifyVisitPayload = await this.getSingleExternalCode(code);
+
+        return info;
+      } else {
+        throw new BadRequestException(`Invalid actionType`);
       }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async cancelVisit(code: string) {
+    try {
+      const record = await this.getSingleVisit(code);
+      if (record.completed) {
+        throw new BadRequestException(
+          `Unable to cancel visit for a completed visit`,
+        );
+      }
+
+      if (record.cancelled) {
+        throw new BadRequestException(
+          `Unable to cancel visit  for a cancelled visit`,
+        );
+      }
+
+      record.cancelled = true;
+      // record.status = CodeStatus.CANCELLED;
+      return await this.visitorRepository.save(record);
     } catch (error) {
       throw error;
     }

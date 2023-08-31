@@ -144,7 +144,7 @@ export class ForgotPasswordVerifyPayload {
 export enum ActionTypeParams {
   VERIFY = 'VERIFY',
   CHECK_OUT = 'CHECK_OUT',
-  CHECKED_IN = 'CHECK_IN',
+  CHECK_IN = 'CHECK_IN',
 }
 export class MakeActionDto {
   // @ApiParam()
