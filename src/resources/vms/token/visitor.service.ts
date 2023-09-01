@@ -74,6 +74,8 @@ export class VisitorService {
       });
     }
 
+    const newGuest = await this.createGuest({ fullName, phoneNumber });
+
     const newtoken: Visitor = this.visitorRepository.create({
       expiresAt,
       validFrom,
@@ -82,9 +84,12 @@ export class VisitorService {
       userId: user.id,
       host: user,
       purposeOfVisit,
+      guest: newGuest,
     });
 
     await this.visitorRepository.save(newtoken);
+    newGuest.visitorId = newtoken.id;
+    await this.guestRepository.save(newGuest);
     return newtoken;
   }
 
@@ -100,15 +105,23 @@ export class VisitorService {
       .leftJoinAndSelect('visitor.host', 'host', 'host.id = :userId', {
         userId: user.id,
       })
+      .leftJoinAndSelect('visitor.guest', 'guest') // Add this line to include guest relation
       .select([
         'visitor.id',
         'visitor.code',
         'visitor.expiresAt',
         'visitor.validFrom',
         'visitor.cancelled',
+        'visitor.completed',
         'visitor.status',
+        'guest.id',
+        'guest.fullName',
+        'guest.phoneNumber',
         'host.id',
-        'host.name', // Include only the id and name columns from the associated User (host)
+        'host.firstName',
+        'host.lastName',
+        'host.username',
+        'host.email',
       ])
       .getMany();
   }

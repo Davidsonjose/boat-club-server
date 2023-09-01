@@ -11,6 +11,7 @@ import {
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import {
   CreateTokenDto,
+  UserVisitPayload,
   VerifyActionParam,
   VerifyVisitDto,
   VerifyVisitPayload,
@@ -49,7 +50,7 @@ export class VisitorController {
 
   @Get()
   @UseGuards(AuthGuard())
-  @ApiOkResponse({ description: 'Successful' })
+  @ApiOkResponse({ description: 'Successful', type: UserVisitPayload })
   async getUserVisitor(@GetUser() user: User): Promise<Visitor[]> {
     return this.visitorService.getUserVisitor(user);
   }
