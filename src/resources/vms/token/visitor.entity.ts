@@ -50,6 +50,9 @@ export class Visitor extends BaseEntity {
   @Column({ default: false })
   completed: boolean;
 
+  @Column({ default: false })
+  expired: boolean;
+
   @ManyToOne(() => User, (user) => user.visitors, { eager: false })
   host: User;
 

@@ -19,6 +19,7 @@ import { GenerateRandom } from 'src/helpers/generate-random';
 import { User } from 'src/resources/auth/user.entity';
 import { ActionTypeParams, CodeStatus, CreateGuest } from 'src/dto/otp';
 import { Guest } from '../guest/guest.entity';
+import * as moment from 'moment';
 @Injectable()
 export class VisitorService {
   private logger = new Logger('TaskService', { timestamp: true });
@@ -32,9 +33,32 @@ export class VisitorService {
   ) {}
 
   async getSingleVisit(code: string): Promise<Visitor> {
-    const find = await this.visitorRepository.findOne({
-      where: { code: code },
-    });
+    const find = await this.visitorRepository
+      .createQueryBuilder('visitor')
+      .leftJoinAndSelect('visitor.host', 'host')
+      .leftJoinAndSelect('visitor.guest', 'guest')
+      .leftJoinAndSelect('host.company', 'company')
+      .where('visitor.code = :code', { code })
+      .select([
+        'visitor.id',
+        'visitor.code',
+        'visitor.expiresAt',
+        'visitor.validFrom',
+        'visitor.cancelled',
+        'visitor.completed',
+        'visitor.status',
+        'guest.id',
+        'guest.fullName',
+        'guest.phoneNumber',
+        'host.id',
+        'host.firstName',
+        'host.lastName',
+        'host.username',
+        'host.email',
+        'company.id',
+        'company.name',
+      ])
+      .getOne();
 
     if (!find) {
       this.logger.error(
@@ -94,12 +118,6 @@ export class VisitorService {
   }
 
   async getUserVisitor(user: User): Promise<Visitor[]> {
-    // return await this.visitorRepository.find({
-    //   where: { userId: user.id },
-    //   relations: ['host'],
-    //   select: ['id', 'f']
-    // });
-
     return await this.visitorRepository
       .createQueryBuilder('visitor')
       .leftJoinAndSelect('visitor.host', 'host', 'host.id = :userId', {
@@ -139,6 +157,10 @@ export class VisitorService {
           VisitorActionTypes.CHECK_IN,
         );
       } else if (verifyAction.action == VisitorActionTypes.CHECK_OUT) {
+        return await this.updateVisitStatus(
+          verifyVisitDto.code,
+          VisitorActionTypes.CHECK_OUT,
+        );
       }
     } catch (error) {
       throw error;
@@ -166,57 +188,103 @@ export class VisitorService {
     try {
       const record = await this.getSingleVisit(code);
 
-      const now = new Date();
-      const expiresAt = record.expiresAt;
+      // const now = new Date();
+      // const nowUTC = new Date();
+      const now = moment().format();
 
-      if (now <= expiresAt) {
-        // return { message: 'Visit is still valid' };
-      } else {
-        // return { message: 'Visit has expired' };
+      console.log(now, 'here is now');
+
+      console.log(moment().format());
+
+      this.logger.log(`Current Time (UTC): ${now}`);
+      const validFrom = record.validFrom?.toString();
+      const expiresAt = record.expiresAt?.toString();
+
+      const validFromFormatted = this.formatTime(validFrom);
+      const expiresAtFormatted = this.formatTime(expiresAt?.toString());
+      const nowFormatted = this.formatTime(now);
+
+      if (record.status == CodeStatus.EXPIRED) {
+        this.logger.error(
+          `Guest ${
+            record?.guest?.fullName
+          } trying to gain access to ESTATE: ${record?.host?.company?.name?.toUpperCase()} with code: ${code} that expired at ${expiresAtFormatted}`,
+        );
         throw new BadRequestException('Visit has expired');
       }
-      if (record.completed) {
-        throw new BadRequestException(
-          `Unable to update visit status for a completed visit`,
-        );
-      }
-
-      if (record.cancelled) {
-        throw new BadRequestException(
-          `Unable to update visit status for a cancelled visit`,
-        );
-      }
-
-      if (
-        record.status == CodeStatus.INACTIVE &&
-        actionType == VisitorActionTypes.CHECK_IN
-      ) {
-        record.status = CodeStatus.CHECKED_IN;
-        record.usage = record.usage + 1;
-
-        if (record.oneTime) {
-          record.completed = true;
-        }
-        await this.visitorRepository.save(record);
-        const info: VerifyVisitPayload = await this.getSingleExternalCode(code);
-
-        return info;
-      } else if (
-        record.status == CodeStatus.CHECKED_IN &&
-        actionType == VisitorActionTypes.CHECK_OUT
-      ) {
-        record.status = CodeStatus.CHECKED_OUT;
-        record.usage = record.usage + 1;
-        if (record.oneTime) {
-          record.completed = true;
+      if (now >= validFrom && now <= expiresAt) {
+        if (record.completed) {
+          throw new BadRequestException(
+            `Unable to update visit status for a completed visit`,
+          );
         }
 
-        await this.visitorRepository.save(record);
-        const info: VerifyVisitPayload = await this.getSingleExternalCode(code);
+        if (record.cancelled) {
+          throw new BadRequestException(
+            `Unable to update visit status for a cancelled visit`,
+          );
+        }
 
-        return info;
+        if (
+          record.status == CodeStatus.INACTIVE &&
+          actionType == VisitorActionTypes.CHECK_IN
+        ) {
+          record.status = CodeStatus.CHECKED_IN;
+          record.usage = record.usage + 1;
+
+          if (record.oneTime) {
+            record.completed = true;
+          }
+          await this.visitorRepository.save(record);
+          const info: VerifyVisitPayload = await this.getSingleExternalCode(
+            code,
+          );
+
+          this.logger.verbose(
+            `Guest ${record?.guest?.fullName}  gain access to estate ${record?.host?.company?.name} with code: ${code}} at ${nowFormatted}`,
+          );
+
+          return info;
+        } else if (
+          record.status == CodeStatus.CHECKED_IN &&
+          actionType == VisitorActionTypes.CHECK_OUT
+        ) {
+          record.status = CodeStatus.CHECKED_OUT;
+          record.usage = record.usage + 1;
+          if (record.oneTime) {
+            record.completed = true;
+          }
+
+          await this.visitorRepository.save(record);
+          const info: VerifyVisitPayload = await this.getSingleExternalCode(
+            code,
+          );
+          this.logger.verbose(
+            `Guest ${record?.guest?.fullName}  gain access to estate ${record?.host?.company?.name} with code: ${code}} at ${nowFormatted}`,
+          );
+
+          return info;
+        } else {
+          throw new BadRequestException(`Invalid actionType`);
+        }
+      } else if (now < validFrom) {
+        console.log(record);
+        this.logger.error(
+          `Guest ${
+            record?.guest?.fullName
+          } trying to gain access to ESTATE: ${record?.host?.company?.name?.toUpperCase()} with code: ${code} not valid until ${validFromFormatted}`,
+        );
+        // return { message: 'Visit is not yet valid' };
+        throw new BadRequestException('Visit is not yet valid');
       } else {
-        throw new BadRequestException(`Invalid actionType`);
+        this.logger.error(
+          `Guest ${
+            record?.guest?.fullName
+          } trying to gain access to ESTATE: ${record?.host?.company?.name?.toUpperCase()} with code: ${code} that expired at ${expiresAtFormatted}`,
+        );
+        record.status = CodeStatus.EXPIRED;
+        await this.visitorRepository.save(record);
+        throw new BadRequestException('Visit has expired');
       }
     } catch (error) {
       throw error;
@@ -255,5 +323,20 @@ export class VisitorService {
 
     await this.guestRepository.save(newguest);
     return newguest;
+  }
+
+  formatTime(dateString): string {
+    const parsedDateTime = new Date(dateString);
+
+    const formattedDateTime = parsedDateTime.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      timeZone: 'UTC', // Specify the desired time zone, e.g., 'UTC', 'America/New_York', etc.
+    });
+    return formattedDateTime;
   }
 }

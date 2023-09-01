@@ -68,7 +68,10 @@ export class VisitorController {
     @Body() verifyVisitDto: VerifyVisitDto,
     @Query() verifyActionParam: VerifyActionParam,
   ) {
-    await this.visitorService.verifyVisit(verifyVisitDto, verifyActionParam);
+    return await this.visitorService.verifyVisit(
+      verifyVisitDto,
+      verifyActionParam,
+    );
   }
 
   // @UseGuards()

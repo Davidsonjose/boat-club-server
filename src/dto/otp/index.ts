@@ -97,6 +97,7 @@ export enum CodeStatus {
   CHECKED_IN = 'CHECKED_IN',
   CHECKED_OUT = 'CHECKED_OUT',
   INACTIVE = 'INACTIVE',
+  EXPIRED = 'EXPIRED',
 }
 
 export class CodeReturns {

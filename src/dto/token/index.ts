@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, MinLength } from 'class-validator';
 
 export class CreateTokenDto {
   @ApiProperty()
@@ -43,10 +43,13 @@ export enum VisitorActionTypes {
 
 export class VerifyActionParam {
   @ApiProperty({ enum: VisitorActionTypes })
+  @IsNotEmpty()
   action: VisitorActionTypes;
 }
 
 export class VerifyVisitDto {
+  @IsNotEmpty()
+  @MinLength(6)
   @ApiProperty()
   code: string;
 }
