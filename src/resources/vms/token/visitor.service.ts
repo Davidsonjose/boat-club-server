@@ -165,6 +165,16 @@ export class VisitorService {
   ): Promise<VerifyVisitPayload> {
     try {
       const record = await this.getSingleVisit(code);
+
+      const now = new Date();
+      const expiresAt = record.expiresAt;
+
+      if (now <= expiresAt) {
+        // return { message: 'Visit is still valid' };
+      } else {
+        // return { message: 'Visit has expired' };
+        throw new BadRequestException('Visit has expired');
+      }
       if (record.completed) {
         throw new BadRequestException(
           `Unable to update visit status for a completed visit`,
