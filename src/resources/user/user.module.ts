@@ -9,16 +9,19 @@ import { SettingsModule } from '../settings/settings.module';
 import { PassportModule } from '@nestjs/passport';
 import { ActivityModule } from '../activity/activity.module';
 import { OtpModule } from '../otp/otp.module';
+import { NotificationRepository } from 'src/repository/notification.repository';
+import { Notifications } from '../notification/notification.entity';
+import { NotificationService } from '../notification/notification.service';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Notifications]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     LocationModule,
     SettingsModule,
     ActivityModule,
     OtpModule,
   ],
-  providers: [UserService, UserRepository],
+  providers: [UserService, UserRepository, NotificationRepository],
   controllers: [UserController],
   exports: [UserService],
 })

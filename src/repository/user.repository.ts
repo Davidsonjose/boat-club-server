@@ -27,6 +27,13 @@ import {
 } from 'src/dto/auth/user.dto';
 import { Activities } from 'src/resources/activity/activity.entity';
 import { OtpService } from 'src/resources/otp/otp.service';
+import { NotificationRepository } from './notification.repository';
+import { CreateNotificationPropsData } from 'src/dto/notification/notifications.dto';
+import {
+  NotificationCategories,
+  NotificationRel,
+} from 'src/dto/notification/notification-enum.dto';
+import { systemResponses } from 'src/res/systemResponse';
 @Injectable()
 export class UserRepository {
   constructor(
@@ -34,6 +41,7 @@ export class UserRepository {
     private readonly userRepository: Repository<User>,
     private activityService: ActivityService,
     private otpService: OtpService,
+    private notificationRepository: NotificationRepository,
   ) {}
 
   async getAllUsers(): Promise<User[]> {
@@ -121,6 +129,9 @@ export class UserRepository {
     });
 
     user.pin = pin;
+
+    const newnotification = this.notificationProfileCreate(user);
+    await this.notificationRepository.createNotification(newnotification);
     return await this.userRepository.save(user);
   }
 
@@ -172,6 +183,9 @@ export class UserRepository {
 
     user.pwd = updatePasswordDto.pwd;
     await this.userRepository.save(user);
+
+    const newnotification = this.notificationProfileCreate(user);
+    await this.notificationRepository.createNotification(newnotification);
     return;
   }
 
@@ -198,6 +212,8 @@ export class UserRepository {
 
     user.pwd = forgotPasswordUpdateDto.pwd;
     await this.userRepository.save(user);
+    const newnotification = this.notificationProfileCreate(user);
+    await this.notificationRepository.createNotification(newnotification);
     return;
   }
 
@@ -216,6 +232,9 @@ export class UserRepository {
         user[key] = updateProfileDto[key];
       }
     }
+
+    const newnotification = this.notificationProfileCreate(user);
+    await this.notificationRepository.createNotification(newnotification);
     return await this.userRepository.save(user);
   }
 
@@ -243,6 +262,8 @@ export class UserRepository {
     });
 
     user.phoneNumber = updatePhoneDto.phoneNumber;
+    const newnotification = this.notificationProfileCreate(user);
+    await this.notificationRepository.createNotification(newnotification);
     await this.userRepository.save(user);
     return;
     // }
@@ -271,6 +292,8 @@ export class UserRepository {
 
     user.email = updateEmailDto.email;
     await this.userRepository.save(user);
+    const newnotification = this.notificationProfileCreate(user);
+    await this.notificationRepository.createNotification(newnotification);
     return;
   }
 
@@ -369,5 +392,16 @@ export class UserRepository {
     );
 
     return activityHash.activityHash;
+  }
+
+  notificationProfileCreate(user: User) {
+    const newnotification: CreateNotificationPropsData = {
+      category: NotificationCategories.PROFILE,
+      message: systemResponses.EN.NOTIFICATION.UPDATED_PROFILE,
+      type: NotificationRel.IN_APP,
+      user: user,
+    };
+
+    return newnotification;
   }
 }

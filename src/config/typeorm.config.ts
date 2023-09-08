@@ -13,6 +13,7 @@ import { Activities } from 'src/resources/activity/activity.entity';
 import { Code } from 'src/resources/code/code.entity';
 import { Visitor } from 'src/resources/vms/token/visitor.entity';
 import { Guest } from 'src/resources/vms/guest/guest.entity';
+import { Events } from 'src/resources/events/events.entity';
 
 export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
   imports: [ConfigModule],
@@ -45,6 +46,7 @@ export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
         Code,
         Visitor,
         Guest,
+        Events,
       ],
       synchronize: true,
     };

@@ -17,6 +17,7 @@ import { CodeModule } from './resources/code/code.module';
 import { ResponseInterceptor } from './helpers/response.interceptor';
 import { ActivityModule } from './resources/activity/activity.module';
 import { VisitorModule } from './resources/vms/token/visitor.module';
+import { EventsModule } from './resources/events/event.module';
 
 @Module({
   // providers: [
@@ -50,6 +51,7 @@ import { VisitorModule } from './resources/vms/token/visitor.module';
     CodeModule,
     ActivityModule,
     VisitorModule,
+    EventsModule,
   ],
   controllers: [AppController],
 })

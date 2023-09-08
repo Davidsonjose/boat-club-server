@@ -1,35 +1,86 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserLocationDto } from 'src/dto/auth/user.dto';
-import { CreateNotificationDto } from 'src/dto/notification/notifications.dto';
+import { CreateNotificationPropsData } from 'src/dto/notification/notifications.dto';
+import { User } from 'src/resources/auth/user.entity';
 import { Location } from 'src/resources/location/location.entity';
 import { Notifications } from 'src/resources/notification/notification.entity';
 import { Repository } from 'typeorm';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class NotificationRepository {
   constructor(
     @InjectRepository(Notifications)
     private readonly notificationRepository: Repository<Notifications>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
 
   async createNotification(
-    createNotificationDto: CreateNotificationDto,
+    createNotificationPropsData: CreateNotificationPropsData,
   ): Promise<Notifications> {
-    const { category, href, message, rel } = createNotificationDto;
+    const { category, href, message, type, user } = createNotificationPropsData;
 
     const newNotification: Notifications = this.notificationRepository.create({
       category,
-      rel,
+      type,
       message,
       href,
+      userId: user.id,
+      user,
     });
 
     await newNotification.save();
+    await this.updateNotificationUserData(user);
     return newNotification;
   }
 
-  async getUserNotification(userId: string): Promise<Notifications[]> {
+  async updateNotificationUserData(user: User) {
+    user.unseenNotification = user.unseenNotification + 1;
+    user.notificationSeen = false;
+    await this.userRepository.save(user);
+  }
+
+  async userNotifications(userId: string): Promise<Notifications[]> {
     return await this.notificationRepository.find({ where: { userId } });
+  }
+
+  async getUserNotification(userId: string): Promise<any[]> {
+    const userNotifications = await this.userNotifications(userId);
+    const transformedNotifications = [];
+
+    // Group notifications by date
+    const groupedNotifications = userNotifications.reduce(
+      (groups, notification) => {
+        const dateKey = notification.createdAt.toISOString().split('T')[0];
+
+        if (!groups[dateKey]) {
+          groups[dateKey] = [];
+        }
+
+        groups[dateKey].push({
+          title: notification.category, // You can adjust this based on your data
+          message: notification.message,
+          category: notification.category,
+          date: notification.createdAt.toISOString(), // You can format this date
+          id: notification.id.toString(), // Convert to string if needed
+          read: notification.read,
+        });
+
+        return groups;
+      },
+      {},
+    );
+
+    // Create the desired structure
+    for (const dateKey of Object.keys(groupedNotifications)) {
+      transformedNotifications.push({
+        notificationDate: dateKey,
+        notifications: groupedNotifications[dateKey],
+      });
+    }
+
+    return transformedNotifications;
   }
 }

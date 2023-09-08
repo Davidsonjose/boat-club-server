@@ -21,6 +21,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Company } from '../company/company.entity';
 import { Activities } from '../activity/activity.entity';
 import { Visitor } from '../vms/token/visitor.entity';
+import { Events } from '../events/events.entity';
 @Entity()
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -89,7 +90,7 @@ export class User extends BaseEntity {
   // notifications: Notifications;
 
   @Column({ default: 1 })
-  newNotification: number;
+  unseenNotification: number;
 
   @Column({ default: false })
   notificationSeen: boolean;
@@ -131,6 +132,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Activities, (activity) => activity.user)
   activities: Activities[];
+
+  @OneToMany(() => Events, (events) => events.user)
+  events: Events[];
 
   @BeforeUpdate()
   async hashPasswordBeforeUpdate() {

@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserLocationDto } from 'src/dto/auth/user.dto';
 import { CreateCompanyDto } from 'src/dto/company/company.dto';
-import { CreateNotificationDto } from 'src/dto/notification/notifications.dto';
 import { Company } from 'src/resources/company/company.entity';
 import { Location } from 'src/resources/location/location.entity';
 import { Notifications } from 'src/resources/notification/notification.entity';

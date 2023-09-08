@@ -5,5 +5,8 @@ export const systemResponses = {
     LOGIN_FAILED:
       'This login detail was not found in our records. Please correct and try again',
     DEFAULT_ERROR_RESPONSE: 'Error',
+    NOTIFICATION: {
+      UPDATED_PROFILE: `Your account details were updated. If this wasn't you, please contact support immediately`,
+    },
   },
 };

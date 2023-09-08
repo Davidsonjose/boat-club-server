@@ -89,7 +89,7 @@ class HostDataPayload {
   username: string;
 }
 
-class VisitDetails {
+export class VisitDetails {
   @ApiProperty()
   id: 1;
   @ApiProperty()

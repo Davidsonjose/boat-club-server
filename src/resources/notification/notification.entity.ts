@@ -5,6 +5,7 @@ import {
 import {
   BaseEntity,
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -31,11 +32,14 @@ export class Notifications extends BaseEntity {
   category: NotificationCategories;
 
   @Column({ type: 'enum', enum: NotificationRel })
-  rel: NotificationRel;
+  type: NotificationRel;
 
   @Column()
   userId: string;
 
   @ManyToOne(() => User, (user) => user.notifications)
   user: User;
+
+  @CreateDateColumn()
+  createdAt: Date;
 }

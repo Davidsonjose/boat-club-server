@@ -16,6 +16,9 @@ import { UserRepository } from 'src/repository/user.repository';
 import { CompanyModule } from '../company/company.module';
 import { ActivityModule } from '../activity/activity.module';
 import { OtpModule } from '../otp/otp.module';
+import { NotificationModule } from '../notification/notification.module';
+import { NotificationRepository } from 'src/repository/notification.repository';
+import { Notifications } from '../notification/notification.entity';
 
 @Module({
   imports: [
@@ -23,12 +26,13 @@ import { OtpModule } from '../otp/otp.module';
     JwtModule.register({
       secret: 'jwt-secret',
     }),
-    TypeOrmModule.forFeature([User, RefreshToken]),
+    TypeOrmModule.forFeature([User, RefreshToken, Notifications]),
     LocationModule,
     SettingsModule,
     CompanyModule,
     ActivityModule,
     OtpModule,
+
     // UserModule,
   ],
   providers: [
@@ -37,6 +41,7 @@ import { OtpModule } from '../otp/otp.module';
     UserService,
     JwtStrategy,
     UserRepository,
+    NotificationRepository,
   ],
   controllers: [AuthController],
   exports: [JwtStrategy, PassportModule, AuthService],
