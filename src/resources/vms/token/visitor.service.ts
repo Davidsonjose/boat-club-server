@@ -17,7 +17,12 @@ import {
 import { Visitor } from './visitor.entity';
 import { GenerateRandom } from 'src/helpers/generate-random';
 import { User } from 'src/resources/auth/user.entity';
-import { ActionTypeParams, CodeStatus, CreateGuest } from 'src/dto/otp';
+import {
+  ActionTypeParams,
+  CodeStatus,
+  CreateGuest,
+  InviteStatus,
+} from 'src/dto/otp';
 import { Guest } from '../guest/guest.entity';
 import * as moment from 'moment';
 @Injectable()
@@ -172,7 +177,7 @@ export class VisitorService {
       const singleCode = await this.getSingleVisit(code);
 
       const info: VerifyVisitPayload = {
-        status: singleCode.status,
+        status: singleCode.inviteStatus,
         code: code,
       };
       return info;
@@ -204,7 +209,7 @@ export class VisitorService {
       const expiresAtFormatted = this.formatTime(expiresAt?.toString());
       const nowFormatted = this.formatTime(now);
 
-      if (record.status == CodeStatus.EXPIRED) {
+      if (record.codeStatus == CodeStatus.EXPIRED) {
         this.logger.error(
           `Guest ${
             record?.guest?.fullName
@@ -213,27 +218,27 @@ export class VisitorService {
         throw new BadRequestException('Visit has expired');
       }
       if (now >= validFrom && now <= expiresAt) {
-        if (record.completed) {
+        if (record.codeStatus == CodeStatus.COMPLETED) {
           throw new BadRequestException(
             `Unable to update visit status for a completed visit`,
           );
         }
 
-        if (record.cancelled) {
+        if (record.codeStatus == CodeStatus.CANCELLED) {
           throw new BadRequestException(
             `Unable to update visit status for a cancelled visit`,
           );
         }
 
         if (
-          record.status == CodeStatus.INACTIVE &&
+          record.inviteStatus == InviteStatus.INACTIVE &&
           actionType == VisitorActionTypes.CHECK_IN
         ) {
-          record.status = CodeStatus.CHECKED_IN;
+          record.inviteStatus = InviteStatus.CHECKED_IN;
           record.usage = record.usage + 1;
 
           if (record.oneTime) {
-            record.completed = true;
+            record.codeStatus = CodeStatus.COMPLETED;
           }
           await this.visitorRepository.save(record);
           const info: VerifyVisitPayload = await this.getSingleExternalCode(
@@ -246,13 +251,13 @@ export class VisitorService {
 
           return info;
         } else if (
-          record.status == CodeStatus.CHECKED_IN &&
+          record.inviteStatus == InviteStatus.CHECKED_IN &&
           actionType == VisitorActionTypes.CHECK_OUT
         ) {
-          record.status = CodeStatus.CHECKED_OUT;
+          record.inviteStatus = InviteStatus.CHECKED_OUT;
           record.usage = record.usage + 1;
           if (record.oneTime) {
-            record.completed = true;
+            record.codeStatus = CodeStatus.COMPLETED;
           }
 
           await this.visitorRepository.save(record);
@@ -282,7 +287,7 @@ export class VisitorService {
             record?.guest?.fullName
           } trying to gain access to ESTATE: ${record?.host?.company?.name?.toUpperCase()} with code: ${code} that expired at ${expiresAtFormatted}`,
         );
-        record.status = CodeStatus.EXPIRED;
+        record.codeStatus = CodeStatus.EXPIRED;
         await this.visitorRepository.save(record);
         throw new BadRequestException('Visit has expired');
       }
@@ -294,19 +299,19 @@ export class VisitorService {
   async cancelVisit(code: string) {
     try {
       const record = await this.getSingleVisit(code);
-      if (record.completed) {
+      if (record.codeStatus == CodeStatus.COMPLETED) {
         throw new BadRequestException(
           `Unable to cancel visit for a completed visit`,
         );
       }
 
-      if (record.cancelled) {
+      if (record.codeStatus == CodeStatus.CANCELLED) {
         throw new BadRequestException(
           `Unable to cancel visit  for a cancelled visit`,
         );
       }
 
-      record.cancelled = true;
+      record.codeStatus = CodeStatus.CANCELLED;
       // record.status = CodeStatus.CANCELLED;
       return await this.visitorRepository.save(record);
     } catch (error) {

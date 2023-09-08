@@ -10,7 +10,7 @@ import {
 import { Exclude } from 'class-transformer';
 import { IsNotEmpty } from 'class-validator';
 import { Company } from 'src/resources/company/company.entity';
-import { CodeStatus } from 'src/dto/otp';
+import { CodeStatus, InviteStatus } from 'src/dto/otp';
 import { User } from 'src/resources/auth/user.entity';
 import { Guest } from '../guest/guest.entity';
 
@@ -29,14 +29,14 @@ export class Visitor extends BaseEntity {
   @Column({ type: 'timestamp' })
   validFrom: Date;
 
-  @Column({ default: false })
-  cancelled: boolean;
-
   @Column()
   userId: string;
 
-  @Column({ default: CodeStatus.INACTIVE, enum: CodeStatus })
-  status: CodeStatus;
+  @Column({ default: CodeStatus.DEFAULT, enum: CodeStatus })
+  codeStatus: CodeStatus;
+
+  @Column({ default: InviteStatus.INACTIVE, enum: InviteStatus })
+  inviteStatus: InviteStatus;
 
   @Column({ default: 0 })
   usage: number;
@@ -46,12 +46,6 @@ export class Visitor extends BaseEntity {
 
   @Column()
   oneTime: boolean;
-
-  @Column({ default: false })
-  completed: boolean;
-
-  @Column({ default: false })
-  expired: boolean;
 
   @ManyToOne(() => User, (user) => user.visitors, { eager: false })
   host: User;

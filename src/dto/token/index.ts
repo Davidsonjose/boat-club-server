@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNotEmpty, MinLength } from 'class-validator';
+import { InviteStatus } from '../otp';
 
 export class CreateTokenDto {
   @ApiProperty()
@@ -55,8 +56,12 @@ export class VerifyVisitDto {
 }
 
 export class VerifyVisitPayload {
-  @ApiProperty({ enum: CodeStatus, type: CodeStatus, enumName: 'Visit Status' })
-  status: CodeStatus;
+  @ApiProperty({
+    enum: InviteStatus,
+    type: InviteStatus,
+    enumName: 'Visit Status',
+  })
+  status: InviteStatus;
 
   @ApiProperty()
   code: string;

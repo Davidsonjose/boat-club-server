@@ -94,10 +94,16 @@ export class VerifyForgotOtpDto {
 }
 
 export enum CodeStatus {
+  DEFAULT = 'DEFAULT',
+  EXPIRED = 'EXPIRED',
+  CANCELLED = 'CANCELLED',
+  COMPLETED = 'COMPLETED',
+}
+
+export enum InviteStatus {
+  INACTIVE = 'INACTIVE',
   CHECKED_IN = 'CHECKED_IN',
   CHECKED_OUT = 'CHECKED_OUT',
-  INACTIVE = 'INACTIVE',
-  EXPIRED = 'EXPIRED',
 }
 
 export class CodeReturns {
