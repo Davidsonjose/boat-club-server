@@ -227,6 +227,9 @@ export class UserPayloadData {
 
   @ApiProperty()
   settings?: CreateSettingDto;
+
+  @ApiProperty()
+  emailVerified: boolean;
 }
 
 export class GetUserDataPayload {}

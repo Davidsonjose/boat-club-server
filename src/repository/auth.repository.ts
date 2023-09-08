@@ -244,6 +244,7 @@ export class AuthRepository {
       countryCode: user?.location?.countryCode,
       fiatCurrencySymbol: user?.settings?.defaultCurrencySymbol,
       message: `Welcome ${user?.username} 👋`,
+      emailVerified: user.emailVerified,
     };
 
     return userPayload;
