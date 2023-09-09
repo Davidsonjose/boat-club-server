@@ -19,7 +19,7 @@ export class Notifications extends BaseEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column()
+  @Column({ nullable: true })
   href: string;
 
   @Column()
