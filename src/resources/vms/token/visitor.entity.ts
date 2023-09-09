@@ -6,6 +6,7 @@ import {
   PrimaryColumn,
   ManyToOne,
   JoinColumn,
+  CreateDateColumn,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { IsNotEmpty } from 'class-validator';
@@ -53,4 +54,7 @@ export class Visitor extends BaseEntity {
   @ManyToOne(() => Guest, { eager: false }) // Establish a relationship with Guest entity
   @JoinColumn()
   guest: Guest;
+
+  @CreateDateColumn({ nullable: true })
+  createdAt: Date;
 }
