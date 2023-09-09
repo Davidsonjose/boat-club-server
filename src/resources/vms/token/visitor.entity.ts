@@ -7,6 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
   CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { IsNotEmpty } from 'class-validator';
@@ -57,4 +58,7 @@ export class Visitor extends BaseEntity {
 
   @CreateDateColumn({ nullable: true })
   createdAt: Date;
+
+  @UpdateDateColumn({ nullable: true })
+  updatedAt: Date;
 }
