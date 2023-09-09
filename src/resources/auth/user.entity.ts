@@ -136,13 +136,13 @@ export class User extends BaseEntity {
   @OneToMany(() => Events, (events) => events.user)
   events: Events[];
 
-  @BeforeUpdate()
-  async hashPasswordBeforeUpdate() {
-    const salt = await bcrypt.genSalt();
-    if (this.pwd) {
-      this.pwd = await bcrypt.hash(this.pwd, salt);
-    }
-  }
+  // @BeforeUpdate()
+  // async hashPasswordBeforeUpdate() {
+  //   const salt = await bcrypt.genSalt();
+  //   if (this.pwd) {
+  //     this.pwd = await bcrypt.hash(this.pwd, salt);
+  //   }
+  // }
 
   async comparePassword(candidatePassword: string): Promise<boolean> {
     return await bcrypt.compare(candidatePassword, this.pwd);

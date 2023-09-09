@@ -12,6 +12,7 @@ import { addDays } from 'date-fns';
 import { Settings } from 'src/resources/settings/settings.entity';
 import { ActivityEnumType } from 'src/dto/activity/activity.dto';
 import { ActivityService } from 'src/resources/activity/activity.service';
+import * as bcrypt from 'bcrypt';
 import {
   ActivityUsageEnum,
   ForgotPasswordUpdateDto,
@@ -81,14 +82,14 @@ export class UserRepository {
   async verifyEmail(user: User) {
     const singleuser = await this.getSingleUser(user.email);
     singleuser.emailVerified = true;
-    await this.userRepository.save({ ...singleuser, pwd: undefined });
+    await this.userRepository.save(singleuser);
     return;
   }
 
   async verifyPhone(user: User) {
     const singleuser = await this.getSingleUser(user.email);
     singleuser.phoneNumberVerified = true;
-    await this.userRepository.save({ ...singleuser, pwd: undefined });
+    await this.userRepository.save(singleuser);
     return;
   }
   async getUserSettings(user: User): Promise<Settings> {
@@ -99,7 +100,7 @@ export class UserRepository {
   async pushNotificationToken(deviceToken: string, user: User) {
     const singleuser = await this.getSingleUser(user.email);
     singleuser.pushNotificationToken = deviceToken;
-    await this.userRepository.save({ ...singleuser, pwd: undefined });
+    await this.userRepository.save(singleuser);
     return;
   }
 
@@ -132,7 +133,7 @@ export class UserRepository {
     user.hasPin = true;
     const newnotification = this.notificationProfileCreate(user);
     await this.notificationRepository.createNotification(newnotification);
-    return await this.userRepository.save({ ...user, pwd: undefined });
+    return await this.userRepository.save(user);
   }
 
   async verifyPin(verifyPinDto: VerifyPinDto, user: User): Promise<void> {
@@ -179,9 +180,11 @@ export class UserRepository {
       userId: user.id,
       activityType: singleActivity.activityType,
     });
+
+    const pass = await this.hashUserPassword(updatePasswordDto.pwd);
     // return;
 
-    user.pwd = updatePasswordDto.pwd;
+    user.pwd = pass;
     await this.userRepository.save(user);
 
     const newnotification = this.notificationProfileCreate(user);
@@ -210,7 +213,8 @@ export class UserRepository {
     });
     // return;
 
-    user.pwd = forgotPasswordUpdateDto.pwd;
+    const pass = await this.hashUserPassword(forgotPasswordUpdateDto.pwd);
+    user.pwd = pass;
     await this.userRepository.save(user);
     const newnotification = this.notificationProfileCreate(user);
     await this.notificationRepository.createNotification(newnotification);
@@ -235,7 +239,7 @@ export class UserRepository {
 
     const newnotification = this.notificationProfileCreate(user);
     await this.notificationRepository.createNotification(newnotification);
-    return await this.userRepository.save({ ...user, pwd: undefined });
+    return await this.userRepository.save(user);
   }
 
   async updatePhone(updatePhoneDto: UpdatePhoneDto, user: User): Promise<void> {
@@ -264,7 +268,7 @@ export class UserRepository {
     user.phoneNumber = updatePhoneDto.phoneNumber;
     const newnotification = this.notificationProfileCreate(user);
     await this.notificationRepository.createNotification(newnotification);
-    await this.userRepository.save({ ...user, pwd: undefined });
+    await this.userRepository.save(user);
     return;
     // }
   }
@@ -291,7 +295,7 @@ export class UserRepository {
     });
 
     user.email = updateEmailDto.email;
-    await this.userRepository.save({ ...user, pwd: undefined });
+    await this.userRepository.save(user);
     const newnotification = this.notificationProfileCreate(user);
     await this.notificationRepository.createNotification(newnotification);
     return;
@@ -403,5 +407,12 @@ export class UserRepository {
     };
 
     return newnotification;
+  }
+
+  async hashUserPassword(pwd: string): Promise<string> {
+    const salt = await bcrypt.genSalt();
+
+    const pass = await bcrypt.hash(pwd, salt);
+    return pass;
   }
 }

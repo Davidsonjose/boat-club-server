@@ -21,6 +21,7 @@ import { CompanyService } from 'src/resources/company/company.service';
 import { ActivityService } from 'src/resources/activity/activity.service';
 import { ActivityEnumType } from 'src/dto/activity/activity.dto';
 import { OtpService } from 'src/resources/otp/otp.service';
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class AuthRepository {
   constructor(
@@ -67,6 +68,7 @@ export class AuthRepository {
         companyId,
       );
 
+      const pass = await this.hashUserPassword(createUserDto.pwd);
       const newuser = this.userRepository.create({
         username: username?.toLowerCase(),
         firstName,
@@ -80,7 +82,7 @@ export class AuthRepository {
         settings: settings,
         location: location,
         country: location.country,
-        pwd: createUserDto.pwd,
+        pwd: pass,
         companyId,
         company: singleCompany,
         dateOfBirth,
@@ -271,5 +273,12 @@ export class AuthRepository {
     );
 
     return activityHash.activityHash;
+  }
+
+  async hashUserPassword(pwd: string): Promise<string> {
+    const salt = await bcrypt.genSalt();
+
+    const pass = await bcrypt.hash(pwd, salt);
+    return pass;
   }
 }
