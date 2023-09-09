@@ -145,6 +145,7 @@ export class VisitorService {
         'host.username',
         'host.email',
       ])
+      .orderBy('visitor.createdAt', 'DESC')
       .getMany();
   }
 
