@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Put, UseGuards } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { Notifications } from './notification.entity';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
@@ -29,5 +29,15 @@ export class NotificationsController {
     @GetUser() user: User,
   ): Promise<Notifications[]> {
     return this.notificationService.getUserNotificationDateCategory(user.id);
+  }
+
+  @Put('mark-all-as-read')
+  async markAllNotificationsAsRead(@GetUser() user: User): Promise<void> {
+    await this.notificationService.markAllNotificationsAsRead(user.id);
+  }
+
+  @Put('mark-single-as-read/:id')
+  async markSingleNotificationAsRead(@Param('id') id: number): Promise<void> {
+    await this.notificationService.markSingleNotificationAsRead(id);
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserLocationDto } from 'src/dto/auth/user.dto';
 import { CreateNotificationPropsData } from 'src/dto/notification/notifications.dto';
@@ -82,5 +82,29 @@ export class NotificationRepository {
     }
 
     return transformedNotifications;
+  }
+
+  // async getSingleNotification(notificationId: string): Promise<Notifications> {
+  //   return await this.notificationRepository.findOne({where: {id: }})
+  // }
+
+  async markAllNotificationsAsRead(userId: string): Promise<void> {
+    await this.notificationRepository.update(
+      { userId, read: false },
+      { read: true },
+    );
+  }
+
+  async markSingleNotificationAsRead(notificationId: number): Promise<void> {
+    const notification = await this.notificationRepository.findOne({
+      where: { id: notificationId },
+    });
+
+    if (!notification) {
+      throw new NotFoundException('Notification not found');
+    }
+
+    notification.read = true;
+    await this.notificationRepository.save(notification);
   }
 }

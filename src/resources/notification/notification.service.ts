@@ -24,4 +24,14 @@ export class NotificationService {
   async getNormalizedNotification(userId: string): Promise<Notifications[]> {
     return await this.notificationRepository.userNotifications(userId);
   }
+
+  async markAllNotificationsAsRead(userId: string): Promise<void> {
+    return await this.notificationRepository.markAllNotificationsAsRead(userId);
+  }
+
+  async markSingleNotificationAsRead(userId: number): Promise<void> {
+    return await this.notificationRepository.markSingleNotificationAsRead(
+      userId,
+    );
+  }
 }
