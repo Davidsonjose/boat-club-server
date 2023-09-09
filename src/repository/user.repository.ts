@@ -116,9 +116,13 @@ export class UserRepository {
 
   async updatePin(updatePinDto: UpdatePinDto) {
     const { user, activityHash, pin } = updatePinDto;
+    const singleActivity = await this.activityService.getSingleActivity(
+      activityHash,
+      user.id,
+    );
     const verifyHashInfo = {
       userId: user.id,
-      activityType: ActivityEnumType.UPDATE_PIN,
+      activityType: singleActivity.activityType,
       activityHash,
     };
 
