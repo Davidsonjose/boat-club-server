@@ -125,9 +125,8 @@ export class VisitorService {
   async getUserVisitor(user: User): Promise<Visitor[]> {
     return await this.visitorRepository
       .createQueryBuilder('visitor')
-      .leftJoinAndSelect('visitor.host', 'host', 'host.id = :userId', {
-        userId: user.id,
-      })
+      .where({ userId: user.id })
+      .leftJoinAndSelect('visitor.host', 'host')
       .leftJoinAndSelect('visitor.guest', 'guest') // Add this line to include guest relation
       .select([
         'visitor.id',
@@ -135,6 +134,7 @@ export class VisitorService {
         'visitor.expiresAt',
         'visitor.validFrom',
         'visitor.codeStatus',
+        'visitor.userId',
         'visitor.inviteStatus',
         'guest.id',
         'guest.fullName',
