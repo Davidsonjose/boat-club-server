@@ -81,14 +81,14 @@ export class UserRepository {
   async verifyEmail(user: User) {
     const singleuser = await this.getSingleUser(user.email);
     singleuser.emailVerified = true;
-    await this.userRepository.save(singleuser);
+    await this.userRepository.save({ ...singleuser, pwd: undefined });
     return;
   }
 
   async verifyPhone(user: User) {
     const singleuser = await this.getSingleUser(user.email);
     singleuser.phoneNumberVerified = true;
-    await this.userRepository.save(singleuser);
+    await this.userRepository.save({ ...singleuser, pwd: undefined });
     return;
   }
   async getUserSettings(user: User): Promise<Settings> {
@@ -99,7 +99,7 @@ export class UserRepository {
   async pushNotificationToken(deviceToken: string, user: User) {
     const singleuser = await this.getSingleUser(user.email);
     singleuser.pushNotificationToken = deviceToken;
-    await this.userRepository.save(singleuser);
+    await this.userRepository.save({ ...singleuser, pwd: undefined });
     return;
   }
 
@@ -132,7 +132,7 @@ export class UserRepository {
     user.hasPin = true;
     const newnotification = this.notificationProfileCreate(user);
     await this.notificationRepository.createNotification(newnotification);
-    return await this.userRepository.save(user);
+    return await this.userRepository.save({ ...user, pwd: undefined });
   }
 
   async verifyPin(verifyPinDto: VerifyPinDto, user: User): Promise<void> {
@@ -235,7 +235,7 @@ export class UserRepository {
 
     const newnotification = this.notificationProfileCreate(user);
     await this.notificationRepository.createNotification(newnotification);
-    return await this.userRepository.save(user);
+    return await this.userRepository.save({ ...user, pwd: undefined });
   }
 
   async updatePhone(updatePhoneDto: UpdatePhoneDto, user: User): Promise<void> {
@@ -264,7 +264,7 @@ export class UserRepository {
     user.phoneNumber = updatePhoneDto.phoneNumber;
     const newnotification = this.notificationProfileCreate(user);
     await this.notificationRepository.createNotification(newnotification);
-    await this.userRepository.save(user);
+    await this.userRepository.save({ ...user, pwd: undefined });
     return;
     // }
   }
@@ -291,7 +291,7 @@ export class UserRepository {
     });
 
     user.email = updateEmailDto.email;
-    await this.userRepository.save(user);
+    await this.userRepository.save({ ...user, pwd: undefined });
     const newnotification = this.notificationProfileCreate(user);
     await this.notificationRepository.createNotification(newnotification);
     return;

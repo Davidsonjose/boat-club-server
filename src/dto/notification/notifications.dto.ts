@@ -34,6 +34,8 @@ export class NotificationData {
   id: string;
 }
 
+// $2b$10$b8iw/U/0OZOrGTZTxvzRl.orJ.szkbApp/flD4vBsmMwr0aQR/yO.
+
 export class AllNotificationPayload {
   @ApiProperty()
   notificationDate: string;
