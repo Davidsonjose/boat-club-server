@@ -28,6 +28,12 @@ export class Settings extends BaseEntity {
   @Column({ default: 'United State Dollar' })
   defaultCurrencyName: string;
 
+  @Column({ default: 0 })
+  todayInvite: number;
+
+  @Column({ nullable: true })
+  inviteLimit: number;
+
   @Column({ default: '$' })
   defaultCurrencySymbol: string;
 
