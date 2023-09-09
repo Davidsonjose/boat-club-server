@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RefreshTokenDto } from 'src/dto/auth/auth-token.dto';
@@ -67,7 +71,7 @@ export class AuthRepository {
       const singleCompany = await this.companyService.getSingleCompany(
         companyId,
       );
-
+      //
       const pass = await this.hashUserPassword(createUserDto.pwd);
       const newuser = this.userRepository.create({
         username: username?.toLowerCase(),
@@ -87,6 +91,7 @@ export class AuthRepository {
         company: singleCompany,
         dateOfBirth,
       });
+
       await newuser.save();
 
       settings.user = newuser;
@@ -121,7 +126,11 @@ export class AuthRepository {
     return this.userRepository.find();
   }
 
-  async getSingleUser(email: string, type?: string): Promise<User> {
+  async getSingleUser(
+    email: string,
+    type?: string,
+    handler?: boolean,
+  ): Promise<User> {
     if (type == 'auth') {
       let singleuser = await this.userRepository
         .createQueryBuilder('user')
@@ -140,7 +149,11 @@ export class AuthRepository {
       .getOne();
 
     if (!singleuser) {
-      throw new UnauthorizedException('Unauthorized access');
+      if (handler) {
+        throw new BadRequestException('Incorrect Credentials');
+      } else {
+        throw new UnauthorizedException('Unauthorized access');
+      }
     }
     return singleuser;
   }
@@ -148,7 +161,8 @@ export class AuthRepository {
   async signIn(signInUserDto: SignInUserDto): Promise<LoginPayload> {
     try {
       const { email, pwd } = signInUserDto;
-      const user = await this.getSingleUser(email?.toLowerCase());
+      console.log(pwd);
+      const user = await this.getSingleUser(email?.toLowerCase(), '', true);
       const isPasswordValid = await user.comparePassword(pwd);
 
       if (!isPasswordValid) {

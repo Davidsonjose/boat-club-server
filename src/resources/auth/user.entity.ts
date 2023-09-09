@@ -122,14 +122,13 @@ export class User extends BaseEntity {
   @OneToMany(() => Visitor, (visitor) => visitor.host)
   visitors: Visitor[];
 
-  @BeforeInsert()
-  async hashPasswordBeforeInsert() {
-    const salt = await bcrypt.genSalt();
-    if (this.pwd) {
-      this.pwd = await bcrypt.hash(this.pwd, salt);
-    }
-  }
-
+  // @BeforeInsert()
+  // async hashPasswordBeforeInsert() {
+  //   const salt = await bcrypt.genSalt();
+  //   if (this.pwd) {
+  //     this.pwd = await bcrypt.hash(this.pwd, salt);
+  //   }
+  // }
   @OneToMany(() => Activities, (activity) => activity.user)
   activities: Activities[];
 
@@ -145,6 +144,7 @@ export class User extends BaseEntity {
   // }
 
   async comparePassword(candidatePassword: string): Promise<boolean> {
+    console.log(this.pwd);
     return await bcrypt.compare(candidatePassword, this.pwd);
   }
 }
