@@ -75,8 +75,20 @@ export class OtpService {
         company: user.company,
         user,
       });
+
       await this.nodemailerService.sendMail(user.email, template, otp);
     } else if (emailType == ActivityEnumType.SIGNIN) {
+      const signInTemplate = path.resolve(
+        __dirname,
+        '../../template/otp',
+        'verify-auth.html',
+      );
+      const verifyotp = await ejs.renderFile(signInTemplate, {
+        otpCode: otp,
+        company: user.company,
+        user,
+      });
+      await this.nodemailerService.sendMail(user.email, verifyotp, otp);
     } else if (emailType == ActivityEnumType.FORGOT_PASSWORD) {
       const resetPasswordTemplate = path.resolve(
         __dirname,
