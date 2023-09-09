@@ -95,10 +95,11 @@ export class ActivityService {
 
   async getSingleActivity(hash: string, userId: string): Promise<Activities> {
     // return;
+
     const record = await this.activityRepository.findOne({
       where: { activityHash: hash, userId: userId },
     });
-
+    // console.log('na here oooooo');
     if (!record) {
       // throw UnauthorizedException(
       //   'Invalid OTP or Expired otp. Please check your inbox and try again.',

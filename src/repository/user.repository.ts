@@ -49,7 +49,11 @@ export class UserRepository {
     return this.userRepository.find();
   }
 
-  async getSingleUser(email: string, type?: string): Promise<User> {
+  async getSingleUser(
+    email: string,
+    type?: string,
+    forgot?: boolean,
+  ): Promise<User> {
     if (type == RequestTypeEnum.AUTH) {
       let singleuser = await this.userRepository
         .createQueryBuilder('user')
@@ -72,6 +76,12 @@ export class UserRepository {
       .leftJoinAndSelect('user.company', 'company')
       .where('user.email = :email', { email })
       .getOne();
+
+    if (forgot) {
+      if (!singleuser) {
+        return null;
+      }
+    }
 
     if (!singleuser) {
       throw new UnauthorizedException('Unauthorized access');
@@ -309,8 +319,8 @@ export class UserRepository {
     forgotPasswordVerificationDto: ForgotPasswordVerificationDto,
   ): Promise<ForgotVerifyPayload> {
     const { email } = forgotPasswordVerificationDto;
-
-    const singleUser = await this.getSingleUser(email);
+    const singleUser = await this.getSingleUser(email, '', true);
+    console.log(singleUser);
 
     if (singleUser) {
       //
