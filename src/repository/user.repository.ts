@@ -129,7 +129,7 @@ export class UserRepository {
     });
 
     user.pin = pin;
-
+    user.hasPin = true;
     const newnotification = this.notificationProfileCreate(user);
     await this.notificationRepository.createNotification(newnotification);
     return await this.userRepository.save(user);
