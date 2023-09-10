@@ -32,11 +32,15 @@ export class NotificationsController {
   }
 
   @Put('mark-all-as-read')
+  @UseGuards(AuthGuard())
+  @ApiOkResponse({ description: 'Successful' })
   async markAllNotificationsAsRead(@GetUser() user: User): Promise<void> {
     await this.notificationService.markAllNotificationsAsRead(user);
   }
 
   @Put('mark-single-as-read/:id')
+  @UseGuards(AuthGuard())
+  @ApiOkResponse({ description: 'Successful' })
   async markSingleNotificationAsRead(@Param('id') id: number): Promise<void> {
     await this.notificationService.markSingleNotificationAsRead(id);
   }
