@@ -95,7 +95,13 @@ export class NotificationRepository {
       { read: true },
     );
 
-    await this.updateNotificationUserData(user);
+    await this.updateNotificationDone(user);
+  }
+
+  async updateNotificationDone(user: User) {
+    user.settings.notificationSeen = true;
+    user.settings.unseenNotification = 0;
+    await this.userRepository.save(user);
   }
 
   async markSingleNotificationAsRead(notificationId: number): Promise<void> {
