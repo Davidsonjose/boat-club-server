@@ -236,7 +236,7 @@ export class UserRepository {
       updateProfileDto.username,
     );
 
-    if (!isUsernameAvailable) {
+    if (!isUsernameAvailable && updateProfileDto.username) {
       throw new BadRequestException(
         `Username ${updateProfileDto.username} is already taken. Please choose a different username.`,
       );
