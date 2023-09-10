@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { UserRepository } from './user.repository';
 import { UserService } from 'src/resources/user/user.service';
 import { Settings } from 'src/resources/settings/settings.entity';
+import { SettingsService } from 'src/resources/settings/settings.service';
 
 @Injectable()
 export class NotificationRepository {
@@ -19,7 +20,7 @@ export class NotificationRepository {
     private userRepository: Repository<User>,
 
     @InjectRepository(Settings)
-    private settingRepository: Repository<Settings>,
+    private settingRepository: Repository<Settings>, // settingsService: SettingsService,
   ) {}
 
   async createNotification(
@@ -38,6 +39,7 @@ export class NotificationRepository {
 
     await newNotification.save();
     await this.updateNotificationUserData(user);
+    await this.updateNotificationNew(user);
     return newNotification;
   }
 
@@ -113,6 +115,14 @@ export class NotificationRepository {
     });
     singleSetting.notificationSeen = true;
     singleSetting.unseenNotification = 0;
+    await this.settingRepository.save(singleSetting);
+  }
+  async updateNotificationNew(user: User) {
+    const singleSetting = await this.settingRepository.findOne({
+      where: { userId: user.id },
+    });
+    singleSetting.notificationSeen = false;
+    singleSetting.unseenNotification = singleSetting.unseenNotification + 1;
     await this.settingRepository.save(singleSetting);
   }
 
