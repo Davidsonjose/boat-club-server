@@ -38,7 +38,7 @@ export class NotificationRepository {
     });
 
     await newNotification.save();
-    await this.updateNotificationUserData(user);
+    // await this.updateNotificationUserData(user);
     await this.updateNotificationNew(user);
     return newNotification;
   }
