@@ -37,9 +37,9 @@ export class NotificationRepository {
   }
 
   async updateNotificationUserData(user: User) {
-    user.unseenNotification = user.unseenNotification + 1;
-    user.notificationSeen = false;
-    await this.userRepository.save({ ...user, pwd: undefined });
+    user.settings.unseenNotification = user.settings.unseenNotification + 1;
+    user.settings.notificationSeen = false;
+    await this.userRepository.save(user);
   }
 
   async userNotifications(userId: string): Promise<Notifications[]> {

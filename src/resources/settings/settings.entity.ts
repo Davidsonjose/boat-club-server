@@ -37,6 +37,12 @@ export class Settings extends BaseEntity {
   @Column({ default: '$' })
   defaultCurrencySymbol: string;
 
+  @Column({ default: 1 })
+  unseenNotification: number;
+
+  @Column({ default: false })
+  notificationSeen: boolean;
+
   @Column({ type: 'uuid', nullable: true, default: null })
   userId: string;
 

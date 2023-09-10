@@ -31,7 +31,7 @@ export class UserService {
   }
 
   async getUserSettings(user: User): Promise<Settings> {
-    return await this.userRepository.getUserSettings(user);
+    return await this.userRepository.getUserSettings(user.id);
   }
 
   async pushNotificationToken(deviceToken: string, user: User) {

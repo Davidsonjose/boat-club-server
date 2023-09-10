@@ -102,11 +102,7 @@ export class UserRepository {
     await this.userRepository.save(singleuser);
     return;
   }
-  async getUserSettings(user: User): Promise<Settings> {
-    const singleuser = await this.getSingleUser(user.email);
 
-    return singleuser.settings;
-  }
   async pushNotificationToken(deviceToken: string, user: User) {
     const singleuser = await this.getSingleUser(user.email);
     singleuser.pushNotificationToken = deviceToken;
@@ -353,6 +349,22 @@ export class UserRepository {
       return forgotPayloadInfo;
     }
   }
+
+  async getUserSettings(userId: string): Promise<Settings | undefined> {
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.settings', 'settings')
+      .where('user.id = :userId', { userId })
+      .getOne();
+
+    if (!user) {
+      // Handle user not found
+      return undefined;
+    }
+
+    return user.settings; // Return the associated settings
+  }
+  ƒ;
 
   async isUsernameAvailable(username: string): Promise<boolean> {
     const existingUser = await this.userRepository.findOne({
