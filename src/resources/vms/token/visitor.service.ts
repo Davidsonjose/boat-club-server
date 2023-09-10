@@ -133,6 +133,8 @@ export class VisitorService {
         'visitor.code',
         'visitor.expiresAt',
         'visitor.validFrom',
+        'visitor.createdAt',
+        'visitor.updatedAt',
         'visitor.codeStatus',
         'visitor.userId',
         'visitor.inviteStatus',
