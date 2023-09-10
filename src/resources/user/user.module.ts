@@ -12,14 +12,16 @@ import { OtpModule } from '../otp/otp.module';
 import { NotificationRepository } from 'src/repository/notification.repository';
 import { Notifications } from '../notification/notification.entity';
 import { NotificationService } from '../notification/notification.service';
+import { Settings } from '../settings/settings.entity';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Notifications]),
+    TypeOrmModule.forFeature([User, Notifications, Settings]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     LocationModule,
     SettingsModule,
     ActivityModule,
     OtpModule,
+    SettingsModule,
   ],
   providers: [UserService, UserRepository, NotificationRepository],
   controllers: [UserController],

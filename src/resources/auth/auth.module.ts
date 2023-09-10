@@ -19,6 +19,7 @@ import { OtpModule } from '../otp/otp.module';
 import { NotificationModule } from '../notification/notification.module';
 import { NotificationRepository } from 'src/repository/notification.repository';
 import { Notifications } from '../notification/notification.entity';
+import { Settings } from '../settings/settings.entity';
 
 @Module({
   imports: [
@@ -26,12 +27,13 @@ import { Notifications } from '../notification/notification.entity';
     JwtModule.register({
       secret: 'jwt-secret',
     }),
-    TypeOrmModule.forFeature([User, RefreshToken, Notifications]),
+    TypeOrmModule.forFeature([User, RefreshToken, Notifications, Settings]),
     LocationModule,
     SettingsModule,
     CompanyModule,
     ActivityModule,
     OtpModule,
+    SettingsModule,
     // NotificationModule,
     // UserModule,
   ],

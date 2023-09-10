@@ -18,6 +18,8 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from '../user/user.module';
 import { AuthModule } from '../auth/auth.module';
+import { Settings } from '../settings/settings.entity';
+import { SettingsModule } from '../settings/settings.module';
 
 @Module({
   imports: [
@@ -25,11 +27,12 @@ import { AuthModule } from '../auth/auth.module';
     JwtModule.register({
       secret: 'jwt-secret',
     }),
-    TypeOrmModule.forFeature([Notifications, User]),
+    TypeOrmModule.forFeature([Notifications, User, Settings]),
     ActivityModule,
     OtpModule,
     UserModule,
     AuthModule,
+    // SettingsModule,
   ],
   providers: [
     NotificationService,

@@ -8,6 +8,7 @@ import { Notifications } from 'src/resources/notification/notification.entity';
 import { Repository } from 'typeorm';
 import { UserRepository } from './user.repository';
 import { UserService } from 'src/resources/user/user.service';
+import { Settings } from 'src/resources/settings/settings.entity';
 
 @Injectable()
 export class NotificationRepository {
@@ -16,6 +17,9 @@ export class NotificationRepository {
     private readonly notificationRepository: Repository<Notifications>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+
+    @InjectRepository(Settings)
+    private settingRepository: Repository<Settings>,
   ) {}
 
   async createNotification(
@@ -99,9 +103,12 @@ export class NotificationRepository {
   }
 
   async updateNotificationDone(user: User) {
-    user.settings.notificationSeen = true;
-    user.settings.unseenNotification = 0;
-    await this.userRepository.save(user);
+    const singleSetting = await this.settingRepository.findOne({
+      where: { userId: user.id },
+    });
+    singleSetting.notificationSeen = true;
+    singleSetting.unseenNotification = 0;
+    await this.settingRepository.save(singleSetting);
   }
 
   async markSingleNotificationAsRead(notificationId: number): Promise<void> {
