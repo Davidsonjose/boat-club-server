@@ -33,7 +33,7 @@ export class NotificationsController {
 
   @Put('mark-all-as-read')
   async markAllNotificationsAsRead(@GetUser() user: User): Promise<void> {
-    await this.notificationService.markAllNotificationsAsRead(user.id);
+    await this.notificationService.markAllNotificationsAsRead(user);
   }
 
   @Put('mark-single-as-read/:id')

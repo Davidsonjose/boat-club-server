@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { NotificationRepository } from 'src/repository/notification.repository';
 import { Notifications } from './notification.entity';
 import { CreateNotificationPropsData } from 'src/dto/notification/notifications.dto';
+import { User } from '../auth/user.entity';
 
 @Injectable()
 export class NotificationService {
@@ -25,8 +26,8 @@ export class NotificationService {
     return await this.notificationRepository.userNotifications(userId);
   }
 
-  async markAllNotificationsAsRead(userId: string): Promise<void> {
-    return await this.notificationRepository.markAllNotificationsAsRead(userId);
+  async markAllNotificationsAsRead(user: User): Promise<void> {
+    return await this.notificationRepository.markAllNotificationsAsRead(user);
   }
 
   async markSingleNotificationAsRead(userId: number): Promise<void> {

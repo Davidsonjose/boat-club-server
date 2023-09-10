@@ -7,6 +7,7 @@ import { Location } from 'src/resources/location/location.entity';
 import { Notifications } from 'src/resources/notification/notification.entity';
 import { Repository } from 'typeorm';
 import { UserRepository } from './user.repository';
+import { UserService } from 'src/resources/user/user.service';
 
 @Injectable()
 export class NotificationRepository {
@@ -88,11 +89,13 @@ export class NotificationRepository {
   //   return await this.notificationRepository.findOne({where: {id: }})
   // }
 
-  async markAllNotificationsAsRead(userId: string): Promise<void> {
+  async markAllNotificationsAsRead(user: User): Promise<void> {
     await this.notificationRepository.update(
-      { userId, read: false },
+      { userId: user.id, read: false },
       { read: true },
     );
+
+    await this.updateNotificationUserData(user);
   }
 
   async markSingleNotificationAsRead(notificationId: number): Promise<void> {

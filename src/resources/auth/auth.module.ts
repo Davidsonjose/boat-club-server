@@ -32,7 +32,7 @@ import { Notifications } from '../notification/notification.entity';
     CompanyModule,
     ActivityModule,
     OtpModule,
-
+    // NotificationModule,
     // UserModule,
   ],
   providers: [

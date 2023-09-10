@@ -16,6 +16,8 @@ import { ActivityModule } from '../activity/activity.module';
 import { OtpModule } from '../otp/otp.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
+import { UserModule } from '../user/user.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { JwtModule } from '@nestjs/jwt';
     TypeOrmModule.forFeature([Notifications, User]),
     ActivityModule,
     OtpModule,
+    UserModule,
+    AuthModule,
   ],
   providers: [
     NotificationService,
