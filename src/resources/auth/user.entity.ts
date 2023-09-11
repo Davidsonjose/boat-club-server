@@ -89,6 +89,9 @@ export class User extends BaseEntity {
   // @JoinColumn()
   // notifications: Notifications;
 
+  @Column({ default: 0 })
+  balance: string;
+
   @Column({ default: false })
   hasPin: boolean;
 
