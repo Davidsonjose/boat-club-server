@@ -49,9 +49,11 @@ export class VisitorService {
         'visitor.code',
         'visitor.expiresAt',
         'visitor.validFrom',
-        'visitor.cancelled',
-        'visitor.completed',
-        'visitor.status',
+        'visitor.createdAt',
+        'visitor.updatedAt',
+        'visitor.codeStatus',
+        'visitor.userId',
+        'visitor.inviteStatus',
         'guest.id',
         'guest.fullName',
         'guest.phoneNumber',
@@ -60,8 +62,6 @@ export class VisitorService {
         'host.lastName',
         'host.username',
         'host.email',
-        'company.id',
-        'company.name',
       ])
       .getOne();
 
