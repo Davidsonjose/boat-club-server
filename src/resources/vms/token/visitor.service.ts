@@ -37,13 +37,14 @@ export class VisitorService {
     private guestRepository: Repository<Guest>,
   ) {}
 
-  async getSingleVisit(code: string): Promise<Visitor> {
+  async getSingleVisit(code: any): Promise<Visitor> {
+    console.log(code);
     const find = await this.visitorRepository
       .createQueryBuilder('visitor')
       .leftJoinAndSelect('visitor.host', 'host')
       .leftJoinAndSelect('visitor.guest', 'guest')
       .leftJoinAndSelect('host.company', 'company')
-      .where('visitor.code = :code', { code })
+      .where('visitor.code = :code', { code: code.code })
       .select([
         'visitor.id',
         'visitor.code',
@@ -69,7 +70,7 @@ export class VisitorService {
       this.logger.error(
         `User trying to use endpoint to get single code enpoint with a invalid token id: ${code}}`,
       );
-      throw new NotFoundException(`Invalid Code`);
+      throw new BadRequestException(`Invalid Code`);
     }
 
     return find;
