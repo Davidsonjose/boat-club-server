@@ -23,7 +23,7 @@ export class Activities extends BaseEntity {
   @ManyToOne(() => User, (user) => user.activities)
   user: User;
 
-  @Column()
+  @Column({ nullable: true })
   userId: string;
 
   @Column({ default: 0 })

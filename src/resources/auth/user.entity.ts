@@ -95,6 +95,9 @@ export class User extends BaseEntity {
   @Column({ default: false })
   hasPin: boolean;
 
+  @Column({ default: false })
+  deactivated: boolean;
+
   @ManyToOne(() => Company, (company) => company.users)
   company: Company;
 

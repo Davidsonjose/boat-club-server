@@ -161,7 +161,6 @@ export class AuthRepository {
   async signIn(signInUserDto: SignInUserDto): Promise<LoginPayload> {
     try {
       const { email, pwd } = signInUserDto;
-      console.log(pwd);
       const user = await this.getSingleUser(email?.toLowerCase(), '', true);
       const isPasswordValid = await user.comparePassword(pwd);
 

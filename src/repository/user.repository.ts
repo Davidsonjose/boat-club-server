@@ -252,6 +252,8 @@ export class UserRepository {
     return await this.userRepository.save(user);
   }
 
+  //
+
   async updatePhone(updatePhoneDto: UpdatePhoneDto, user: User): Promise<void> {
     const { activityHash } = updatePhoneDto;
 

@@ -43,6 +43,9 @@ export class Visitor extends BaseEntity {
   @Column({ default: 0 })
   usage: number;
 
+  @Column({ default: false })
+  approved: boolean;
+
   @Column({ nullable: true })
   purposeOfVisit: string;
 
@@ -61,4 +64,7 @@ export class Visitor extends BaseEntity {
 
   @UpdateDateColumn({ nullable: true })
   updatedAt: Date;
+
+  @Column({ default: false })
+  isAdmin: boolean;
 }
