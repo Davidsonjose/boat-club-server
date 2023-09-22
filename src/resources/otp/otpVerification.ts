@@ -15,8 +15,11 @@ export class OtpVerification extends BaseEntity {
   @Column()
   otp: string;
 
-  @Column()
+  @Column({ nullable: true })
   userId: string;
+
+  @Column({ nullable: true })
+  adminId: string;
 
   @Column({ type: 'timestamp' })
   expiresAt: Date;

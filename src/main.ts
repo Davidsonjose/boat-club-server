@@ -4,6 +4,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { TransformInterceptor } from './config/transform.interceptor';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { RedisAdapter, createAdapter } from 'socket.io-redis';
+import { Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   const logger = new Logger();
@@ -18,12 +19,23 @@ async function bootstrap() {
   appModule.configureSwagger(app);
 
   // Create an instance of RedisAdapter with your Redis credentials
-  const redisOptions = {
-    host: 'redis-18076.c78.eu-west-1-2.ec2.cloud.redislabs.com',
-    port: 18076,
-    auth_pass: 'I1FUSxaV05OmfEJPouyDWuFKCNyAtb9S',
-  };
+  // const redisOptions = {
+  //   host: 'redis-18076.c78.eu-west-1-2.ec2.cloud.redislabs.com',
+  //   port: 18076,
+  //   auth_pass: 'I1FUSxaV05OmfEJPouyDWuFKCNyAtb9S',
+  // };
+  app.connectMicroservice({
+    transport: Transport.RMQ,
+    options: {
+      urls: [
+        'amqps://ksssykry:gWHv3uH2u7Vu4fNHzk3Lc7rjn35P32Td@whale.rmq.cloudamqp.com/ksssykry',
+      ],
+      queue: 'notifications_queue',
+      queueOptions: { durable: false },
+    },
+  });
 
+  // await app.startAllMicroservices();
   await app.listen(port);
   logger.log(`Balosh Automation Server is running on PORT: ${port}`);
 }

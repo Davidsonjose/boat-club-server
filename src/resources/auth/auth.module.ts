@@ -20,6 +20,7 @@ import { NotificationModule } from '../notification/notification.module';
 import { NotificationRepository } from 'src/repository/notification.repository';
 import { Notifications } from '../notification/notification.entity';
 import { Settings } from '../settings/settings.entity';
+import { RabbitMQModule } from 'src/services/rabbitMQ/rabbitmq.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { Settings } from '../settings/settings.entity';
     ActivityModule,
     OtpModule,
     SettingsModule,
+    RabbitMQModule,
     // NotificationModule,
     // UserModule,
   ],

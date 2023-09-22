@@ -26,6 +26,9 @@ export class Activities extends BaseEntity {
   @Column({ nullable: true })
   userId: string;
 
+  @Column({ nullable: true })
+  adminId: string;
+
   @Column({ default: 0 })
   usage: number;
 

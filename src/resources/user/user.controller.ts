@@ -219,4 +219,9 @@ export class UserController {
       });
     }
   }
+
+  @Post('/send-event')
+  async sendEvent() {
+    return this.userService.sendEvent();
+  }
 }

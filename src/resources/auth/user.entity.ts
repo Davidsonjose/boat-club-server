@@ -93,6 +93,9 @@ export class User extends BaseEntity {
   balance: string;
 
   @Column({ default: false })
+  disapproved: boolean;
+
+  @Column({ default: false })
   hasPin: boolean;
 
   @Column({ default: false })
@@ -103,6 +106,9 @@ export class User extends BaseEntity {
 
   @Column()
   companyId: string;
+
+  @Column({ default: false })
+  approved: boolean;
 
   @Column({ default: false })
   verified: boolean;

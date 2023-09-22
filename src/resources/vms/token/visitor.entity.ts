@@ -31,8 +31,11 @@ export class Visitor extends BaseEntity {
   @Column({ type: 'timestamp' })
   validFrom: Date;
 
-  @Column()
+  @Column({ nullable: true })
   userId: string;
+
+  @Column({ nullable: true })
+  adminId: string;
 
   @Column({ default: CodeStatus.DEFAULT, enum: CodeStatus })
   codeStatus: CodeStatus;
@@ -42,9 +45,6 @@ export class Visitor extends BaseEntity {
 
   @Column({ default: 0 })
   usage: number;
-
-  @Column({ default: false })
-  approved: boolean;
 
   @Column({ nullable: true })
   purposeOfVisit: string;
@@ -58,6 +58,12 @@ export class Visitor extends BaseEntity {
   @ManyToOne(() => Guest, { eager: false }) // Establish a relationship with Guest entity
   @JoinColumn()
   guest: Guest;
+
+  @CreateDateColumn({ nullable: true })
+  entryTime: Date;
+
+  @CreateDateColumn({ nullable: true })
+  exitTime: Date;
 
   @CreateDateColumn({ nullable: true })
   createdAt: Date;

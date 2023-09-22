@@ -26,6 +26,13 @@ import { ActivityService } from 'src/resources/activity/activity.service';
 import { ActivityEnumType } from 'src/dto/activity/activity.dto';
 import { OtpService } from 'src/resources/otp/otp.service';
 import * as bcrypt from 'bcrypt';
+import { Client, ClientProxy, Transport } from '@nestjs/microservices';
+import { RabbitMQService } from 'src/services/rabbitMQ/rabbitmq.service';
+import {
+  AMQPEventType,
+  AdminTypeEmum,
+  EventPatternEnum,
+} from 'src/services/rabbitMQ/interface';
 @Injectable()
 export class AuthRepository {
   constructor(
@@ -41,8 +48,9 @@ export class AuthRepository {
     private companyService: CompanyService,
     private activityService: ActivityService,
     private otpService: OtpService,
-  ) {}
 
+    private rabbitMQService: RabbitMQService,
+  ) {}
   async createUser(
     createUserDto: CreateUserDto,
     createSettingDto: CreateSettingDto,
@@ -115,6 +123,7 @@ export class AuthRepository {
         user: others,
       };
 
+      await this.handleNewUserMQ(newuser);
       this.otpService.sendOtpEmail(newuser, ActivityEnumType.SIGNUP);
       return info;
     } catch (error) {
@@ -293,5 +302,21 @@ export class AuthRepository {
 
     const pass = await bcrypt.hash(pwd, salt);
     return pass;
+  }
+
+  async handleNewUserMQ(user: User) {
+    try {
+      await this.rabbitMQService.emit({
+        ...RabbitMQService.generateEventPayloadMetaData({
+          user: user,
+          ipAddress: '',
+        }),
+        eventSource: AdminTypeEmum.ADMIN,
+        eventType: AMQPEventType.PUSH,
+        eventPattern: EventPatternEnum.USER_REGISTERED,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

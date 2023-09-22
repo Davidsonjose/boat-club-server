@@ -20,6 +20,7 @@ import { UserModule } from '../user/user.module';
 import { AuthModule } from '../auth/auth.module';
 import { Settings } from '../settings/settings.entity';
 import { SettingsModule } from '../settings/settings.module';
+import { RabbitMQModule } from 'src/services/rabbitMQ/rabbitmq.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { SettingsModule } from '../settings/settings.module';
     OtpModule,
     UserModule,
     AuthModule,
+    RabbitMQModule,
     // SettingsModule,
   ],
   providers: [

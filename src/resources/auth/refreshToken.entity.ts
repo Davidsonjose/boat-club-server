@@ -8,6 +8,9 @@ export class RefreshToken extends BaseEntity {
   @Column({ type: 'uuid', nullable: true })
   userId: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  adminId: string;
+
   @Column()
   token: string;
 

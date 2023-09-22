@@ -18,6 +18,7 @@ import { ResponseInterceptor } from './helpers/response.interceptor';
 import { ActivityModule } from './resources/activity/activity.module';
 import { VisitorModule } from './resources/vms/token/visitor.module';
 import { EventsModule } from './resources/events/event.module';
+import { RabbitMQModule } from './services/rabbitMQ/rabbitmq.module';
 
 @Module({
   // providers: [
@@ -52,6 +53,7 @@ import { EventsModule } from './resources/events/event.module';
     ActivityModule,
     VisitorModule,
     EventsModule,
+    RabbitMQModule,
   ],
   controllers: [AppController],
 })

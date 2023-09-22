@@ -13,10 +13,19 @@ import {
   UpdateProfileDto,
   VerifyPinDto,
 } from 'src/dto/auth/user.dto';
+import { RabbitMQService } from 'src/services/rabbitMQ/rabbitmq.service';
+import {
+  AMQPEventType,
+  AdminTypeEmum,
+  EventPatternEnum,
+} from 'src/services/rabbitMQ/interface';
 
 @Injectable()
 export class UserService {
-  constructor(private userRepository: UserRepository) {}
+  constructor(
+    private userRepository: UserRepository,
+    private rabbitMQService: RabbitMQService,
+  ) {}
 
   async getSingleUser(userId: string, type?: string) {
     return this.userRepository.getSingleUser(userId, type);
@@ -88,5 +97,17 @@ export class UserService {
     return await this.userRepository.forgotPasswordVerify(
       forgotPasswordVerificationDto,
     );
+  }
+
+  async sendEvent() {
+    await this.rabbitMQService.emit({
+      ...RabbitMQService.generateEventPayloadMetaData({
+        user: { firstName: 'Joseph', lastName: 'Jose' },
+        ipAddress: '',
+      }),
+      eventSource: AdminTypeEmum.ADMIN,
+      eventType: AMQPEventType.PUSH,
+      eventPattern: EventPatternEnum.USER_REGISTERED,
+    });
   }
 }

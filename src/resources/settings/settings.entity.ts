@@ -43,8 +43,14 @@ export class Settings extends BaseEntity {
   @Column({ default: false })
   notificationSeen: boolean;
 
+  @Column({ default: 0 })
+  totalGuest: number;
+
   @Column({ type: 'uuid', nullable: true, default: null })
   userId: string;
+
+  @Column({ nullable: true, default: null })
+  adminId: string;
 
   @OneToOne(() => User, (user) => user.settings)
   @JoinColumn()

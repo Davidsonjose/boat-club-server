@@ -366,7 +366,6 @@ export class UserRepository {
 
     return user.settings; // Return the associated settings
   }
-  ƒ;
 
   async isUsernameAvailable(username: string): Promise<boolean> {
     const existingUser = await this.userRepository.findOne({

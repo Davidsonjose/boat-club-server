@@ -13,6 +13,7 @@ import { NotificationRepository } from 'src/repository/notification.repository';
 import { Notifications } from '../notification/notification.entity';
 import { NotificationService } from '../notification/notification.service';
 import { Settings } from '../settings/settings.entity';
+import { RabbitMQModule } from 'src/services/rabbitMQ/rabbitmq.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Notifications, Settings]),
@@ -22,6 +23,7 @@ import { Settings } from '../settings/settings.entity';
     ActivityModule,
     OtpModule,
     SettingsModule,
+    RabbitMQModule,
   ],
   providers: [UserService, UserRepository, NotificationRepository],
   controllers: [UserController],
