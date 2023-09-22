@@ -44,18 +44,18 @@ export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
         })
       : {};
 
-    console.log('Database Configuration:', {
-      ssl: isProduction,
-      extra: {
-        ssl: isProduction ? { rejectUnauthorized: false } : null,
-      },
-      type: 'postgres',
-      host: connectionOptions.host || 'default_host',
-      port: parseInt(connectionOptions.port, 10) || 5432,
-      username: connectionOptions.user || 'default_user',
-      password: connectionOptions.password || 'default_pass',
-      database: connectionOptions.database || 'default_db',
-    });
+    // console.log('Database Configuration:', {
+    //   ssl: isProduction,
+    //   extra: {
+    //     ssl: isProduction ? { rejectUnauthorized: false } : null,
+    //   },
+    //   type: 'postgres',
+    //   host: connectionOptions.host || 'default_host',
+    //   port: parseInt(connectionOptions.port, 10) || 5432,
+    //   username: connectionOptions.user || 'default_user',
+    //   password: connectionOptions.password || 'default_pass',
+    //   database: connectionOptions.database || 'default_db',
+    // });
 
     if (isProduction) {
       console.log(isProduction, 'it is production');
