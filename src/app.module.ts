@@ -39,7 +39,6 @@ import { RabbitMQModule } from './services/rabbitMQ/rabbitmq.module';
   ],
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `.env.stage.${process.env.STAGE}`,
       validationSchema: configValidationSchema,
     }),
     TypeOrmModule.forRootAsync(typeOrmConfig),
