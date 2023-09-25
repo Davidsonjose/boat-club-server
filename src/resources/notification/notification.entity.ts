@@ -34,7 +34,7 @@ export class Notifications extends BaseEntity {
   @Column({ type: 'enum', enum: NotificationRel })
   type: NotificationRel;
 
-  @Column()
+  @Column({ nullable: true })
   userId: string;
 
   @ManyToOne(() => User, (user) => user.notifications)

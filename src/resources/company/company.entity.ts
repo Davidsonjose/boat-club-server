@@ -31,6 +31,12 @@ export class Company extends BaseEntity {
   @Column({ default: '' })
   logoUrl: string;
 
+  @Column({ default: 7 })
+  visitExitTime: number;
+
+  @Column({ default: 3 })
+  defaultInviteLimit: number;
+
   @OneToMany(() => User, (user) => user.company)
   users: User[];
 }

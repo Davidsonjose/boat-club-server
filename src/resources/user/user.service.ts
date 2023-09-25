@@ -102,7 +102,12 @@ export class UserService {
   async sendEvent() {
     await this.rabbitMQService.emit({
       ...RabbitMQService.generateEventPayloadMetaData({
-        user: { firstName: 'Joseph', lastName: 'Jose' },
+        user: {
+          firstName: 'Joseph',
+          lastName: 'Jose',
+          companyId: 'uopiion',
+          userId: 'sfsfnsfsnkf',
+        },
         ipAddress: '',
       }),
       eventSource: AdminTypeEmum.ADMIN,

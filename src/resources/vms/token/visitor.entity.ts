@@ -34,9 +34,6 @@ export class Visitor extends BaseEntity {
   @Column({ nullable: true })
   userId: string;
 
-  @Column({ nullable: true })
-  adminId: string;
-
   @Column({ default: CodeStatus.DEFAULT, enum: CodeStatus })
   codeStatus: CodeStatus;
 

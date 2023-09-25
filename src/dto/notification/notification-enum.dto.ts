@@ -3,6 +3,7 @@ export enum NotificationCategories {
   TRANSACTION = 'TRANSACTION',
   VMS = 'VMS',
   PROFILE = 'PROFILE',
+  NEW_USER = 'NEW_USER',
   POLL = 'POLL',
 }
 

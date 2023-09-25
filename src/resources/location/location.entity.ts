@@ -43,9 +43,9 @@ export class Location extends BaseEntity {
   @JoinColumn()
   user: User;
 
-  @Column({ type: 'uuid', nullable: true, default: null })
+  @Column({ type: 'uuid', nullable: true })
   userId: string;
 
-  @Column({ nullable: true, default: null })
+  @Column({ nullable: true })
   adminId: string;
 }

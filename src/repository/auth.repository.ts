@@ -104,6 +104,7 @@ export class AuthRepository {
 
       settings.user = newuser;
       settings.userId = newuser.id;
+      settings.companyId = newuser.companyId;
       location.user = newuser;
       location.userId = newuser.id;
       await settings.save();
@@ -306,9 +307,15 @@ export class AuthRepository {
 
   async handleNewUserMQ(user: User) {
     try {
-      await this.rabbitMQService.emit({
+      const { firstName, lastName, companyId, id } = user;
+      this.rabbitMQService.emit({
         ...RabbitMQService.generateEventPayloadMetaData({
-          user: user,
+          user: {
+            firstName,
+            lastName,
+            companyId,
+            userId: id,
+          },
           ipAddress: '',
         }),
         eventSource: AdminTypeEmum.ADMIN,
