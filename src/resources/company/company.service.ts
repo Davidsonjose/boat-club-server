@@ -25,20 +25,20 @@ export class CompanyService {
 
   async getSingleCompany(id: string): Promise<Company> {
     try {
-      console.log(id);
+      // console.log(id);
       //check for chevy view
-      if (id == '6dee3295-683f-4512-8576-b817689788e2') {
-        await this.companyRepository.updateCompanyId(
-          '6dee3295-683f-4512-8576-b817689788e2',
-          '4e5822d4-a08c-4942-affe-148c1077b289',
-        );
-        // const find = await this.companyRepository.getSingleCompany("4e5822d4-a08c-4942-affe-148c1077b289");
-        // if(find){
-        //   find.id = "6dee3295-683f-4512-8576-b817689788e2"
-        //   return await this.companyRepository.updateCompanyId()
-        //   // await this.companyRepository.
-        // }
-      }
+      // if (id == '6dee3295-683f-4512-8576-b817689788e2') {
+      //   await this.companyRepository.updateCompanyId(
+      //     '6dee3295-683f-4512-8576-b817689788e2',
+      //     '4e5822d4-a08c-4942-affe-148c1077b289',
+      //   );
+      //   // const find = await this.companyRepository.getSingleCompany("4e5822d4-a08c-4942-affe-148c1077b289");
+      //   // if(find){
+      //   //   find.id = "6dee3295-683f-4512-8576-b817689788e2"
+      //   //   return await this.companyRepository.updateCompanyId()
+      //   //   // await this.companyRepository.
+      //   // }
+      // }
       const find = await this.companyRepository.getSingleCompany(id);
 
       if (!find) {
