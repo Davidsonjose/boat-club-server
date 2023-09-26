@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { User } from '../auth/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { A_User } from 'src/services/admin/admin.entity';
 
 @Entity()
 export class Location extends BaseEntity {
@@ -45,6 +46,10 @@ export class Location extends BaseEntity {
 
   @Column({ type: 'uuid', nullable: true })
   userId: string;
+
+  @OneToOne(() => A_User, (admin) => admin.location, { nullable: true })
+  @JoinColumn()
+  admin: A_User;
 
   @Column({ nullable: true })
   adminId: string;

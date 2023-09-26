@@ -37,6 +37,6 @@ export class Company extends BaseEntity {
   @Column({ default: 3 })
   defaultInviteLimit: number;
 
-  @OneToMany(() => User, (user) => user.company)
+  @OneToMany(() => User, (user) => user.company, { nullable: true })
   users: User[];
 }

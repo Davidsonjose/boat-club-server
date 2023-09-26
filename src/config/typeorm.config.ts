@@ -15,6 +15,9 @@ import { Visitor } from 'src/resources/vms/token/visitor.entity';
 import { Guest } from 'src/resources/vms/guest/guest.entity';
 import { Events } from 'src/resources/events/events.entity';
 import { parse } from 'pg-connection-string';
+import { A_Notifications } from 'src/services/admin/a_notification.entity';
+import { A_User } from 'src/services/admin/admin.entity';
+import { A_Settings } from 'src/services/admin/a_settings.entity';
 export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
   imports: [ConfigModule],
   useFactory: async (configService: ConfigService) => {
@@ -30,6 +33,9 @@ export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
       Code,
       Visitor,
       Guest,
+      A_Notifications,
+      A_User,
+      A_Settings,
       Events,
     ];
 

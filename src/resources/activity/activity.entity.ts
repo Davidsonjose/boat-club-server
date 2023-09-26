@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../auth/user.entity';
+import { A_User } from 'src/services/admin/admin.entity';
 
 @Entity()
 export class Activities extends BaseEntity {
@@ -37,6 +38,9 @@ export class Activities extends BaseEntity {
 
   @Column({ type: 'timestamp' })
   expiresAt: Date;
+
+  @ManyToOne(() => A_User, (admin) => admin.activities, { nullable: true })
+  admin: A_User;
 
   @CreateDateColumn()
   createdAt: Date;

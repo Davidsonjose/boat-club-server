@@ -15,6 +15,7 @@ import { Company } from 'src/resources/company/company.entity';
 import { CodeStatus, InviteStatus } from 'src/dto/otp';
 import { User } from 'src/resources/auth/user.entity';
 import { Guest } from '../guest/guest.entity';
+import { A_User } from 'src/services/admin/admin.entity';
 
 @Entity()
 export class Visitor extends BaseEntity {
@@ -46,13 +47,23 @@ export class Visitor extends BaseEntity {
   @Column({ nullable: true })
   purposeOfVisit: string;
 
+  @ManyToOne(() => A_User, { nullable: true, eager: false })
+  @JoinColumn()
+  admin: A_User;
+
   @Column()
   oneTime: boolean;
 
-  @ManyToOne(() => User, (user) => user.visitors, { eager: false })
+  @Column({ nullable: true })
+  adminId: string;
+
+  @ManyToOne(() => User, (user) => user.visitors, {
+    eager: false,
+    nullable: true,
+  })
   host: User;
 
-  @ManyToOne(() => Guest, { eager: false }) // Establish a relationship with Guest entity
+  @ManyToOne(() => Guest, { eager: false, nullable: true }) // Establish a relationship with Guest entity
   @JoinColumn()
   guest: Guest;
 

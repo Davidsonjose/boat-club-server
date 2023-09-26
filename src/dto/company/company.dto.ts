@@ -21,6 +21,9 @@ export class CreateCompanyDto {
   @ApiProperty()
   @IsNotEmpty()
   code: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  logoUrl: string;
 
   @ApiProperty()
   @IsPhoneNumber()

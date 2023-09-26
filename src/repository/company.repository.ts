@@ -26,13 +26,15 @@ export class CompanyRepository {
 
   async createCompany(createCompanyDto: CreateCompanyDto) {
     try {
-      const { name, address, code, email, phone, dialCode } = createCompanyDto;
+      const { name, address, code, email, phone, dialCode, logoUrl } =
+        createCompanyDto;
       const company: Company = this.companyRepository.create({
         name: name?.toLowerCase(),
         address,
         email: email?.toLowerCase(),
         phone,
         dialCode,
+        logoUrl,
         // id: '0bfb725a-f575-4bb1-8ddb-ca0265b213a2',
       });
 

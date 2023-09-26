@@ -13,6 +13,7 @@ export class CodeService {
 
   async createCode(code: number): Promise<Code> {
     // console.log(code);
+    console.log(code);
     if (!code) {
       throw new UnauthorizedException('Unautorized Access');
     }

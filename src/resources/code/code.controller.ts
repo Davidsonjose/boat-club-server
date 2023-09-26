@@ -13,6 +13,7 @@ export class CodeController {
 
   @Post('/create')
   createCode(@Body() body): Promise<Code> {
+    console.log('herer');
     const { code } = body;
     return this.codeService.createCode(code);
   }
