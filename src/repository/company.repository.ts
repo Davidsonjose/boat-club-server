@@ -44,4 +44,13 @@ export class CompanyRepository {
       throw error;
     }
   }
+
+  async updateCompanyId(oldCompanyId: string, newCompanyId: string) {
+    // return;
+    const singleCompany = await this.getSingleCompany(newCompanyId);
+    if (singleCompany) {
+      singleCompany.id = oldCompanyId;
+      await this.companyRepository.save(singleCompany);
+    }
+  }
 }
