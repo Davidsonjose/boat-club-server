@@ -174,6 +174,11 @@ export class AuthRepository {
       const user = await this.getSingleUser(email?.toLowerCase(), '', true);
       const isPasswordValid = await user.comparePassword(pwd);
 
+      if (user.approved == false) {
+        throw new BadRequestException(
+          `Hi ${user?.username}, Your account is under review. You will get a mail once you have been approved.`,
+        );
+      }
       if (!isPasswordValid) {
         throw new UnauthorizedException(`Incorrect Credentials`);
       }
