@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserLocationDto } from 'src/dto/auth/user.dto';
 import { CreateCompanyDto } from 'src/dto/company/company.dto';
@@ -51,6 +51,8 @@ export class CompanyRepository {
     if (singleCompany) {
       singleCompany.id = oldCompanyId;
       await this.companyRepository.save(singleCompany);
+    } else {
+      throw new BadRequestException('From davidson but two');
     }
   }
 }

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   Logger,
   NotFoundException,
@@ -24,6 +25,7 @@ export class CompanyService {
 
   async getSingleCompany(id: string): Promise<Company> {
     try {
+      console.log('chev');
       //check for chevy view
       if (id == '6dee3295-683f-4512-8576-b817689788e2') {
         await this.companyRepository.updateCompanyId(
@@ -36,6 +38,8 @@ export class CompanyService {
         //   return await this.companyRepository.updateCompanyId()
         //   // await this.companyRepository.
         // }
+      } else {
+        throw new BadRequestException('from davidson');
       }
       const find = await this.companyRepository.getSingleCompany(id);
 
