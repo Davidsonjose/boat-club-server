@@ -38,8 +38,6 @@ export class CompanyService {
         //   return await this.companyRepository.updateCompanyId()
         //   // await this.companyRepository.
         // }
-      } else {
-        throw new BadRequestException('from davidson');
       }
       const find = await this.companyRepository.getSingleCompany(id);
 

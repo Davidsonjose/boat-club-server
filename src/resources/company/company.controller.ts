@@ -42,7 +42,6 @@ export class CompanyController {
   async getSingleCompany(
     @Param() { schemeId }: { schemeId: string },
   ): Promise<Company> {
-    console.log(schemeId, 'here is schemeId id');
     try {
       return this.companyService.getSingleCompany(schemeId);
     } catch (err) {
