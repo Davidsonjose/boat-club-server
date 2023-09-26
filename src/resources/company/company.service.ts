@@ -25,7 +25,7 @@ export class CompanyService {
 
   async getSingleCompany(id: string): Promise<Company> {
     try {
-      console.log('chev');
+      console.log(id);
       //check for chevy view
       if (id == '6dee3295-683f-4512-8576-b817689788e2') {
         await this.companyRepository.updateCompanyId(

@@ -39,7 +39,9 @@ export class CompanyController {
     type: Company,
   })
   @ApiBadRequestResponse({ description: 'Invalid input data.' })
-  async getSingleCompany(@Param('id') scheme: string): Promise<Company> {
+  async getSingleCompany(
+    @Param('id') { scheme }: { scheme },
+  ): Promise<Company> {
     try {
       return this.companyService.getSingleCompany(scheme);
     } catch (err) {
