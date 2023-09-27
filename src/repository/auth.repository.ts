@@ -170,8 +170,11 @@ export class AuthRepository {
 
   async signIn(signInUserDto: SignInUserDto): Promise<LoginPayload> {
     try {
-      const { email, pwd } = signInUserDto;
+      const { email, pwd, companyId } = signInUserDto;
       const user = await this.getSingleUser(email?.toLowerCase(), '', true);
+      if (user.companyId !== companyId) {
+        throw new BadRequestException(`Incorrect Credentials`);
+      }
       const isPasswordValid = await user.comparePassword(pwd);
 
       if (user.approved == false) {

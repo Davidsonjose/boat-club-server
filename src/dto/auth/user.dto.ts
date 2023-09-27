@@ -133,6 +133,10 @@ export class SignInUserDto {
   @ApiProperty()
   @IsNotEmpty()
   pwd: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  companyId: number;
 }
 
 export class LoginPayload {
