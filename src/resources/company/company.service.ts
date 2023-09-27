@@ -23,7 +23,7 @@ export class CompanyService {
     private readonly codeRepository: Repository<Code>,
   ) {}
 
-  async getSingleCompany(id: string): Promise<Company> {
+  async getSingleCompany(id: number): Promise<Company> {
     try {
       // console.log(id);
       //check for chevy view

@@ -105,7 +105,7 @@ export class User extends BaseEntity {
   company: Company;
 
   @Column()
-  companyId: string;
+  companyId: number;
 
   @Column({ default: false })
   approved: boolean;

@@ -65,7 +65,7 @@ export class A_User extends BaseEntity {
   notifications: A_Notifications[];
 
   @Column()
-  companyId: string;
+  companyId: number;
 
   @ManyToOne(() => Company, (company) => company.users)
   company: Company;

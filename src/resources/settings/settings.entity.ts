@@ -50,7 +50,7 @@ export class Settings extends BaseEntity {
   userId: string;
 
   @Column({ nullable: true })
-  companyId: string;
+  companyId: number;
 
   @OneToOne(() => User, (user) => user.settings)
   @JoinColumn()

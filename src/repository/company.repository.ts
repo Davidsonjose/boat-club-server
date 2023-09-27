@@ -14,7 +14,7 @@ export class CompanyRepository {
     private readonly companyRepository: Repository<Company>,
   ) {}
 
-  async getSingleCompany(companyId: string): Promise<Company> {
+  async getSingleCompany(companyId: number): Promise<Company> {
     try {
       return this.companyRepository.findOne({
         where: { id: companyId },
@@ -45,7 +45,7 @@ export class CompanyRepository {
     }
   }
 
-  async updateCompanyId(oldCompanyId: string, newCompanyId: string) {
+  async updateCompanyId(oldCompanyId: number, newCompanyId: number) {
     // return;
     const singleCompany = await this.getSingleCompany(newCompanyId);
     if (singleCompany) {

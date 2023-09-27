@@ -117,9 +117,9 @@ export class CreateUserDto {
   pwd: string;
 
   @IsNotEmpty({ message: 'User company ID is required' })
-  @IsString()
+  @IsNumber()
   @ApiProperty()
-  companyId: string;
+  companyId: number;
 }
 
 export class SignInUserDto {
