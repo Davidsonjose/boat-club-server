@@ -35,6 +35,12 @@ import {
   NotificationRel,
 } from 'src/dto/notification/notification-enum.dto';
 import { systemResponses } from 'src/res/systemResponse';
+import {
+  AMQPEventType,
+  AdminTypeEmum,
+  EventPatternEnum,
+} from 'src/services/rabbitMQ/interface';
+import { RabbitMQService } from 'src/services/rabbitMQ/rabbitmq.service';
 @Injectable()
 export class UserRepository {
   constructor(
@@ -43,6 +49,8 @@ export class UserRepository {
     private activityService: ActivityService,
     private otpService: OtpService,
     private notificationRepository: NotificationRepository,
+
+    private rabbitMQService: RabbitMQService,
   ) {}
 
   async getAllUsers(): Promise<User[]> {
@@ -441,5 +449,54 @@ export class UserRepository {
 
     const pass = await bcrypt.hash(pwd, salt);
     return pass;
+  }
+
+  async requestAccountDeletion(email: string, companyId: number) {
+    // await this.getSingleUser(email, )
+    const singleUser = await this.userRepository.findOne({ where: { email } });
+
+    if (!singleUser) {
+      throw new BadRequestException(
+        `No account found for ${email}. Please check email and try again`,
+      );
+    }
+
+    if (singleUser.companyId !== companyId) {
+      throw new BadRequestException(
+        `No account found for ${email}. Please check email and try again`,
+      );
+    }
+
+    if (singleUser.deleteRequested == true) {
+      return {
+        status: 'PENDING',
+      };
+    }
+
+    singleUser.deleteRequested = true;
+    await this.handleNewUserMQ(singleUser, EventPatternEnum.ACCOUNT_DELETION);
+    return await this.userRepository.save(singleUser);
+  }
+
+  async handleNewUserMQ(user: User, type: EventPatternEnum) {
+    try {
+      const { firstName, lastName, companyId, id } = user;
+      this.rabbitMQService.emit({
+        ...RabbitMQService.generateEventPayloadMetaData({
+          user: {
+            firstName,
+            lastName,
+            companyId,
+            userId: id,
+          },
+          ipAddress: '',
+        }),
+        eventSource: AdminTypeEmum.ADMIN,
+        eventType: AMQPEventType.PUSH,
+        eventPattern: type,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

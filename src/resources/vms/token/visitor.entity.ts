@@ -81,4 +81,10 @@ export class Visitor extends BaseEntity {
 
   @Column({ default: false })
   isAdmin: boolean;
+
+  @Column({ nullable: true })
+  companyId: number;
+
+  @ManyToOne(() => Company, (company) => company.users, { nullable: true })
+  company: Company;
 }

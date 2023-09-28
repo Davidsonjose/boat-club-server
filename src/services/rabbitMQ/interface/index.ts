@@ -1,5 +1,6 @@
 export enum EventPatternEnum {
   USER_REGISTERED = 'user_registered',
+  ACCOUNT_DELETION = 'account_deletion',
 }
 
 export enum AdminTypeEmum {

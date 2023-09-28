@@ -119,6 +119,9 @@ export class User extends BaseEntity {
   @Column({ type: 'date' })
   dateOfBirth: Date;
 
+  @Column({ default: false })
+  deleteRequested: boolean;
+
   @OneToMany(() => Notifications, (notification) => notification.user)
   notifications: Notifications[];
 

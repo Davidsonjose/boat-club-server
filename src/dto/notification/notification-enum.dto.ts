@@ -5,6 +5,7 @@ export enum NotificationCategories {
   PROFILE = 'PROFILE',
   NEW_USER = 'NEW_USER',
   POLL = 'POLL',
+  COMPANY = 'COMPANY',
 }
 
 export enum NotificationRel {

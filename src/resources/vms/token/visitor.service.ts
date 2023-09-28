@@ -115,6 +115,8 @@ export class VisitorService {
       host: user,
       purposeOfVisit,
       guest: newGuest,
+      companyId: user.companyId,
+      company: user.company,
     });
 
     await this.visitorRepository.save(newtoken);

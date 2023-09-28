@@ -99,6 +99,10 @@ export class UserService {
     );
   }
 
+  async requestAccountDeletion(email: string, companyId: number) {
+    return await this.userRepository.requestAccountDeletion(email, companyId);
+  }
+
   async sendEvent() {
     await this.rabbitMQService.emit({
       ...RabbitMQService.generateEventPayloadMetaData({

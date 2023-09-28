@@ -37,6 +37,18 @@ export class Company extends BaseEntity {
   @Column({ default: 3 })
   defaultInviteLimit: number;
 
+  @Column({ default: false })
+  oneTime: boolean;
+
+  @Column({ default: false })
+  sendNewUserMail: boolean;
+
+  @Column({ default: false })
+  rejectionMail: boolean;
+
   @OneToMany(() => User, (user) => user.company, { nullable: true })
   users: User[];
+
+  @OneToMany(() => Visitor, (visitor) => visitor.company, { nullable: true })
+  visitors: Visitor[];
 }
