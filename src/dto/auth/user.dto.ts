@@ -343,6 +343,10 @@ export class ForgotPasswordVerificationDto {
   @IsString()
   @IsNotEmpty()
   email: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  companyId: number;
 }
 
 export class ForgotPasswordUpdateDto {
@@ -357,6 +361,10 @@ export class ForgotPasswordUpdateDto {
   @ApiProperty()
   @IsNotEmpty()
   activityHash: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  companyId: number;
 }
 export interface ActivityUsageData {
   CHANGE_EMAIL: number;

@@ -11,6 +11,10 @@ export class RefreshTokenDto {
   @ApiProperty()
   @IsString()
   refreshToken: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  companyId: number;
 }
 
 export class RefreshTokenPayload {

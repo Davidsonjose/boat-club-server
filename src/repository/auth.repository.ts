@@ -136,42 +136,16 @@ export class AuthRepository {
     return this.userRepository.find();
   }
 
-  async getSingleUser(
-    email: string,
-    type?: string,
-    handler?: boolean,
-  ): Promise<User> {
-    if (type == 'auth') {
-      let singleuser = await this.userRepository
-        .createQueryBuilder('user')
-        .leftJoinAndSelect('user.location', 'location')
-        .leftJoinAndSelect('user.settings', 'settings')
-        .where('user.id = :email', { email })
-        .getOne();
-      return singleuser;
-    }
-
-    let singleuser = await this.userRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.location', 'location')
-      .leftJoinAndSelect('user.settings', 'settings')
-      .where('user.email = :email', { email })
-      .getOne();
-
-    if (!singleuser) {
-      if (handler) {
-        throw new BadRequestException('Incorrect Credentials');
-      } else {
-        throw new UnauthorizedException('Unauthorized access');
-      }
-    }
-    return singleuser;
-  }
-
   async signIn(signInUserDto: SignInUserDto): Promise<LoginPayload> {
     try {
       const { email, pwd, companyId } = signInUserDto;
-      const user = await this.getSingleUser(email?.toLowerCase(), '', true);
+      const user = await this.handleSignInAuth(
+        signInUserDto.companyId,
+        email?.toLowerCase(),
+      );
+      if (!user) {
+        throw new BadRequestException(`Incorrect Credentials`);
+      }
       if (user.companyId !== companyId) {
         throw new BadRequestException(`Incorrect Credentials`);
       }
@@ -203,17 +177,31 @@ export class AuthRepository {
     }
   }
 
+  async handleSignInAuth(companyId: number, email: string): Promise<User> {
+    let singleuser = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.location', 'location')
+      .leftJoinAndSelect('user.settings', 'settings')
+      .where('user.companyId = :companyId', { companyId })
+      .andWhere('user.email = :email', { email })
+      .getOne();
+    if (!singleuser) {
+      return null;
+    }
+    return singleuser;
+  }
+
   async generateAccessToken(user: User): Promise<string> {
-    const payload = { sub: user.id };
+    const payload = { sub: user.id, companyId: user.companyId };
     return this.jwtService.sign(payload, { expiresIn: '20m' });
   }
 
   async generateRefreshToken(
     user: User,
     refreshTokenDto: RefreshTokenDto,
-  ): Promise<RefreshTokenDto> {
+  ): Promise<any> {
     await this.validate(refreshTokenDto.refreshToken, user.id);
-    const payload = { sub: user.id };
+    const payload = { sub: user.id, companyId: user.companyId };
     const refreshToken = this.jwtService.sign(payload, { expiresIn: '1d' });
 
     const newAccessToken = await this.generateAccessToken(user);
@@ -283,7 +271,7 @@ export class AuthRepository {
     return userPayload;
   }
 
-  async generateAccessAndRefresh(user: User): Promise<RefreshTokenDto> {
+  async generateAccessAndRefresh(user: User): Promise<any> {
     const accessToken = await this.generateAccessToken(user);
     const refreshToken = await this.getRefreshToken(user);
 

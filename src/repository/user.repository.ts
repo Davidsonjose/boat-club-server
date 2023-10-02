@@ -61,6 +61,7 @@ export class UserRepository {
     email: string,
     type?: string,
     forgot?: boolean,
+    companyId?: number,
   ): Promise<User> {
     if (type == RequestTypeEnum.AUTH) {
       let singleuser = await this.userRepository
@@ -69,6 +70,7 @@ export class UserRepository {
         .leftJoinAndSelect('user.settings', 'settings')
         .leftJoinAndSelect('user.company', 'company')
         .where('user.id = :email', { email })
+        .andWhere('user.companyId = :companyId', { companyId })
         .getOne();
 
       if (!singleuser) {
@@ -83,6 +85,7 @@ export class UserRepository {
       .leftJoinAndSelect('user.settings', 'settings')
       .leftJoinAndSelect('user.company', 'company')
       .where('user.email = :email', { email })
+      .andWhere('user.companyId = :companyId', { companyId })
       .getOne();
 
     if (forgot) {
@@ -98,28 +101,48 @@ export class UserRepository {
   }
 
   async verifyEmail(user: User) {
-    const singleuser = await this.getSingleUser(user.email);
+    const singleuser = await this.getSingleUser(
+      user.email,
+      null,
+      null,
+      user.companyId,
+    );
     singleuser.emailVerified = true;
     await this.userRepository.save(singleuser);
     return;
   }
 
   async verifyPhone(user: User) {
-    const singleuser = await this.getSingleUser(user.email);
+    const singleuser = await this.getSingleUser(
+      user.email,
+      null,
+      null,
+      user.companyId,
+    );
     singleuser.phoneNumberVerified = true;
     await this.userRepository.save(singleuser);
     return;
   }
 
   async pushNotificationToken(deviceToken: string, user: User) {
-    const singleuser = await this.getSingleUser(user.email);
+    const singleuser = await this.getSingleUser(
+      user.email,
+      null,
+      null,
+      user.companyId,
+    );
     singleuser.pushNotificationToken = deviceToken;
     await this.userRepository.save(singleuser);
     return;
   }
 
   async verifyPassword(pwd: string, user: User): Promise<void> {
-    const singleuser = await this.getSingleUser(user.email);
+    const singleuser = await this.getSingleUser(
+      user.email,
+      null,
+      null,
+      user.companyId,
+    );
     const isPasswordValid = await singleuser.comparePassword(pwd);
 
     if (!isPasswordValid) {
@@ -216,6 +239,8 @@ export class UserRepository {
     const user = await this.getSingleUser(
       forgotPasswordUpdateDto.userId,
       RequestTypeEnum.AUTH,
+      null,
+      forgotPasswordUpdateDto.companyId,
     );
     const singleActivity = await this.verifyUserActivity(
       forgotPasswordUpdateDto.activityHash,
@@ -325,7 +350,12 @@ export class UserRepository {
     forgotPasswordVerificationDto: ForgotPasswordVerificationDto,
   ): Promise<ForgotVerifyPayload> {
     const { email } = forgotPasswordVerificationDto;
-    const singleUser = await this.getSingleUser(email, '', true);
+    const singleUser = await this.getSingleUser(
+      email,
+      '',
+      true,
+      forgotPasswordVerificationDto.companyId,
+    );
     console.log(singleUser);
 
     if (singleUser) {
@@ -453,7 +483,9 @@ export class UserRepository {
 
   async requestAccountDeletion(email: string, companyId: number) {
     // await this.getSingleUser(email, )
-    const singleUser = await this.userRepository.findOne({ where: { email } });
+    const singleUser = await this.userRepository.findOne({
+      where: { email, companyId },
+    });
 
     if (!singleUser) {
       throw new BadRequestException(

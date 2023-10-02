@@ -11,6 +11,8 @@ import { CreateUserDto, SignInUserDto } from 'src/dto/auth/user.dto';
 import { LocationService } from '../location/location.service';
 import { RefreshTokenDto } from 'src/dto/auth/auth-token.dto';
 import { UserService } from '../user/user.service';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +20,9 @@ export class AuthService {
     private authRepository: AuthRepository,
     private locationService: LocationService,
     private userService: UserService,
+
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
 
   async createUser(createUserDto: CreateUserDto, ipAddress: string) {
@@ -26,6 +31,32 @@ export class AuthService {
     const createLocationDto = info.userLocation;
 
     try {
+      if (
+        !(await this.isEmailUniqueForCompany(
+          createUserDto.email,
+          createUserDto.companyId,
+        ))
+      ) {
+        throw new ConflictException('Email already exists');
+      }
+
+      if (
+        !(await this.isPhoneNumberUniqueForCompany(
+          createUserDto.phoneNumber,
+          createUserDto.companyId,
+        ))
+      ) {
+        throw new ConflictException('Phone number already exists');
+      }
+      if (
+        !(await this.isUsernameUniqueForCompany(
+          createUserDto.username,
+          createUserDto.companyId,
+        ))
+      ) {
+        throw new ConflictException('Username already exists.');
+      }
+
       return await this.authRepository.createUser(
         createUserDto,
         createSettingDto,
@@ -45,6 +76,35 @@ export class AuthService {
     }
   }
 
+  async isEmailUniqueForCompany(
+    email: string,
+    companyId: number,
+  ): Promise<boolean> {
+    const user = await this.userRepository.findOne({
+      where: { email, companyId },
+    });
+    return !user;
+  }
+
+  async isPhoneNumberUniqueForCompany(
+    phoneNumber: string,
+    companyId: number,
+  ): Promise<boolean> {
+    const user = await this.userRepository.findOne({
+      where: { phoneNumber, companyId },
+    });
+    return !user;
+  }
+  async isUsernameUniqueForCompany(
+    username: string,
+    companyId: number,
+  ): Promise<boolean> {
+    const user = await this.userRepository.findOne({
+      where: { username, companyId },
+    });
+    return !user;
+  }
+
   //
   async getAllUser(): Promise<User[]> {
     return this.authRepository.getAllUsers();
@@ -62,7 +122,11 @@ export class AuthService {
     userId: string,
     refreshTokenDto: RefreshTokenDto,
   ): Promise<RefreshTokenDto> {
-    const user = await this.userService.getSingleUser(userId, 'auth');
+    const user = await this.userService.getSingleUser(
+      userId,
+      'auth',
+      refreshTokenDto.companyId,
+    );
     if (!user) {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }

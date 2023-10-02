@@ -27,8 +27,8 @@ export class UserService {
     private rabbitMQService: RabbitMQService,
   ) {}
 
-  async getSingleUser(userId: string, type?: string) {
-    return this.userRepository.getSingleUser(userId, type);
+  async getSingleUser(userId: string, type?: string, companyId?: number) {
+    return this.userRepository.getSingleUser(userId, type, null, companyId);
   }
 
   async verifyEmail(user: User) {
