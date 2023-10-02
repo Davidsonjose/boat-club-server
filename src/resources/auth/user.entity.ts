@@ -116,7 +116,7 @@ export class User extends BaseEntity {
   @Column({ default: false })
   deleted: boolean;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', nullable: true })
   dateOfBirth: Date;
 
   @Column({ default: false })

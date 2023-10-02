@@ -5,6 +5,7 @@ import {
   IsEmail,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsPhoneNumber,
   IsString,
   Matches,
@@ -90,8 +91,7 @@ export class CreateUserDto {
   @ApiProperty()
   dialCode: string;
 
-  @IsNotEmpty()
-  @IsDateString()
+  @IsOptional()
   @ApiProperty()
   dateOfBirth: Date;
 
