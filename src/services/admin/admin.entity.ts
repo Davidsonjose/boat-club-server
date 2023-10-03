@@ -28,7 +28,7 @@ export class A_User extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column()
   email: string;
 
   @Column()
@@ -82,7 +82,7 @@ export class A_User extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column({ unique: true })
+  @Column()
   phoneNumber: string;
 
   @OneToOne(() => A_Settings, (setting) => setting.admin)
