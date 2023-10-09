@@ -55,6 +55,9 @@ export class User extends BaseEntity {
   @Column({ default: '' })
   pushNotificationToken: string;
 
+  @Column({ default: true })
+  allowPushNotification: boolean;
+
   @Column({ default: '' })
   referralCode: string;
 

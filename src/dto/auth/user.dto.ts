@@ -301,6 +301,9 @@ export class UpdateProfileDto {
 
   @ApiProperty()
   username: string;
+
+  @ApiProperty()
+  allowPushNotification: boolean;
 }
 
 export class UpdatePhoneDto {
