@@ -110,10 +110,10 @@ export class CreateUserDto {
   @MinLength(8)
   @MaxLength(32)
   @ApiProperty()
-  @Matches(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w\s]).*$/, {
-    message:
-      'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
-  })
+  // @Matches(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w\s]).*$/, {
+  //   message:
+  //     'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+  // })
   pwd: string;
 
   @IsNotEmpty({ message: 'User company ID is required' })
