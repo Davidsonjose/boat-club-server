@@ -19,8 +19,8 @@ import { ActivityModule } from './resources/activity/activity.module';
 import { VisitorModule } from './resources/vms/token/visitor.module';
 import { EventsModule } from './resources/events/event.module';
 import { RabbitMQModule } from './services/rabbitMQ/rabbitmq.module';
-import { CronService } from './cron/cron.service';
-import { CronModule } from './cron/cron.module';
+import { CronService } from './resources/cron/cron.service';
+import { CronModule } from './resources/cron/cron.module';
 
 @Module({
   // providers: [
