@@ -19,6 +19,8 @@ import { ActivityModule } from './resources/activity/activity.module';
 import { VisitorModule } from './resources/vms/token/visitor.module';
 import { EventsModule } from './resources/events/event.module';
 import { RabbitMQModule } from './services/rabbitMQ/rabbitmq.module';
+import { CronService } from './cron/cron.service';
+import { CronModule } from './cron/cron.module';
 
 @Module({
   // providers: [
@@ -32,6 +34,7 @@ import { RabbitMQModule } from './services/rabbitMQ/rabbitmq.module';
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
     },
+    CronService,
     // {
     //   provide: APP_FILTER,
     //   useClass: CustomExceptionFilter,
@@ -53,6 +56,7 @@ import { RabbitMQModule } from './services/rabbitMQ/rabbitmq.module';
     VisitorModule,
     EventsModule,
     RabbitMQModule,
+    CronModule,
   ],
   controllers: [AppController],
 })
