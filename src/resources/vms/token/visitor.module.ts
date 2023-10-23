@@ -7,12 +7,14 @@ import { VisitorService } from './visitor.service';
 import { VisitorController } from './visitor.controller';
 import { PassportModule } from '@nestjs/passport';
 import { Guest } from '../guest/guest.entity';
+import { UserModule } from 'src/resources/user/user.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Visitor, Guest]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     CompanyModule,
+    UserModule,
   ],
   controllers: [VisitorController],
   providers: [VisitorService, GenerateRandom],

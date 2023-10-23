@@ -25,6 +25,7 @@ import {
 } from 'src/dto/otp';
 import { Guest } from '../guest/guest.entity';
 import * as moment from 'moment';
+import { UserService } from 'src/resources/user/user.service';
 @Injectable()
 export class VisitorService {
   private logger = new Logger('TaskService', { timestamp: true });
@@ -35,6 +36,8 @@ export class VisitorService {
 
     @InjectRepository(Guest)
     private guestRepository: Repository<Guest>,
+
+    private userService: UserService,
   ) {}
 
   async getSingleVisit(code: any): Promise<Visitor> {
@@ -90,7 +93,6 @@ export class VisitorService {
     } = createTokenDto;
 
     await this.verifyUserInviteEligibility(user);
-
     if (validFrom >= expiresAt) {
       throw new BadRequestException('validFrom must be earlier than expiresAt');
     }
@@ -355,7 +357,8 @@ export class VisitorService {
   }
 
   async verifyUserInviteEligibility(user: User): Promise<boolean> {
-    if (user.settings.inviteLimit > 0) {
+    const usersettings = await this.userService.getUserSettings(user);
+    if (usersettings.inviteLimit > 0) {
       return true;
     } else {
       throw new BadRequestException('Invite limit exceeded for today');
