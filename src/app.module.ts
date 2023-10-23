@@ -21,6 +21,7 @@ import { EventsModule } from './resources/events/event.module';
 import { RabbitMQModule } from './services/rabbitMQ/rabbitmq.module';
 import { CronService } from './resources/cron/cron.service';
 import { CronModule } from './resources/cron/cron.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   // providers: [
@@ -34,16 +35,17 @@ import { CronModule } from './resources/cron/cron.module';
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
     },
-    CronService,
     // {
     //   provide: APP_FILTER,
     //   useClass: CustomExceptionFilter,
     // },
   ],
+
   imports: [
     ConfigModule.forRoot({
       validationSchema: configValidationSchema,
     }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync(typeOrmConfig),
     AuthModule,
     LocationModule,

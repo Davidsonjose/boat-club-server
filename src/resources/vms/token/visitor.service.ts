@@ -89,6 +89,8 @@ export class VisitorService {
       purposeOfVisit,
     } = createTokenDto;
 
+    await this.verifyUserInviteEligibility(user);
+
     if (validFrom >= expiresAt) {
       throw new BadRequestException('validFrom must be earlier than expiresAt');
     }
@@ -350,5 +352,13 @@ export class VisitorService {
       timeZone: 'UTC', // Specify the desired time zone, e.g., 'UTC', 'America/New_York', etc.
     });
     return formattedDateTime;
+  }
+
+  async verifyUserInviteEligibility(user: User): Promise<boolean> {
+    if (user.settings.inviteLimit > 0) {
+      return true;
+    } else {
+      throw new BadRequestException('Invite limit exceeded for today');
+    }
   }
 }
