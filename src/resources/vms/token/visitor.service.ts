@@ -362,7 +362,8 @@ export class VisitorService {
     if (usersettings.inviteLimit > 0) {
       return true;
     } else {
-      throw new BadRequestException('Invite limit exceeded for today');
+      return true;
+      // throw new BadRequestException('Invite limit exceeded for today');
     }
   }
 }
