@@ -31,7 +31,7 @@ export class Settings extends BaseEntity {
   @Column({ default: 0 })
   todayInvite: number;
 
-  @Column({ nullable: true })
+  @Column({ default: 2 })
   inviteLimit: number;
 
   @Column({ default: '$' })

@@ -358,6 +358,7 @@ export class VisitorService {
 
   async verifyUserInviteEligibility(user: User): Promise<boolean> {
     const usersettings = await this.userService.getUserSettings(user);
+    console.log(usersettings);
     if (usersettings.inviteLimit > 0) {
       return true;
     } else {
