@@ -8,12 +8,12 @@ export class NodemailerService {
 
   constructor() {
     this.transporter = nodemailer.createTransport({
-      host: 'lfzaccess.com', // Replace with your SMTP host
-      port: 465, // Use port 587 for TLS
+      host: 'smtp-relay.brevo.com', // Replace with your SMTP host
+      port: 587, // Use port 587 for TLS
       secure: true, // Use TLS (false for port 587)
       auth: {
-        user: 'info@lfzaccess.com', // Gmail or cPanel email
-        pass: '0fw=[mW$RRP6', // Gmail or cPanel password
+        user: 'quixcelsolution@gmail.com', // Gmail or cPanel email
+        pass: 'DnCYMrjaSBU7z9pd', // Gmail or cPanel password
       },
     });
     // this.transporter = nodemailer.createTransport({
@@ -30,7 +30,7 @@ export class NodemailerService {
   async sendMail(email: string, template: string, otp?: string): Promise<void> {
     try {
       const mailOptions = {
-        from: 'info@lfzaccess.com', // Change this to your email
+        from: 'Chevyview Estate', // Change this to your email
         to: email,
         subject: 'OTP Verification',
         // text: `Your OTP: ${otp}`,
