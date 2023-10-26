@@ -46,6 +46,7 @@ export class EventService {
         .where('events.userId = :userId', { userId: user.id })
         .skip(skip)
         .take(pageSize)
+        .orderBy('events.createdAt', 'DESC')
         .getMany();
     } catch (error) {
       throw error;

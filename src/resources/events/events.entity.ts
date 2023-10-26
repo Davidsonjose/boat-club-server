@@ -10,9 +10,10 @@ import {
 import { User } from '../auth/user.entity';
 import { EventsCategoryEnum } from 'src/interface/events';
 import { Visitor } from '../vms/token/visitor.entity';
+import Model from 'src/shared/entities/model.entity';
 
 @Entity()
-export class Events extends BaseEntity {
+export class Events extends Model {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
@@ -37,7 +38,4 @@ export class Events extends BaseEntity {
 
   @Column()
   description: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
 }
