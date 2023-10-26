@@ -35,6 +35,9 @@ export class Events extends BaseEntity {
   @Column()
   userId: string;
 
+  @Column()
+  description: string;
+
   @CreateDateColumn()
   createdAt: Date;
 }
