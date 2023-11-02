@@ -136,7 +136,7 @@ export class AuthRepository {
     return this.userRepository.find();
   }
 
-  async signIn(signInUserDto: SignInUserDto): Promise<LoginPayload> {
+  async signIn(signInUserDto: SignInUserDto): Promise<LoginPayload | any> {
     try {
       const { email, pwd, companyId } = signInUserDto;
       const user = await this.handleSignInAuth(
@@ -152,9 +152,11 @@ export class AuthRepository {
       const isPasswordValid = await user.comparePassword(pwd);
 
       if (user.approved == false) {
-        throw new BadRequestException(
-          `Hi ${user?.username}, Your account is under review. You will get a mail once you have been approved.`,
-        );
+        // throw new BadRequestException()
+        return {
+          message: `Your account is under review. You will be notified shortly.`,
+          type: 'NotApproved',
+        };
       }
       if (!isPasswordValid) {
         throw new UnauthorizedException(`Incorrect Credentials`);
