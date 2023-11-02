@@ -48,14 +48,14 @@ export class AuthService {
       ) {
         throw new ConflictException('Phone number already exists');
       }
-      if (
-        !(await this.isUsernameUniqueForCompany(
-          createUserDto.username,
-          createUserDto.companyId,
-        ))
-      ) {
-        throw new ConflictException('Username already exists.');
-      }
+      // if (
+      //   !(await this.isUsernameUniqueForCompany(
+      //     createUserDto.username,
+      //     createUserDto.companyId,
+      //   ))
+      // ) {
+      //   throw new ConflictException('Username already exists.');
+      // }
 
       return await this.authRepository.createUser(
         createUserDto,

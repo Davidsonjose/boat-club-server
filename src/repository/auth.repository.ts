@@ -86,7 +86,9 @@ export class AuthRepository {
         email: email?.toLowerCase(),
         phoneNumber,
         dialCode,
-        profileImageUrl,
+        profileImageUrl: profileImageUrl
+          ? profileImageUrl
+          : 'https://res.cloudinary.com/dhblwdgrp/image/upload/v1698924767/Ellipse_1_qek9nm.png',
         pin: createUserDto.pin,
         referralCode,
         settings: settings,
