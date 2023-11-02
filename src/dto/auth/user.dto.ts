@@ -59,11 +59,11 @@ export class CreateUserLocationDto {
 }
 
 export class CreateUserDto {
-  @ApiProperty()
-  @IsString()
-  @MinLength(4)
-  @MaxLength(20)
-  username: string;
+  // @ApiProperty()
+  // @IsString()
+  // @MinLength(4)
+  // @MaxLength(20)
+  // username: string;
 
   @IsString()
   @ApiProperty()

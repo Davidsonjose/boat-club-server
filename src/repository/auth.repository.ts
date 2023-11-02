@@ -58,7 +58,6 @@ export class AuthRepository {
   ) {
     try {
       const {
-        username,
         firstName,
         lastName,
         email,
@@ -82,7 +81,6 @@ export class AuthRepository {
       //
       const pass = await this.hashUserPassword(createUserDto.pwd);
       const newuser = this.userRepository.create({
-        username: username?.toLowerCase(),
         firstName,
         lastName,
         email: email?.toLowerCase(),

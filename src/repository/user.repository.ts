@@ -356,7 +356,6 @@ export class UserRepository {
       true,
       forgotPasswordVerificationDto.companyId,
     );
-    console.log(singleUser);
 
     if (singleUser) {
       //
