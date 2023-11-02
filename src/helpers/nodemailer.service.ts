@@ -96,7 +96,7 @@ export class NodemailerService {
     companyId: number,
     email: string,
     template: string,
-    otp?: string,
+    subject: string,
   ): Promise<void> {
     try {
       const companyDetails = this.getCompanyDetails(companyId);
@@ -104,7 +104,7 @@ export class NodemailerService {
       const mailOptions = {
         from: companyDetails.user,
         to: email,
-        subject: 'OTP Verification',
+        subject: subject,
         html: template,
       };
 

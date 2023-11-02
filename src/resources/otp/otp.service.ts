@@ -80,7 +80,7 @@ export class OtpService {
         user.companyId,
         user.email,
         template,
-        otp,
+        'Otp Verification',
       );
     } else if (emailType == ActivityEnumType.SIGNIN) {
       const signInTemplate = path.resolve(
@@ -97,7 +97,7 @@ export class OtpService {
         user.companyId,
         user.email,
         verifyotp,
-        otp,
+        'Otp Verification',
       );
     } else if (emailType == ActivityEnumType.FORGOT_PASSWORD) {
       const resetPasswordTemplate = path.resolve(
@@ -115,7 +115,7 @@ export class OtpService {
         user.companyId,
         user.email,
         template,
-        otp,
+        'Password Reset Email',
       );
     }
   }
