@@ -9,7 +9,7 @@ export enum CompanyId {
   PINNOCK = 4,
   ORAL = 5,
   SHONIBARE = 6,
-  VGC = 6,
+  VGC = 7,
 }
 
 @Injectable()
