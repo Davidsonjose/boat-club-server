@@ -9,6 +9,7 @@ export enum CompanyId {
   PINNOCK = 4,
   ORAL = 5,
   SHONIBARE = 6,
+  VGC = 6,
 }
 
 @Injectable()
@@ -77,6 +78,13 @@ export class NodemailerService {
           host: 'balosh.com',
           user: 'shonibare@balosh.com',
           pass: 'shonibare12345$',
+        };
+        break;
+      case CompanyId.VGC:
+        companyDetails = {
+          host: 'balosh.com',
+          user: 'vgcpora@balosh.com',
+          pass: 'vgcpora12345$',
         };
         break;
       default:
