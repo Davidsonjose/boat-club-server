@@ -131,6 +131,7 @@ export class UserRepository {
       null,
       user.companyId,
     );
+    console.log(deviceToken);
     singleuser.pushNotificationToken = deviceToken;
     await this.userRepository.save(singleuser);
     return;
