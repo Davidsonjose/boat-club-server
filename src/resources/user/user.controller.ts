@@ -79,7 +79,7 @@ export class UserController {
   @UseGuards(AuthGuard())
   async pushNotificationToken(
     @GetUser() user: User,
-    @Body() deviceToken: string,
+    @Body() { deviceToken }: { deviceToken: string },
   ) {
     try {
       return await this.userService.pushNotificationToken(deviceToken, user);
