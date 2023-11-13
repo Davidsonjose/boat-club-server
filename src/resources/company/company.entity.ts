@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { User } from '../auth/user.entity';
 import { Visitor } from '../vms/token/visitor.entity';
+import { BroadcastMessage } from '../broadcast/broadcast.entity';
 
 @Entity()
 export class Company extends BaseEntity {
@@ -51,4 +52,11 @@ export class Company extends BaseEntity {
 
   @OneToMany(() => Visitor, (visitor) => visitor.company, { nullable: true })
   visitors: Visitor[];
+
+  @OneToMany(
+    () => BroadcastMessage,
+    (broadcastMessage) => broadcastMessage.company,
+    { nullable: true },
+  )
+  broadcastMessages: BroadcastMessage[];
 }

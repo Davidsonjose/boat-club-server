@@ -18,6 +18,7 @@ import { parse } from 'pg-connection-string';
 import { A_Notifications } from 'src/services/admin/a_notification.entity';
 import { A_User } from 'src/services/admin/admin.entity';
 import { A_Settings } from 'src/services/admin/a_settings.entity';
+import { BroadcastMessage } from 'src/resources/broadcast/broadcast.entity';
 export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
   imports: [ConfigModule],
   useFactory: async (configService: ConfigService) => {
@@ -37,6 +38,7 @@ export const typeOrmConfig: TypeOrmModuleAsyncOptions = {
       A_User,
       A_Settings,
       Events,
+      BroadcastMessage,
     ];
 
     const databaseUrl = process.env.DATABASE_URL;
