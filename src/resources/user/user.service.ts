@@ -5,6 +5,7 @@ import {
   ForgotPasswordUpdateDto,
   ForgotPasswordVerificationDto,
   ForgotVerifyPayload,
+  GetUserDto,
   UpdateEmailDto,
   UpdatePasswordDto,
   UpdatePhoneDto,
@@ -475,5 +476,23 @@ export class UserService {
       console.error('Error occurred during password update:', error);
       throw error;
     }
+  }
+
+  async pushNotificationToken(
+    deviceToken: string,
+    user: GetUserDto,
+  ): Promise<void> {
+    try {
+      const updatedUser = await this.databaseService.user.update({
+        where: { id: user.id },
+        data: {
+          pushNotificationToken: deviceToken,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+
+    return;
   }
 }

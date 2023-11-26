@@ -32,6 +32,7 @@ import {
   UpdateEmailDto,
   UpdatePasswordDto,
   UpdatePhoneDto,
+  UpdatePushToken,
   UpdateUserDto,
 } from 'src/dto/auth/user.dto';
 import {
@@ -154,6 +155,26 @@ export class UserController {
   ): Promise<void> {
     try {
       return await this.usersService.updatePhone(updatePhoneDto, user);
+    } catch (err) {
+      const errMsg = safeResponse(enrichWithErrorDetail(err).error);
+      throw responseError({
+        cause: err,
+        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+      });
+    }
+  }
+
+  @Put('/pushNotificationToken')
+  @UseGuards(HttpGuard, AuthGuard)
+  async pushNotificationToken(
+    @GetUser() user: GetUserDto,
+    @Body() updatePushToken: UpdatePushToken,
+  ) {
+    try {
+      return await this.usersService.pushNotificationToken(
+        updatePushToken.deviceToken,
+        user,
+      );
     } catch (err) {
       const errMsg = safeResponse(enrichWithErrorDetail(err).error);
       throw responseError({

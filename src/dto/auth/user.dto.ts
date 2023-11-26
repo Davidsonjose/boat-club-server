@@ -427,3 +427,10 @@ export class GetUserDto {
   iat: number;
   exp: number;
 }
+
+export class UpdatePushToken {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  deviceToken: string;
+}

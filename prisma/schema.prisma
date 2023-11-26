@@ -11,39 +11,40 @@ datasource db {
 }
 
 model User {
-  id                 Int                 @id @default(autoincrement())
-  uid                String              @unique
-  email              String
-  hash               String?
-  pass               String
-  referralCode       String?
-  firstName          String
-  lastName           String
-  phoneNumber        String?
-  active             Boolean
-  emailVerified      Boolean?            @default(false)
-  hasPin             Boolean             @default(false)
-  deleted            Boolean
-  pin                String?
-  Location           Location            @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  Kyc                Kyc?
-  Loan               Loan?               @relation(fields: [loanId], references: [id], onDelete: Cascade)
-  loanId             Int                 @unique
-  profileImageUrl    String?
-  dateOfBirth        DateTime?
-  LoanWallet         LoanWallet?
-  ContributionWallet ContributionWallet?
-  SavingsWallet      SavingsWallet?
-  MainWallet         MainWallet?
-  Saving             Saving?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime?
-  locationId         Int                 @unique
-  Settings           Settings?
-  Activities         Activity[]
-  JoinContribution   JoinContribution[]
-  PointWallet        PointWallet?
-  Transaction        Transaction[]
+  id                    Int                 @id @default(autoincrement())
+  uid                   String              @unique
+  email                 String
+  hash                  String?
+  pass                  String
+  referralCode          String?
+  firstName             String
+  lastName              String
+  phoneNumber           String?
+  active                Boolean
+  emailVerified         Boolean?            @default(false)
+  hasPin                Boolean             @default(false)
+  deleted               Boolean
+  pin                   String?
+  Location              Location            @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  Kyc                   Kyc?
+  Loan                  Loan?               @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  loanId                Int                 @unique
+  profileImageUrl       String?
+  dateOfBirth           DateTime?
+  LoanWallet            LoanWallet?
+  ContributionWallet    ContributionWallet?
+  SavingsWallet         SavingsWallet?
+  MainWallet            MainWallet?
+  Saving                Saving?
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime?
+  pushNotificationToken String?
+  locationId            Int                 @unique
+  Settings              Settings?
+  Activities            Activity[]
+  JoinContribution      JoinContribution[]
+  PointWallet           PointWallet?
+  Transaction           Transaction[]
 }
 
 //savings model
