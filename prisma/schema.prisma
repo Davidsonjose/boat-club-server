@@ -16,6 +16,7 @@ model User {
   email              String
   hash               String?
   pass               String
+  referralCode       String?
   firstName          String
   lastName           String
   phoneNumber        String?
@@ -28,6 +29,8 @@ model User {
   Kyc                Kyc?
   Loan               Loan?               @relation(fields: [loanId], references: [id], onDelete: Cascade)
   loanId             Int                 @unique
+  profileImageUrl    String?
+  dateOfBirth        DateTime?
   LoanWallet         LoanWallet?
   ContributionWallet ContributionWallet?
   SavingsWallet      SavingsWallet?

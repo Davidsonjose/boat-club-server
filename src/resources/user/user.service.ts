@@ -62,6 +62,10 @@ export class UserService {
         firstName: createUserDto.firstName,
         pass: pwdHash,
         lastName: createUserDto.lastName,
+        referralCode: createUserDto.referralCode,
+        profileImageUrl: createUserDto.profileImageUrl,
+        phoneNumber: createUserDto.phoneNumber,
+        dateOfBirth: createUserDto.dateOfBirth,
         uid: userUid,
         Location: {
           create: {
