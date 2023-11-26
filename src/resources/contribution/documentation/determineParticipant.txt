@@ -1,0 +1,18 @@
+1. Fetch Contribution Details:
+The method starts by fetching the contribution details from the database, including joinContributions and related user information, using Prisma.
+
+2. Validate Contribution:
+It checks if the contribution with the specified contributionId exists. If not, it throws an error indicating that the contribution was not found.
+
+3. Sort Users:
+The joinContributions are sorted based on banicoop points and alphabetical order (if points are tied). Each user is then enriched with a participantNumber (1-indexed position) and a participantType (either 'SERVER' or 'USER').
+
+4. Separate Users:
+Users are separated into two groups: serverParticipants and userParticipants based on the totalServer and totalUser values.
+
+5. Update Participant Information:
+The participantNumber and participantType are updated for each participant based on their group (server or user).
+
+6.Update Database:
+The updated participant information is then used to update the database, specifically the joinContribution records.
+In summary, this method automates the process of determining and updating participant numbers and types for a contribution. It considers banicoop points, alphabetical order, and the specified number of server and user spaces. The updated participant information is then persisted to the database using Prisma.

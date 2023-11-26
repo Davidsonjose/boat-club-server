@@ -16,7 +16,7 @@ export enum ActivityEnumType {
 }
 
 export class CreateActivityDto {
-  userId?: string;
+  userId?: number;
 
   // @ApiParam()
   @ApiProperty({ enum: ActivityEnumType, enumName: 'Activity Types' })
@@ -34,7 +34,7 @@ export class ActivityPayload {
 export class VerifyActivityDto {
   @IsNotEmpty()
   @IsString()
-  userId: string;
+  userId: number;
 
   @IsString()
   @IsNotEmpty()

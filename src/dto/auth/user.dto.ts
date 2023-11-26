@@ -13,8 +13,8 @@ import {
   MinLength,
 } from 'class-validator';
 import { CreateSettingDto } from '../settings/settings.dto';
-import { User } from 'src/resources/auth/user.entity';
 import { OtpChannelType } from '../otp';
+import { User } from '@prisma/client';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -56,6 +56,24 @@ export class CreateUserLocationDto {
 
   @ApiProperty()
   isEu: boolean;
+}
+
+export class EmailVerifiedDto {
+  @ApiProperty()
+  @IsEmail()
+  email: string;
+}
+
+export class UpdateUserDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @MaxLength(30)
+  firstName: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @MaxLength(30)
+  lastName: string;
 }
 
 export class CreateUserDto {
@@ -133,10 +151,6 @@ export class SignInUserDto {
   @ApiProperty()
   @IsNotEmpty()
   pwd: string;
-
-  @IsNumber()
-  @IsNotEmpty()
-  companyId: number;
 }
 
 export class LoginPayload {
@@ -250,7 +264,6 @@ export class SignUpPaylod {
 }
 
 export class UpdatePinDto {
-  @ApiProperty()
   user?: User;
 
   @ApiProperty()
@@ -269,7 +282,7 @@ export class UpdatePinPayload {
 
 export interface VerifyActivityUsage {
   activityHash: string;
-  userId: string;
+  userId: number;
   activityUsage: ActivityUsageEnum;
 }
 
@@ -355,7 +368,7 @@ export class ForgotPasswordVerificationDto {
 export class ForgotPasswordUpdateDto {
   @ApiProperty()
   @IsNotEmpty()
-  userId: string;
+  userId: number;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -381,7 +394,6 @@ export interface ActivityUsageData {
   UPDATE_PIN: number;
   SIGNUP: number;
 }
-
 export class ForgotVerifyPayload {
   @ApiProperty()
   message: string;
@@ -393,5 +405,25 @@ export class ForgotVerifyPayload {
   activityHash: string | null;
 
   @ApiProperty()
-  userId: string;
+  userId: number;
+
+  @ApiProperty()
+  accessToken: string;
+
+  @ApiProperty()
+  refreshToken: string;
+}
+
+export class GetUserDto {
+  id: number;
+  uid: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  clientIp: string;
+  active: false;
+  updatedAt: Date;
+  createdAt: Date;
+  iat: number;
+  exp: number;
 }

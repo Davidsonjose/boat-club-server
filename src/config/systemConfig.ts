@@ -13,6 +13,7 @@ export default function () {
 }
 
 export class SystemConfigDto {
+  static DATABASE_URL = 'DATABASE_URL';
   static DB_DATABASE = 'DB_DATABASE';
   static DB_HOST = 'DB_HOST';
   static DB_PASSWORD = 'DB_PASSWORD';
@@ -22,5 +23,7 @@ export class SystemConfigDto {
   static QUEUE = 'QUEUE';
   static RABBITMQ_URL = 'CLOUDAMQP_URL';
   static STAGE = 'STAGE';
+  static TWILIO_SID = 'TWILIO_SID';
+  static TWILIO_ACCT_TOKEN = 'TWILIO_ACCT_TOKEN';
   static RABBITMQ_SERVICE = 'RABBITMQ_SERVICE';
 }

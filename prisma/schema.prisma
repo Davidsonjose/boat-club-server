@@ -1,0 +1,459 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 Int                 @id @default(autoincrement())
+  uid                String              @unique
+  email              String
+  hash               String?
+  pass               String
+  firstName          String
+  lastName           String
+  phoneNumber        String?
+  active             Boolean
+  emailVerified      Boolean?            @default(false)
+  hasPin             Boolean             @default(false)
+  deleted            Boolean
+  pin                String?
+  Location           Location            @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  Kyc                Kyc?
+  Loan               Loan?               @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  loanId             Int                 @unique
+  LoanWallet         LoanWallet?
+  ContributionWallet ContributionWallet?
+  SavingsWallet      SavingsWallet?
+  MainWallet         MainWallet?
+  Saving             Saving?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime?
+  locationId         Int                 @unique
+  Settings           Settings?
+  Activities         Activity[]
+  JoinContribution   JoinContribution[]
+  PointWallet        PointWallet?
+  Transaction        Transaction[]
+}
+
+//savings model
+
+model Saving {
+  id           Int                @id @default(autoincrement())
+  categoryType SavingCategoryType
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       Int                @unique
+  fixedSaving  FixedSaving[]
+  targetSaving TargetSaving[]
+  spendAndSave SpendAndSave[]
+  Transactions Transaction[]
+  wallet       SavingsWallet      @relation(fields: [savingsWalletId], references: [id])
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime?
+  savingsWalletId Int
+}
+
+//loans model
+
+model Loan {
+  id           Int                @id @default(autoincrement())
+  categoryType SavingCategoryType
+  user         User?
+  userId       Int                @unique
+  fixedSaving  GoalBasedLoan[]
+  PaydayLoan   PaydayLoan[]
+
+  Wallet LoanWallet @relation(fields: [loanWalletId], references: [id])
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime?
+  loanWalletId Int       @unique
+}
+
+model SpendAndSave {
+  id      Int      @id @default(autoincrement())
+  ongoing Boolean?
+
+  saving    Saving?   @relation(fields: [savingId], references: [id])
+  savingId  Int       @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+}
+
+model TargetSaving {
+  id         Int       @id @default(autoincrement())
+  ongoing    Boolean?
+  targetDate DateTime? // Target date for reaching the savings goal
+  startDate  DateTime?
+  endDate    DateTime?
+  amount     Float? // Target amount for savings goal
+
+  saving    Saving?   @relation(fields: [savingId], references: [id])
+  savingId  Int       @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+}
+
+model FixedSaving {
+  id          Int       @id @default(autoincrement())
+  ongoing     Boolean?
+  startAmount Float? // Initial amount for Fixed Savings
+  startDate   DateTime?
+  endDate     DateTime?
+
+  saving    Saving?   @relation(fields: [savingId], references: [id])
+  savingId  Int       @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+}
+
+// loan categories
+model GoalBasedLoan {
+  id            Int       @id @default(autoincrement())
+  ongoing       Boolean?
+  targetDate    DateTime? // Target date for reaching the savings goal
+  startDate     DateTime?
+  endDate       DateTime?
+  amount        Float? // Target amount for savings goal
+  interestRate  Float?
+  paydayDueDate DateTime?
+  documents     String?
+  Loan          Loan?     @relation(fields: [loanId], references: [id])
+  loanId        Int       @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime?
+}
+
+model PaydayLoan {
+  id            Int       @id @default(autoincrement())
+  ongoing       Boolean?
+  targetDate    DateTime? // Target date for reaching the savings goal
+  startDate     DateTime?
+  endDate       DateTime?
+  amount        Float? // Target amount for savings goal
+  interestRate  Float?
+  documents     String?
+  paydayDueDate DateTime?
+  Loan          Loan?     @relation(fields: [loanId], references: [id])
+  loanId        Int       @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime?
+}
+
+model Kyc {
+  id           Int      @id @default(autoincrement())
+  Tier1        Tier1?
+  Tier2        Tier2?
+  Tier3        Tier3?
+  userId       Int      @unique
+  User         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kycId        Int?     @unique
+  currentLevel KycLevel @default(Tier1)
+}
+
+model Activity {
+  id            Int              @id @default(autoincrement())
+  activityHash  String
+  activityType  ActivityEnumType
+  User          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        Int
+  usage         Int
+  expectedUsage Int
+  expiresAt     DateTime
+  createdAt     DateTime         @default(now())
+}
+
+model Location {
+  id          Int     @id @default(autoincrement())
+  ipAddress   String
+  latitude    String
+  longitude   String
+  country     String
+  countryCode String
+  dialCode    String
+  continent   String
+  borders     String
+  timezone    String
+  utc         String
+  isEu        Boolean
+  userId      Int?    @unique
+  Users       User?
+}
+
+model Settings {
+  id                      Int       @id @default(autoincrement())
+  twoFaEnabledEmail       Boolean
+  twoFaEnabledPhone       Boolean
+  enablePushNotification  Boolean   @default(true)
+  enableEmailNotification Boolean   @default(true)
+  languageCode            String    @default("EN")
+  defaultCurrencyCode     String    @default("USD")
+  defaultCurrencyName     String    @default("United State Dollar")
+  defaultCurrencySymbol   String    @default("$")
+  createdAt               DateTime? @default(now())
+  updatedAt               DateTime? @default(now())
+  User                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                  Int       @unique
+}
+
+model Tier1 {
+  id                 Int                   @id @default(autoincrement())
+  phoneNumber        String?
+  email              String?
+  emailVerified      Boolean               @default(false)
+  phoneVerified      Boolean               @default(false)
+  kycSubmitted       Boolean               @default(false)
+  kycId              Int                   @unique
+  Kyc                Kyc?                  @relation(fields: [kycId], references: [id])
+  verificationStatus KycVerificationStatus @default(PENDING)
+}
+
+model Tier2 {
+  id                  Int                   @id @default(autoincrement())
+  address             String?
+  faceVerificationUrl String?
+  faceVerified        Boolean               @default(false)
+  addressVerified     Boolean               @default(false)
+  kycSubmitted        Boolean               @default(false)
+  kycId               Int                   @unique
+  Kyc                 Kyc?                  @relation(fields: [kycId], references: [id])
+  verificationStatus  KycVerificationStatus @default(PENDING)
+  trial               Int                   @default(0)
+}
+
+model Tier3 {
+  id                 Int                   @id @default(autoincrement())
+  bvn                String?
+  bvnVerified        Boolean               @default(false)
+  kycId              Int                   @unique
+  kycSubmitted       Boolean               @default(false)
+  Kyc                Kyc?                  @relation(fields: [kycId], references: [id])
+  verificationStatus KycVerificationStatus @default(PENDING)
+  trial              Int                   @default(0)
+}
+
+model ContributionWallet {
+  id           Int           @id @default(autoincrement())
+  balance      Float
+  Transactions Transaction[]
+  userId       Int           @unique
+  User         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Add other fields as needed
+}
+
+model PointWallet {
+  id             Int    @id @default(autoincrement())
+  banicoopPoints String
+  // Transactions Transaction[]
+  userId         Int    @unique
+  User           User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Add other fields as needed
+}
+
+model SavingsWallet {
+  id           Int           @id @default(autoincrement())
+  balance      Float
+  Transactions Transaction[]
+  userId       Int           @unique
+  User         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Add other fields as needed
+  Saving       Saving[]
+}
+
+model MainWallet {
+  id            Int           @id @default(autoincrement())
+  balance       Float
+  Transactions  Transaction[]
+  userId        Int           @unique
+  User          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountNumber String
+  accountName   String
+
+  // Add other fields as needed
+}
+
+model LoanWallet {
+  id           Int           @id @default(autoincrement())
+  balance      Float
+  Transactions Transaction[]
+  userId       Int           @unique
+  User         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Loan         Loan?
+  // Add other fields as needed
+}
+
+model Transaction {
+  id                   Int                 @id @default(autoincrement())
+  amount               Float
+  description          String
+  walletType           WalletType
+  transactionType      TransactionType
+  transactionStatus    TransactionStatus
+  transactionRef       String?
+  // Add other fields as needed
+  LoanWallet           LoanWallet?         @relation(fields: [loanWalletId], references: [id])
+  loanWalletId         Int?
+  ContributionWallet   ContributionWallet? @relation(fields: [contributionWalletId], references: [id])
+  contributionWalletId Int?
+  SavingsWallet        SavingsWallet?      @relation(fields: [savingsWalletId], references: [id])
+  savingsWalletId      Int?
+  MainWallet           MainWallet?         @relation(fields: [mainWalletId], references: [id])
+  mainWalletId         Int?
+  Saving               Saving?             @relation(fields: [savingId], references: [id])
+  savingId             Int?
+  JoinContribution     JoinContribution?   @relation(fields: [joinContributionId], references: [id])
+  joinContributionId   Int?
+  User                 User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId               Int                 @unique
+}
+
+/// Contribution model
+model Contribution {
+  id                 Int                 @id @default(autoincrement())
+  contributionName   String //
+  monthlyAmount      Float // 
+  monthlyOutput      Float? // 
+  startDate          DateTime // 
+  endDate            DateTime //
+  participants       Int //
+  fixedMonth         DateTime //
+  status             ContributionStatus  @default(OPEN)
+  joinContributions  JoinContribution[]
+  totalUser          Int //
+  totalServer        Int //
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime?
+  endMonth           DateTime
+  contributionMonths ContributionMonth[]
+}
+
+model ContributionMonth {
+  id             Int          @id @default(autoincrement())
+  month          String
+  userPaid       Int[]
+  contribution   Contribution @relation(fields: [contributionId], references: [id])
+  contributionId Int
+  fixedMonth     Boolean      @default(false)
+}
+
+model JoinContribution {
+  id                Int           @id @default(autoincrement())
+  User              User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            Int?
+  Contribution      Contribution? @relation(fields: [contributionId], references: [id])
+  contributionId    Int?
+  monthOfCollection DateTime?
+  participantNumber Int?
+  interestFee       Float?
+  faultingFee       Float?
+  monthsRemaining   Int?
+  dayOfRemittance   String?
+  useDetails        Boolean?
+  displayName       String?
+  isServer          Boolean
+  Transactions      Transaction[]
+
+  participantType ParticipantType
+  // Add other fields related to user's participation in the contribution
+
+  contributionUserMonth ContributionUserMonth[]
+  ServerUser            ServerUser?             @relation(fields: [serverUserId], references: [id], onDelete: Cascade)
+  serverUserId          Int?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime?               @default(now())
+}
+
+model ServerUser {
+  id               Int                @id @default(autoincrement())
+  serverUID        String // Add any additional fields you need for the server
+  joinContribution JoinContribution[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @default(now())
+}
+
+model ContributionUserMonth {
+  id                 Int              @id @default(autoincrement())
+  month              String
+  paid               Boolean
+  monthOfCollection  Boolean
+  joinContribution   JoinContribution @relation(fields: [joinContributionId], references: [id])
+  joinContributionId Int
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  AIRTIME
+  ELECTRICTY
+}
+
+enum WalletType {
+  loanWallet
+  mainWallet
+  savingWallet
+  contributionWallet
+}
+
+enum TransactionStatus {
+  PENDING
+  FAILED
+  SUCCESSFUL
+}
+
+enum ActivityEnumType {
+  SIGNUP
+  SIGNIN
+  SEND_OTP
+  CHANGE_PASSWORD
+  UPDATE_PIN
+  SETTINGS_UPDATE
+  DELETE_USER
+  CHANGE_EMAIL
+  CHANGE_PHONE
+  FORGOT_PASSWORD
+  TRANSFER_MONEY
+  FUND_CONTRIBUTION_WALLET
+}
+
+enum KycLevel {
+  Tier1
+  Tier2
+  Tier3
+}
+
+enum SavingCategoryType {
+  SPEND_AND_SAVE
+  FIXED_SAVINGS
+  TARGET_SAVINGS
+}
+
+enum LoanCategoryType {
+  GOAL_BASED_LOAN
+  PAYDAY_LOAN
+}
+
+enum ContributionStatus {
+  OPEN
+  CLOSED
+  COMPLETED
+}
+
+enum ParticipantType {
+  SERVER
+  USER
+}
+
+enum KycVerificationStatus {
+  SUCCESSFUL
+  FAILED
+  PENDING
+}

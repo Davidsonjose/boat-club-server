@@ -1,4 +1,4 @@
-import { User } from 'src/resources/auth/user.entity';
+import { User } from '@prisma/client';
 import {
   NotificationCategories,
   NotificationRel,

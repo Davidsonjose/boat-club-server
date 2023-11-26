@@ -1,14 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { EventsCategoryEnum } from 'src/interface/events';
-import { User } from 'src/resources/auth/user.entity';
-import { Visitor } from 'src/resources/vms/token/visitor.entity';
 import { UserVisitPayload, VisitDetails } from '../token';
+import { User } from '@prisma/client';
 
 export class CreateEventDto {
   title: string;
   category: EventsCategoryEnum;
   amount?: string;
-  visitor?: Visitor;
+  visitor?: any;
   user: User;
 }
 

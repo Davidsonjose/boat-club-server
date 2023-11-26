@@ -1,96 +1,146 @@
 import {
   Body,
   Controller,
-  Get,
   HttpException,
   HttpStatus,
+  Logger,
   Post,
   Put,
   Req,
-  Request,
   UseGuards,
 } from '@nestjs/common';
-import { User } from './user.entity';
-import { AuthService } from './auth.service';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { AuthRefreshAccessTokenDto } from 'src/dto/auth/auth-token.dto';
 import {
   CreateUserDto,
   ForgotPasswordUpdateDto,
   ForgotPasswordVerificationDto,
   ForgotVerifyPayload,
-  SignInPayload,
   SignInUserDto,
-  SignUpPaylod,
-  UserPayloadData,
 } from 'src/dto/auth/user.dto';
-import { LocationService } from '../location/location.service';
-import { UserService } from '../user/user.service';
-import { AllowExpiredJwtAuthGuard } from 'src/middleware/jwt-auth.guard';
-import { AuthGuard } from '@nestjs/passport';
-import {
-  RefreshTokenDto,
-  RefreshTokenPayload,
-} from 'src/dto/auth/auth-token.dto';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { responseError, safeResponse } from 'src/helpers/http-response';
-import { enrichWithErrorDetail } from 'src/helpers/axiosError';
-import { systemResponses } from 'src/res/systemResponse';
 import {
   ForgotPasswordVerifyPayload,
+  OtpChannelType,
   VerifyForgotOtpDto,
   VerifyOtpDto,
+  VerifySmsOtpDto,
 } from 'src/dto/otp';
+import { HttpGuard } from 'src/guards/http.guard';
+import { enrichWithErrorDetail } from 'src/helpers/axiosError';
+import {
+  responseError,
+  responseOk,
+  safeResponse,
+} from 'src/helpers/http-response';
+import { systemResponses } from 'src/res/systemResponse';
+import { UserService } from '../user/user.service';
 import { OtpService } from '../otp/otp.service';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
-@ApiTags('Authentication')
+@ApiTags('auth')
 export class AuthController {
   constructor(
-    private authService: AuthService,
-    private locationService: LocationService,
     private userService: UserService,
+
     private otpService: OtpService,
+
+    private authService: AuthService,
   ) {}
 
   @Post('/signUp')
-  @ApiOkResponse({ description: 'Successful', type: SignUpPaylod })
-  async createUser(@Body() createUserDto: CreateUserDto, @Req() req) {
-    const ipAddress = req.headers['x-forwarded-for'] || req.ip;
-    try {
-      return this.authService.createUser(createUserDto, ipAddress);
-    } catch (err) {
-      const errMsg = safeResponse(enrichWithErrorDetail(err).error);
-      throw responseError({
-        cause: err,
-        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
-      });
-    }
-  }
-
-  @Post('/signIn')
-  @ApiOkResponse({ description: 'Successful', type: SignInPayload })
-  async signIn(@Body() signInUserDto: SignInUserDto) {
-    try {
-      return await this.authService.signIn(signInUserDto);
-    } catch (err) {
-      const errMsg = safeResponse(enrichWithErrorDetail(err).error);
-      throw responseError({
-        cause: err,
-        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
-      });
-    }
-  }
-
-  @Post('/refresh')
-  @UseGuards(AllowExpiredJwtAuthGuard)
-  @ApiOkResponse({ description: 'Successful', type: RefreshTokenPayload })
-  async refreshUserToken(
-    @Request() req,
-    @Body() refreshTokenDto: RefreshTokenDto,
+  @UseGuards(HttpGuard)
+  async create(
+    @Req() fastifyRequest: any,
+    @Body() createUserDto: CreateUserDto,
   ) {
-    return await this.authService.refreshUserToken(
-      req.user.sub,
-      refreshTokenDto,
-    );
+    try {
+      const resp = await this.userService.create({
+        ...createUserDto,
+        ipAddress: fastifyRequest.requestState.clientIp,
+      });
+
+      if (!resp) {
+        throw new HttpException(
+          `Failed to create User account`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      return responseOk({
+        data: resp,
+        message: `Created new user account`,
+      });
+    } catch (err: any) {
+      const errMsg = safeResponse(err);
+      console.log(err);
+
+      Logger.error(err);
+
+      throw responseError({
+        cause: err,
+        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+      });
+    }
+  }
+
+  @Post('/login')
+  @UseGuards(HttpGuard)
+  async userLogin(
+    @Req() fastifyRequest: any,
+    @Body() createAuthDto: SignInUserDto,
+  ) {
+    try {
+      const createResp = await this.authService.login({
+        email: createAuthDto.email,
+        ipAddress: fastifyRequest.requestState.clientIp,
+        pwd: createAuthDto.pwd,
+      });
+
+      return responseOk({
+        data: {
+          user: createResp.user,
+          accessToken: createResp.accessToken,
+          refreshToken: createResp.refreshToken,
+          activityHash: createResp.activityHash,
+        },
+        message: `Welcome back ${createResp.user.firstName}`,
+      });
+    } catch (err: any) {
+      console.log(err);
+      const errMsg = safeResponse(err);
+
+      throw responseError({
+        cause: err,
+        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+      });
+    }
+  }
+
+  @Post('/refreshAccessToken')
+  @UseGuards(HttpGuard)
+  async refreshAccessToken(
+    @Req() fastifyRequest: any,
+    @Body() refreshTokenDto: AuthRefreshAccessTokenDto,
+  ) {
+    try {
+      const resp = await this.authService.getNewAccessToken({
+        ipAddress: fastifyRequest.requestState.clientIp,
+        refreshToken: refreshTokenDto.refreshToken,
+      });
+
+      return responseOk({
+        data: resp,
+        message: `Gotten new accessToken`,
+      });
+    } catch (err: any) {
+      const errMsg = safeResponse(err);
+      Logger.error(err);
+      throw responseError({
+        cause: err,
+        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+      });
+    }
   }
 
   @Post('/forgot_password_verify')
@@ -115,19 +165,14 @@ export class AuthController {
     }
   }
 
-  @Post('/forgot_verify_otp')
-  @ApiOkResponse({
-    description: 'Successful',
-  })
-  async verifyForgotOtp(
+  @Put('/forgot_password_update')
+  @ApiOkResponse({ description: 'Successful' })
+  async forgetPasswordUpdate(
     @Body()
-    verifyForgotOtp: VerifyForgotOtpDto,
+    forgotPasswordUpdateDto: ForgotPasswordUpdateDto,
   ) {
     try {
-      return await this.otpService.verifyOtp({
-        userId: verifyForgotOtp.userId,
-        ...verifyForgotOtp,
-      });
+      await this.userService.forgotPasswordUpdate(forgotPasswordUpdateDto);
     } catch (err) {
       const errMsg = safeResponse(enrichWithErrorDetail(err).error);
       throw responseError({
@@ -137,14 +182,30 @@ export class AuthController {
     }
   }
 
-  @Put('/forgot_password_update')
-  @ApiOkResponse({ description: 'Successful' })
-  async forgetPasswordUpdate(
+  @Post('/forgot_verify_otp')
+  @ApiOkResponse({
+    description: 'Successful',
+  })
+  async verifyForgotOtp(
     @Body()
-    forgotPasswordUpdateDto: ForgotPasswordUpdateDto,
+    verifyForgotOtp: VerifyForgotOtpDto,
   ) {
     try {
-      await this.userService.forgotPasswordUpdate(forgotPasswordUpdateDto);
+      if (verifyForgotOtp.channel == OtpChannelType.EMAIL) {
+        const info: VerifyOtpDto = {
+          otp: verifyForgotOtp.otp,
+          email: verifyForgotOtp.email,
+          channel: verifyForgotOtp.channel,
+        };
+        return await this.otpService.verifyEmailOtp(info);
+      } else if (verifyForgotOtp.channel == OtpChannelType.SMS) {
+        const info: VerifySmsOtpDto = {
+          otp: verifyForgotOtp.otp,
+          phoneNumber: verifyForgotOtp.phone,
+          dialCode: verifyForgotOtp.diaCode,
+        };
+        return await this.otpService.verifySmsOtp(info);
+      }
     } catch (err) {
       const errMsg = safeResponse(enrichWithErrorDetail(err).error);
       throw responseError({

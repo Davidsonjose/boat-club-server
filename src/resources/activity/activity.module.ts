@@ -1,16 +1,21 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { PassportModule } from '@nestjs/passport';
-import { Activities } from './activity.entity';
+import { Module, forwardRef } from '@nestjs/common';
 import { ActivityService } from './activity.service';
-import { activityController } from './activity.controller';
+import { ActivityController } from './activity.controller';
+import { DatabaseService } from 'src/services/database/database.service';
+import { DatabaseModule } from 'src/services/database/database.module';
+import { ConfigModule } from '@nestjs/config';
+import { UserModule } from '../user/user.module';
+import { UserService } from '../user/user.service';
+import { OtpModule } from '../otp/otp.module';
+
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Activities]),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    ConfigModule,
+    forwardRef(() => UserModule),
+    forwardRef(() => OtpModule),
   ],
-  providers: [ActivityService],
-  controllers: [activityController],
+  providers: [ActivityService, DatabaseService],
+  controllers: [ActivityController],
   exports: [ActivityService],
 })
 export class ActivityModule {}

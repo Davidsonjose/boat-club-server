@@ -1,19 +1,23 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { PassportModule } from '@nestjs/passport';
-import { OtpVerification } from './otpVerification';
+import { Module, forwardRef } from '@nestjs/common';
 import { OtpService } from './otp.service';
-import { OtpController } from './otp.controller';
-import { NodemailerService } from 'src/helpers/nodemailer.service';
+import TwilioService from 'src/services/twilio/twilio.service';
 import { ActivityModule } from '../activity/activity.module';
+import { UserModule } from '../user/user.module';
+import { UserService } from '../user/user.service';
+import { ActivityService } from '../activity/activity.service';
+import { TwilioModule } from 'src/services/twilio/twilio.module';
+import { ConfigModule } from '@nestjs/config';
+import { OtpController } from './otp.controller';
+
 @Module({
   imports: [
-    TypeOrmModule.forFeature([OtpVerification]),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
-    ActivityModule,
+    ConfigModule,
+    forwardRef(() => ActivityModule),
+    forwardRef(() => TwilioModule),
+    forwardRef(() => UserModule),
   ],
-  providers: [OtpService, NodemailerService],
+  providers: [OtpService],
   controllers: [OtpController],
-  exports: [NodemailerService, OtpService],
+  exports: [OtpService],
 })
 export class OtpModule {}

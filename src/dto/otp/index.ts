@@ -1,6 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, MinLength } from 'class-validator';
-import { User } from 'src/resources/auth/user.entity';
+import { User } from '@prisma/client';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
 export class CreateOtpDto {
   user?: User;
@@ -45,7 +52,7 @@ export class OtpDataPayload {
 }
 
 export class VerifyOtpDto {
-  userId?: string;
+  userId?: number;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -62,15 +69,51 @@ export class VerifyOtpDto {
   diaCode?: string;
 
   @ApiProperty()
-  email?: string;
+  email?: any;
 
   @ApiProperty()
   activityHash?: string;
+
+  @ApiPropertyOptional()
+  verifyEmail?: boolean;
+}
+
+export class VerifyEmailOtpDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  otp: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  verifyEmail?: boolean;
+
+  @ApiPropertyOptional()
+  activityHash?: string;
+}
+
+export class VerifySmsOtpDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  otp: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsPhoneNumber()
+  phoneNumber: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  dialCode: string;
 }
 export class VerifyForgotOtpDto {
   @ApiProperty()
   @IsNotEmpty()
-  userId?: string;
+  userId?: number;
 
   @ApiProperty()
   @IsNotEmpty()

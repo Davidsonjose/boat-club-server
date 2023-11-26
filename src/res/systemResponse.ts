@@ -8,5 +8,9 @@ export const systemResponses = {
     NOTIFICATION: {
       UPDATED_PROFILE: `Your account details were updated. If this wasn't you, please contact support immediately`,
     },
+    INVALID_SESSION: 'Sorry, We could no longer validate your session.',
+
+    USER_DEACTIVATED:
+      'Sorry, your account has been deactivated. Please contact admin for resolution',
   },
 };

@@ -1,4 +1,14 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
+
+import * as bcrypt from 'bcrypt';
+
+import { UserService } from '../user/user.service';
+import { DatabaseService } from 'src/services/database/database.service';
 import {
   ActivityEnumType,
   ActivityPayload,
@@ -6,50 +16,43 @@ import {
   VerifyActivityDto,
   activityUsageMap,
 } from 'src/dto/activity/activity.dto';
-import { User } from '../auth/user.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Activities } from './activity.entity';
-import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
-import {
-  ActivityUsageData,
-  ActivityUsageEnum,
-  VerifyActivityUsage,
-} from 'src/dto/auth/user.dto';
+import { ActivityUsageEnum, VerifyActivityUsage } from 'src/dto/auth/user.dto';
 
 @Injectable()
 export class ActivityService {
+  // constructor() {}
+
   constructor(
-    @InjectRepository(Activities)
-    private activityRepository: Repository<Activities>,
+    @Inject(forwardRef(() => UserService))
+    private userService: UserService,
+
+    private databaseService: DatabaseService,
   ) {}
 
-  async intiateActivity(
+  async initiateActivity(
     createActivityDto: CreateActivityDto,
-    user: User,
+    userId: number,
   ): Promise<ActivityPayload> {
+    const user = await this.userService.findOne(userId);
     const { activityType } = createActivityDto;
-
-    console.log(activityType);
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 10);
-
     const usage = this.getActivitiesUsage(activityType);
     const activityHash = await this.generateRandomHash();
-    const newinfo = await this.activityRepository.save({
-      userId: user.id,
-      expiresAt,
-      expectedUsage: usage,
-      activityHash,
-      activityType,
+    const newActivity = await this.databaseService.activity.create({
+      data: {
+        User: { connect: { id: user.id } },
+        expiresAt,
+        expectedUsage: usage,
+        activityHash,
+        activityType,
+        usage: 2,
+      },
     });
-
-    const newActivity: ActivityPayload = {
-      activityHash: newinfo.activityHash,
+    return {
+      activityHash: newActivity.activityHash,
       activityType: activityType,
     };
-    return newActivity;
-    // return this.activityRepository.create();
   }
 
   async verifyActivityHash(
@@ -74,18 +77,6 @@ export class ActivityService {
             'Invalid Activity Hash or Expired Activity Hash.',
           );
         }
-
-        // if (record.expectedUsage == ActivityUsageEnum.TWO_AUTHENTICATION + 1) {
-        //   if (record.usage !== ActivityUsageEnum.TWO_AUTHENTICATION) {
-        //   }
-        // }
-
-        // check if the activity has been used
-        // if (record.expectedUsage == record.usage) {
-        //   throw new BadRequestException(
-        //     'Activity Hash has been used or expired.',
-        //   );
-        // }
       } else {
         throw new BadRequestException('Invalid activty hash for this activity');
       }
@@ -93,48 +84,23 @@ export class ActivityService {
     }
   }
 
-  async getSingleActivity(hash: string, userId: string): Promise<Activities> {
-    // return;
-
-    const record = await this.activityRepository.findOne({
-      where: { activityHash: hash, userId: userId },
+  async getSingleActivity(hash: string, userId: number) {
+    const record = await this.databaseService.activity.findFirst({
+      where: {
+        activityHash: hash,
+        userId: userId,
+      },
     });
-    // console.log('na here oooooo');
+
     if (!record) {
-      // throw UnauthorizedException(
-      //   'Invalid OTP or Expired otp. Please check your inbox and try again.',
-      // );
       throw new BadRequestException('Invalid Activity Hash or Expired Hash.');
     }
+
     return record;
   }
 
   getActivitiesUsage(activityType: ActivityEnumType) {
     return activityUsageMap[activityType];
-
-    // if (activityType == ActivityEnumType.CHANGE_EMAIL) {
-    //   return 2;
-    // } else if (activityType == ActivityEnumType.CHANGE_PASSWORD) {
-    //   return 2;
-    // } else if (activityType == ActivityEnumType.CHANGE_PHONE) {
-    //   return 2;
-    // } else if (activityType == ActivityEnumType.DELETE_USER) {
-    //   return 1;
-    // } else if (activityType == ActivityEnumType.FORGOT_PASSWORD) {
-    //   return 2;
-    // } else if (activityType == ActivityEnumType.SEND_OTP) {
-    //   return 1;
-    // } else if (activityType == ActivityEnumType.SETTINGS_UPDATE) {
-    //   return 1;
-    // } else if (activityType == ActivityEnumType.SIGNIN) {
-    //   return 1;
-    // } else if (activityType == ActivityEnumType.SIGNUP) {
-    //   return 1;
-    // } else if (activityType == ActivityEnumType.UPDATE_PIN) {
-    //   return 2;
-    // } else {
-    //   return;
-    // }
   }
 
   async updateActivityStatus(
@@ -146,19 +112,34 @@ export class ActivityService {
     );
 
     if (record) {
-      if (record.expectedUsage == ActivityUsageEnum.ONE_AUTHENTICATION) {
-        record.usage = ActivityUsageEnum.ONE_AUTHENTICATION;
-        await this.activityRepository.save(record);
+      if (record.expectedUsage === ActivityUsageEnum.ONE_AUTHENTICATION) {
+        await this.databaseService.activity.update({
+          where: {
+            id: record.id,
+          },
+          data: {
+            usage: ActivityUsageEnum.ONE_AUTHENTICATION,
+          },
+        });
         return true;
       } else if (
-        record.expectedUsage ==
+        record.expectedUsage ===
         ActivityUsageEnum.TWO_AUTHENTICATION + 1
       ) {
-        record.usage = record.usage + 1;
-        await this.activityRepository.save(record);
+        await this.databaseService.activity.update({
+          where: {
+            id: record.id,
+          },
+          data: {
+            usage: {
+              increment: 1,
+            },
+          },
+        });
         return true;
       }
     }
+    return false;
   }
 
   async generateRandomHash(): Promise<string> {
@@ -185,5 +166,41 @@ export class ActivityService {
         }
       }
     }
+  }
+
+  async initiateUserActivity(
+    activityType: ActivityEnumType,
+    userId: number,
+  ): Promise<string> {
+    try {
+      const info = {
+        activityType,
+      };
+      const resp = await this.initiateActivity(info, userId);
+
+      return resp.activityHash;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async verifyUserActivity(
+    activityHash: string,
+    user: any,
+    activityUsage: number,
+  ): Promise<any> {
+    const singleActivity = await this.getSingleActivity(activityHash, user.id);
+    const verifyHashInfo = {
+      userId: user.id,
+      activityType: singleActivity.activityType as ActivityEnumType,
+      activityHash,
+    };
+    await this.verifyActivityHash(verifyHashInfo);
+    await this.verifyActivityUsage({
+      activityHash,
+      userId: user.id,
+      activityUsage: activityUsage,
+    });
+    return singleActivity;
   }
 }

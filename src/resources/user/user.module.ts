@@ -1,31 +1,22 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../auth/user.entity';
-import { UserRepository } from 'src/repository/user.repository';
-import { LocationModule } from '../location/location.module';
-import { SettingsModule } from '../settings/settings.module';
-import { PassportModule } from '@nestjs/passport';
 import { ActivityModule } from '../activity/activity.module';
+import { DatabaseService } from 'src/services/database/database.service';
+import IpwhoisService from 'src/services/ipwhois/IpwhoisService';
+import { ActivityService } from '../activity/activity.service';
 import { OtpModule } from '../otp/otp.module';
-import { NotificationRepository } from 'src/repository/notification.repository';
-import { Notifications } from '../notification/notification.entity';
-import { NotificationService } from '../notification/notification.service';
-import { Settings } from '../settings/settings.entity';
-import { RabbitMQModule } from 'src/services/rabbitMQ/rabbitmq.module';
+import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from '../auth/auth.module';
+
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Notifications, Settings]),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
-    LocationModule,
-    SettingsModule,
-    ActivityModule,
-    OtpModule,
-    SettingsModule,
-    RabbitMQModule,
+    ConfigModule,
+    forwardRef(() => ActivityModule),
+    forwardRef(() => OtpModule),
+    forwardRef(() => AuthModule),
   ],
-  providers: [UserService, UserRepository, NotificationRepository],
+  providers: [UserService, DatabaseService, IpwhoisService],
   controllers: [UserController],
   exports: [UserService],
 })

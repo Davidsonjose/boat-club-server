@@ -1,173 +1,98 @@
-// otp/otp.service.ts
 import {
   BadRequestException,
+  Inject,
   Injectable,
-  UnauthorizedException,
+  forwardRef,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { OtpVerification } from './otpVerification';
-import { NodemailerService } from 'src/helpers/nodemailer.service';
-import { Repository } from 'typeorm';
+
+import { Location, User } from '@prisma/client';
+import TwilioService from 'src/services/twilio/twilio.service';
 import {
-  CreateOtpDto,
   OtpChannelType,
-  OtpEmailTypeEnum,
+  VerifyEmailOtpDto,
   VerifyOtpDto,
+  VerifySmsOtpDto,
 } from 'src/dto/otp';
+import { ActivityUsageEnum, GetUserDto } from 'src/dto/auth/user.dto';
 import { ActivityService } from '../activity/activity.service';
-import * as path from 'path';
-import * as ejs from 'ejs';
-import { User } from '../auth/user.entity';
-import { ActivityEnumType } from 'src/dto/activity/activity.dto';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class OtpService {
   constructor(
-    private readonly nodemailerService: NodemailerService,
-    @InjectRepository(OtpVerification)
-    private otpVerificationRepository: Repository<OtpVerification>,
+    private twilioService: TwilioService,
     private activityService: ActivityService,
+
+    @Inject(forwardRef(() => UserService))
+    private userService: UserService,
   ) {}
 
-  async generateAndSendOtp(createOtpDto: CreateOtpDto): Promise<any> {
-    console.log('ongoing');
-    const { channel, email, user } = createOtpDto;
-    const singleActivity = await this.activityService.getSingleActivity(
-      createOtpDto.activityHash,
-      user.id,
-    );
-    if (channel == OtpChannelType.EMAIL) {
-      await this.sendOtpEmail(user, singleActivity.activityType);
-      return { message: 'Email sent successfully' };
+  async sendUserEmailOtp(user: User | GetUserDto) {
+    if (!user.email) {
+      throw new Error(
+        'Your email is not added yet. Please add it in your profile',
+      );
     }
-  }
-
-  async sendOtpEmail(user: User, emailType: ActivityEnumType) {
-    const otp = this.generateRandomOtp();
-    const expiresAt = new Date();
-    expiresAt.setMinutes(expiresAt.getMinutes() + 10); // OTP expiration time
-
-    await this.otpVerificationRepository.save({
-      userId: user.id,
-      otp,
-      expiresAt,
-      channel: OtpChannelType.EMAIL,
+    const resp = await this.twilioService.sendOtp({
+      channel: 'EMAIL',
+      email: user.email,
     });
 
-    await this.sendMailTemplate(emailType, user, otp);
+    return resp;
   }
 
-  async sendMailTemplate(
-    emailType: ActivityEnumType,
-    user: User,
-    otp: string,
-  ): Promise<void> {
-    // console.log(emailType, user);
-    if (emailType == ActivityEnumType.SIGNUP) {
-      const signUpTemplate = path.resolve(
-        __dirname,
-        '../../template/otp',
-        'sign-up.html',
-      );
-
-      const template = await ejs.renderFile(signUpTemplate, {
-        otpCode: otp,
-        company: user.company,
-        user,
-      });
-
-      await this.nodemailerService.sendMail(
-        user.companyId,
-        user.email,
-        template,
-        'Otp Verification',
-      );
-    } else if (emailType == ActivityEnumType.SIGNIN) {
-      const signInTemplate = path.resolve(
-        __dirname,
-        '../../template/otp',
-        'verify-auth.html',
-      );
-      const verifyotp = await ejs.renderFile(signInTemplate, {
-        otpCode: otp,
-        company: user.company,
-        user,
-      });
-      await this.nodemailerService.sendMail(
-        user.companyId,
-        user.email,
-        verifyotp,
-        'Otp Verification',
-      );
-    } else if (emailType == ActivityEnumType.FORGOT_PASSWORD) {
-      const resetPasswordTemplate = path.resolve(
-        __dirname,
-        '../../template/otp',
-        'forgot-password.html',
-      );
-
-      const template = await ejs.renderFile(resetPasswordTemplate, {
-        otpCode: otp,
-        company: user.company,
-        user,
-      });
-      await this.nodemailerService.sendMail(
-        user.companyId,
-        user.email,
-        template,
-        'Password Reset Email',
+  async sendUserSmsOtp(user: User & { Location: Location }) {
+    if (!user.phoneNumber) {
+      throw new Error(
+        'Your phone number is not added yet. Please add it in your profile',
       );
     }
-  }
-
-  async verifyOtp(verifyOtpDto: VerifyOtpDto): Promise<boolean> {
-    const { userId, otp, activityHash } = verifyOtpDto;
-    const record = await this.otpVerificationRepository.findOne({
-      where: { userId, otp },
+    const phoneNumberObj = await this.twilioService.validatePhoneNumber({
+      countryCode: user.Location.dialCode,
+      phoneNumber: user.phoneNumber,
+    });
+    const resp = await this.twilioService.sendOtp({
+      channel: OtpChannelType.SMS,
+      fullyFormedPhoneNumber: phoneNumberObj.phoneNumber,
     });
 
-    //
-
-    if (!record) {
-      throw new BadRequestException(
-        'Invalid OTP or Expired otp. Please check your inbox and try again.',
-      );
-    }
-
-    // Check if OTP is still valid (not expired)
-    const now = new Date();
-    if (record.expiresAt < now) {
-      throw new BadRequestException(
-        'Invalid OTP or Expired otp. Please check your inbox and try again.',
-      );
-    }
-
-    if (activityHash) {
-      const activityRecord = await this.activityService.getSingleActivity(
-        activityHash,
-        userId,
-      );
-
-      const activityDto = {
-        userId,
-        activityType: activityRecord.activityType,
-        activityHash,
-      };
-      await this.activityService.updateActivityStatus(activityDto);
-    }
-
-    // Delete the verified OTP record from the database
-    await this.otpVerificationRepository.delete({ userId });
-
-    return true;
+    return resp;
   }
 
-  private generateRandomOtp(length: number = 6): string {
-    const characters = '0123456789';
-    let otp = '';
-    for (let i = 0; i < length; i++) {
-      otp += characters[Math.floor(Math.random() * characters.length)];
+  async verifyEmailOtp(data: VerifyEmailOtpDto, user?: GetUserDto) {
+    const verifyResponse = await this.twilioService.verifyOtp({
+      code: data.otp,
+      email: data.email,
+    });
+
+    if (data.activityHash && user) {
+      const { activityHash } = data;
+      const singleActivity = await this.activityService.verifyUserActivity(
+        activityHash,
+        user,
+        ActivityUsageEnum.TWO_AUTHENTICATION,
+      );
+      await this.activityService.updateActivityStatus({
+        activityHash,
+        userId: user.id,
+        activityType: singleActivity.activityType,
+      });
     }
-    return otp;
+
+    if (data.verifyEmail == true) {
+      return await this.userService.emailVerified(data.email);
+    }
+
+    return verifyResponse;
+  }
+
+  async verifySmsOtp(data: VerifySmsOtpDto) {
+    const verifyResponse = await this.twilioService.verifyOtp({
+      code: data.otp,
+      countryCode: data.dialCode,
+      phoneNumber: data.phoneNumber,
+    });
+
+    return verifyResponse;
   }
 }

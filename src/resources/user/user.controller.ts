@@ -1,147 +1,107 @@
-import { Body, Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
-import { UserService } from './user.service';
-import { AuthGuard } from '@nestjs/passport';
-import { GetUser } from 'src/middleware/get-user.decorator';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { User } from '../auth/user.entity';
 import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Inject,
+  Query,
+  UseGuards,
+  Logger,
+  NotFoundException,
+  Req,
+  HttpException,
+  HttpStatus,
+  Put,
+} from '@nestjs/common';
+
+import { AuthGuard } from 'src/guards/auth.guard';
+import { HttpGuard } from 'src/guards/http.guard';
+
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { GetUser } from 'src/middleware/get-user.decorator';
+import { User } from '@prisma/client';
+import { UserService } from './user.service';
+import {
+  CreateUserDto,
+  EmailVerifiedDto,
+  GetUserDto,
+  SignInUserDto,
   UpdateEmailDto,
   UpdatePasswordDto,
   UpdatePhoneDto,
-  UpdatePinDto,
-  UpdatePinPayload,
-  UpdateProfileDto,
-  UserPayloadData,
-  VerifyPinDto,
+  UpdateUserDto,
 } from 'src/dto/auth/user.dto';
-import { Settings } from '../settings/settings.entity';
-import { responseError, safeResponse } from 'src/helpers/http-response';
-import { enrichWithErrorDetail } from 'src/helpers/axiosError';
+import {
+  responseError,
+  responseOk,
+  safeResponse,
+} from 'src/helpers/http-response';
 import { systemResponses } from 'src/res/systemResponse';
-
+import { enrichWithErrorDetail } from 'src/helpers/axiosError';
+import { AuthService } from '../auth/auth.service';
 @Controller('user')
-@ApiTags('User')
+@ApiTags('user')
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private readonly usersService: UserService,
 
-  @Get()
-  @UseGuards(AuthGuard())
-  @ApiOkResponse({ description: 'Successful', type: UserPayloadData })
-  getSingleUser(@GetUser() user: any) {
-    return user;
+    private authService: AuthService,
+  ) {}
+
+  @Get('/')
+  @UseGuards(HttpGuard, AuthGuard)
+  async findOne(@Param() id: number, @GetUser() user: GetUserDto) {
+    try {
+      const resp = await this.usersService.findOne(user.id);
+
+      if (!resp) {
+        throw new NotFoundException(`User with id ${id} was not found`);
+      }
+
+      return responseOk({
+        data: resp,
+        message: `Retrieved user detail`,
+      });
+    } catch (err: any) {
+      const errMsg = safeResponse(err);
+
+      Logger.error(err);
+
+      throw responseError({
+        cause: err,
+        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+      });
+    }
   }
+
+  // @Post('/test-otp')
+  // async testOtp() {
+  //   await this.usersService.sendMyOtp('davidsonjosee313@gmail.com');
+  // }
 
   @Put('/email_verified')
-  @UseGuards(AuthGuard())
-  @ApiOkResponse({ description: 'Successful', type: UserPayloadData })
-  async verifyEmail(@GetUser() user: any) {
-    try {
-      return await this.userService.verifyEmail(user);
-    } catch (err) {
-      const errMsg = safeResponse(enrichWithErrorDetail(err).error);
-      throw responseError({
-        cause: err,
-        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
-      });
-    }
+  @UseGuards(HttpGuard)
+  async emailVerified(@Body() emailVerifiedDto: EmailVerifiedDto) {
+    await this.usersService.emailVerified(emailVerifiedDto.email);
   }
 
-  @Put('/phone_verified')
-  @UseGuards(AuthGuard())
-  @ApiOkResponse({ description: 'Successful', type: UserPayloadData })
-  async verifyPhone(@GetUser() user: any) {
-    try {
-      return await this.userService.verifyPhone(user);
-    } catch (err) {
-      const errMsg = safeResponse(enrichWithErrorDetail(err).error);
-      throw responseError({
-        cause: err,
-        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
-      });
-    }
-  }
-  @Get('/settings')
-  @UseGuards(AuthGuard())
-  @ApiOkResponse({ description: 'Successful' })
-  async getUserSetting(@GetUser() user: User): Promise<Settings> {
-    try {
-      return await this.userService.getUserSettings(user);
-    } catch (err) {
-      const errMsg = safeResponse(enrichWithErrorDetail(err).error);
-      throw responseError({
-        cause: err,
-        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
-      });
-    }
-  }
-
-  @Put('/pushNotificationToken')
-  @UseGuards(AuthGuard())
-  async pushNotificationToken(
-    @GetUser() user: User,
-    @Body() { deviceToken }: { deviceToken: string },
+  @Put('/')
+  @UseGuards(HttpGuard, AuthGuard)
+  async updateUser(
+    @Body() updateUserDto: UpdateUserDto,
+    @GetUser() user: GetUserDto,
   ) {
     try {
-      return await this.userService.pushNotificationToken(deviceToken, user);
-    } catch (err) {
-      const errMsg = safeResponse(enrichWithErrorDetail(err).error);
-      throw responseError({
-        cause: err,
-        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
-      });
-    }
-  }
+      return await this.usersService.updateUser(updateUserDto, user.id);
+    } catch (err: any) {
+      const errMsg = safeResponse(err);
+      console.log(err);
 
-  @Post('/verify_pwd')
-  @UseGuards(AuthGuard())
-  async verifyPassword(@GetUser() user: User, @Body() password: string) {
-    try {
-      return await this.userService.pushNotificationToken(password, user);
-    } catch (err) {
-      const errMsg = safeResponse(enrichWithErrorDetail(err).error);
-      throw responseError({
-        cause: err,
-        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
-      });
-    }
-  }
-  //dave
+      Logger.error(err);
 
-  @Put('/pin')
-  @UseGuards(AuthGuard())
-  @ApiOkResponse({ description: 'Successful' })
-  async updatePin(
-    @Body() updatePinDto: UpdatePinPayload,
-    @GetUser() user: User,
-  ): Promise<void> {
-    const responseInfo: UpdatePinDto = {
-      pin: updatePinDto.pin,
-      user,
-      activityHash: updatePinDto.activityHash,
-    };
-
-    try {
-      return await this.userService.updatePin(responseInfo);
-    } catch (err) {
-      const errMsg = safeResponse(enrichWithErrorDetail(err).error);
-      throw responseError({
-        cause: err,
-        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
-      });
-    }
-  }
-
-  @Put('/pin/verify')
-  @UseGuards(AuthGuard())
-  @ApiOkResponse({ description: 'Successful' })
-  async verifyPin(
-    @Body() verifyPinDto: VerifyPinDto,
-    @GetUser() user: User,
-  ): Promise<void> {
-    try {
-      return await this.userService.verifyPin(verifyPinDto, user);
-    } catch (err) {
-      const errMsg = safeResponse(enrichWithErrorDetail(err).error);
       throw responseError({
         cause: err,
         message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
@@ -150,32 +110,14 @@ export class UserController {
   }
 
   @Put('/change_password')
-  @UseGuards(AuthGuard())
+  @UseGuards(HttpGuard, AuthGuard)
   @ApiOkResponse({ description: 'Successful' })
   async updatePassword(
     @Body() updatePasswordDto: UpdatePasswordDto,
     @GetUser() user: User,
   ): Promise<void> {
     try {
-      return this.userService.updatePassword(updatePasswordDto, user);
-    } catch (err) {
-      const errMsg = safeResponse(enrichWithErrorDetail(err).error);
-      throw responseError({
-        cause: err,
-        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
-      });
-    }
-  }
-
-  @Put('')
-  @UseGuards(AuthGuard())
-  @ApiOkResponse({ description: 'Successful' })
-  async updateProfile(
-    @Body() updateProfileDto: UpdateProfileDto,
-    @GetUser() user,
-  ): Promise<void> {
-    try {
-      return this.userService.updateProfile(updateProfileDto, user);
+      return this.usersService.updatePassword(updatePasswordDto, user);
     } catch (err) {
       const errMsg = safeResponse(enrichWithErrorDetail(err).error);
       throw responseError({
@@ -186,14 +128,14 @@ export class UserController {
   }
 
   @Put('/email')
-  @UseGuards(AuthGuard())
+  @UseGuards(HttpGuard, AuthGuard)
   @ApiOkResponse({ description: 'Successful' })
   async updateEmail(
     @Body() updateEmailDto: UpdateEmailDto,
     @GetUser() user: User,
   ): Promise<void> {
     try {
-      return await this.userService.updateEmail(updateEmailDto, user);
+      return await this.usersService.updateEmail(updateEmailDto, user);
     } catch (err) {
       const errMsg = safeResponse(enrichWithErrorDetail(err).error);
       throw responseError({
@@ -204,14 +146,14 @@ export class UserController {
   }
 
   @Put('/phone')
-  @UseGuards(AuthGuard())
+  @UseGuards(HttpGuard, AuthGuard)
   @ApiOkResponse({ description: 'Successful' })
   async updatePhone(
     @Body() updatePhoneDto: UpdatePhoneDto,
     @GetUser() user: User,
   ): Promise<void> {
     try {
-      return await this.userService.updatePhone(updatePhoneDto, user);
+      return await this.usersService.updatePhone(updatePhoneDto, user);
     } catch (err) {
       const errMsg = safeResponse(enrichWithErrorDetail(err).error);
       throw responseError({
@@ -219,10 +161,5 @@ export class UserController {
         message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
       });
     }
-  }
-
-  @Post('/send-event')
-  async sendEvent() {
-    return this.userService.sendEvent();
   }
 }

@@ -17,6 +17,24 @@ export class RefreshTokenDto {
   companyId: number;
 }
 
+export type IRequestState = {
+  email: string;
+  id: number;
+  uid: string;
+  firstName: string;
+  lastName: string;
+  clientIp: string;
+  active: boolean;
+  updatedAt: Date;
+  createdAt: Date;
+};
+
+export class AuthRefreshAccessTokenDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  refreshToken: string;
+}
+
 export class RefreshTokenPayload {
   @ApiProperty()
   message: string;

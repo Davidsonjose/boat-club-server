@@ -2,8 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { TransformInterceptor } from './config/transform.interceptor';
-import { IoAdapter } from '@nestjs/platform-socket.io';
-import { RedisAdapter, createAdapter } from 'socket.io-redis';
 import { Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
@@ -30,13 +28,13 @@ async function bootstrap() {
       urls: [
         'amqps://ksssykry:gWHv3uH2u7Vu4fNHzk3Lc7rjn35P32Td@whale.rmq.cloudamqp.com/ksssykry',
       ],
-      queue: 'notifications_queue',
+      queue: 'notifications_queues',
       queueOptions: { durable: false },
     },
   });
 
   // await app.startAllMicroservices();
   await app.listen(port);
-  logger.log(`Balosh Automation Server is running on PORT: ${port}`);
+  logger.log(`Banicoop Server is running on PORT: ${port}`);
 }
 bootstrap();
