@@ -1,6 +1,18 @@
-import { createHash, randomBytes, randomInt } from 'crypto';
+import {
+  createHash,
+  createCipheriv,
+  createDecipheriv,
+  randomBytes,
+  randomInt,
+} from 'crypto';
 import Cryptr from 'cryptr';
 import systemConfig from 'src/config/systemConfig';
+
+const algorithm = 'aes-256-cbc';
+const salt = systemConfig().TWO_WAY_ENCRYPT_SALT;
+const key = Buffer.from(salt.padEnd(32, ' '), 'utf-8').slice(0, 32);
+// const key = Buffer.from(systemConfig().TWO_WAY_ENCRYPT_SALT, 'hex');
+const iv = randomBytes(16);
 
 export function sha256Encrypt(data: string) {
   return createHash('sha256').update(data, 'utf-8').digest('hex');
@@ -12,13 +24,25 @@ export function base64Encode(data: string) {
 export function base64Decode(data: string) {
   return Buffer.from(data, 'base64').toString('utf-8');
 }
-
-export function twoWayencrypt(str: string) {
-  return new Cryptr(systemConfig().TWO_WAY_ENCRYPT_SALT).encrypt(str);
+export function twoWayencrypt(str: string): string {
+  const cipher = createCipheriv(algorithm, key, iv);
+  let encrypted = cipher.update(str, 'utf-8', 'hex');
+  encrypted += cipher.final('hex');
+  return iv.toString('hex') + encrypted;
 }
 
-export function decrypt(str: string) {
-  return new Cryptr(systemConfig().TWO_WAY_ENCRYPT_SALT).decrypt(str);
+export function decrypt(encryptedStr: string): string {
+  const ivFromEncrypted = encryptedStr.slice(0, 32); // Assuming 32 characters for the IV
+  const encryptedText = encryptedStr.slice(32);
+
+  const decipher = createDecipheriv(
+    algorithm,
+    key,
+    Buffer.from(ivFromEncrypted, 'hex'),
+  );
+  let decrypted = decipher.update(encryptedText, 'hex', 'utf-8');
+  decrypted += decipher.final('utf-8');
+  return decrypted;
 }
 
 export function sha512Encrypt(data: string) {

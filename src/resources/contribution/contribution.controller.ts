@@ -74,6 +74,28 @@ export class ContributionController {
     }
   }
 
+  @Get('/joined-transactions/:contributionId')
+  async getJoinedContributionDetails(
+    @Param() joinContributionParamDto: JoinContributionParamDto,
+    @GetUser() user: GetUserDto,
+  ): Promise<any> {
+    try {
+      return await this.contributionService.getUserJoinContributionTransaction(
+        joinContributionParamDto.contributionId,
+        user.id,
+      );
+    } catch (err) {
+      const errMsg = safeResponse(err);
+
+      Logger.error(err);
+
+      throw responseError({
+        cause: err,
+        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+      });
+    }
+  }
+
   @Post('/join/:contributionId')
   async join(
     @GetUser() user: GetUserDto,

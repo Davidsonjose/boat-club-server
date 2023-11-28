@@ -120,7 +120,7 @@ export class UserService {
     });
 
     //send user otp
-    await this.otpService.sendUserEmailOtp(newUser);
+    // await this.otpService.sendUserEmailOtp(newUser);
     const activityHash = await this.activityService.initiateUserActivity(
       ActivityEnumType.SIGNUP,
       newUser.id,

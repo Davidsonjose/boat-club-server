@@ -6,6 +6,10 @@ import { PinService } from './pin.service';
 import { PinController } from './pin.controller';
 import { ActivityModule } from '../activity/activity.module';
 import { WalletModule } from '../wallet/wallet.module';
+import { kycService } from '../kyc/kyc.service';
+import { LoanService } from '../loan/loan.service';
+import { SavingsService } from '../savings/savings.service';
+import { ContributionService } from '../contribution/contribution.service';
 
 @Module({
   imports: [
@@ -16,7 +20,14 @@ import { WalletModule } from '../wallet/wallet.module';
     ActivityModule,
     WalletModule,
   ],
-  providers: [PinService, DatabaseService],
+  providers: [
+    PinService,
+    DatabaseService,
+    kycService,
+    LoanService,
+    SavingsService,
+    ContributionService,
+  ],
   controllers: [PinController],
   exports: [PinService],
 })

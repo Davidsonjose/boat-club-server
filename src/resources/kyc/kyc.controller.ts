@@ -38,12 +38,13 @@ export class KycController {
   @UseGuards(HttpGuard, AuthGuard)
   async getKycDetails(@GetUser() user: GetUserDto) {
     try {
-      const resp = await this.kycService.getUserWithKyc(user.id);
+      const resp = await this.kycService.getKyc(user.id);
 
-      return responseOk({
-        data: resp,
-        message: `Retrieved kyc details`,
-      });
+      //   return responseOk({
+      //     data: resp,
+      //     message: `Retrieved kyc details`,
+      //   });
+      return resp;
     } catch (err: any) {
       const errMsg = safeResponse(err);
 

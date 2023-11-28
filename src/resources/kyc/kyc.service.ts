@@ -13,6 +13,21 @@ export class kycService {
     private databaseService: DatabaseService,
   ) {}
 
+  async getKyc(userId: number) {
+    try {
+      return await this.databaseService.kyc.findFirst({
+        where: { userId },
+        include: {
+          Tier1: true,
+          Tier2: true,
+          Tier3: true,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async initializeUserKyc(user: GetUserDto) {
     try {
       const kyc = await this.databaseService.kyc.create({

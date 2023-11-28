@@ -24,6 +24,8 @@ import { WalletModule } from './resources/wallet/wallet.module';
 import { TransactionModule } from './resources/transactions/transaction.module';
 import { PinModule } from './resources/pin/pin.module';
 import { KycModule } from './resources/kyc/kyc.module';
+import { LoanModule } from './resources/loan/loan.module';
+import { SavingsModule } from './resources/savings/savings.module';
 
 @Module({
   providers: [
@@ -69,6 +71,8 @@ import { KycModule } from './resources/kyc/kyc.module';
     TransactionModule,
     ActivityModule,
     TwilioModule,
+    LoanModule,
+    SavingsModule,
 
     JwtModule.register({
       global: true,

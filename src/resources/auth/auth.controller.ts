@@ -66,11 +66,11 @@ export class AuthController {
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
-
-      return responseOk({
-        data: resp,
-        message: `Created new user account`,
-      });
+      return resp;
+      //   return responseOk({
+      //     data: resp,
+      //     message: `Created new user account`,
+      //   });
     } catch (err: any) {
       const errMsg = safeResponse(err);
       console.log(err);
@@ -97,15 +97,12 @@ export class AuthController {
         pwd: createAuthDto.pwd,
       });
 
-      return responseOk({
-        data: {
-          user: createResp.user,
-          accessToken: createResp.accessToken,
-          refreshToken: createResp.refreshToken,
-          activityHash: createResp.activityHash,
-        },
-        message: `Welcome back ${createResp.user.firstName}`,
-      });
+      return {
+        user: createResp.user,
+        accessToken: createResp.accessToken,
+        refreshToken: createResp.refreshToken,
+        activityHash: createResp.activityHash,
+      };
     } catch (err: any) {
       console.log(err);
       const errMsg = safeResponse(err);
@@ -129,10 +126,11 @@ export class AuthController {
         refreshToken: refreshTokenDto.refreshToken,
       });
 
-      return responseOk({
-        data: resp,
-        message: `Gotten new accessToken`,
-      });
+      //   return responseOk({
+      //     data: resp,
+      //     message: `Gotten new accessToken`,
+      //   });
+      return resp;
     } catch (err: any) {
       const errMsg = safeResponse(err);
       Logger.error(err);

@@ -16,6 +16,9 @@ import {
 } from 'src/dto/auth/user.dto';
 import { ActivityEnumType } from 'src/dto/activity/activity.dto';
 import { WalletService } from '../wallet/wallet.service';
+import { LoanService } from '../loan/loan.service';
+import { kycService } from '../kyc/kyc.service';
+import { SavingsService } from '../savings/savings.service';
 
 @Injectable()
 export class PinService {
@@ -23,6 +26,9 @@ export class PinService {
     private databaseService: DatabaseService,
     private activityService: ActivityService,
     private walletService: WalletService,
+    private loanService: LoanService,
+    private kycService: kycService,
+    private savingsService: SavingsService,
   ) {}
 
   // @Inject()
@@ -60,8 +66,23 @@ export class PinService {
     try {
       if (detailedUser.hasPin == false) {
         const loanWallet = await this.walletService.createLoanWallet(user);
-        const savingsWallet = await this.walletService.savingsWallet(user);
-        const mainWallet = await this.walletService.mainWallet(user);
+        console.log(loanWallet, 'loan wallet');
+        const savingsWallet = await this.walletService.createSavingsWallet(
+          user,
+        );
+        const mainWallet = await this.walletService.createMainWallet(user);
+        const newLoan = await this.loanService.createLoan(user.id);
+        const newsavings = await this.savingsService.initialiseUserSavings(
+          savingsWallet.id,
+          user,
+        );
+        const newKyc = await this.kycService.initializeUserKyc(user);
+
+        console.log(savingsWallet, 'savings wallet');
+        console.log(mainWallet, 'main wallet');
+        console.log(newLoan, 'new loan');
+        console.log(newsavings, 'new savings');
+        console.log(newKyc, 'new kyc');
         await this.databaseService.user.update({
           where: { id: user.id },
           data: {

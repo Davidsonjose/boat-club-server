@@ -5,6 +5,7 @@ import {
   Contribution,
   ContributionUserMonth,
   ParticipantType,
+  Transaction,
   TransactionStatus,
   TransactionType,
   WalletType,
@@ -309,6 +310,32 @@ export class ContributionService {
 
     if (!createdJoinContribution) {
       throw new Error('Failed to join the contribution');
+    }
+  }
+
+  async getUserJoinContributionDetails(contributionId: number, userId: number) {
+    try {
+      const userJoinContribution =
+        await this.databaseService.joinContribution.findFirst({
+          where: { contributionId, userId },
+          include: { contributionUserMonth: true, Contribution: true },
+        });
+      return userJoinContribution;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getUserJoinContributionTransaction(
+    joinContributionId: number,
+    userId: number,
+  ): Promise<Transaction[]> {
+    try {
+      return await this.databaseService.transaction.findMany({
+        where: { joinContributionId, userId },
+      });
+    } catch (error) {
+      throw error;
     }
   }
 

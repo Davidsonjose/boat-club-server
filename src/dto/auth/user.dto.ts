@@ -119,7 +119,6 @@ export class CreateUserDto {
   //   @IsString()
   pin?: string;
 
-  @IsString()
   @ApiProperty()
   profileImageUrl?: string;
 
@@ -128,16 +127,11 @@ export class CreateUserDto {
   @MinLength(6)
   @MaxLength(32)
   @ApiProperty()
-  // @Matches(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w\s]).*$/, {
-  //   message:
-  //     'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
-  // })
+  @Matches(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w\s]).*$/, {
+    message:
+      'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+  })
   pwd: string;
-
-  @IsNotEmpty({ message: 'User company ID is required' })
-  @IsNumber()
-  @ApiProperty()
-  companyId: number;
 }
 
 export class SignInUserDto {
@@ -433,4 +427,65 @@ export class UpdatePushToken {
   @IsNotEmpty()
   @IsString()
   deviceToken: string;
+}
+
+export class CreateGoalBasedLoanDto {
+  // @ApiProperty()
+  // @IsOptional()
+  // @IsDate()
+  // targetDate?: Date;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsDate()
+  startDate: Date;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsDate()
+  endDate: Date;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  amount: number;
+
+  // @ApiProperty()
+  // @IsOptional()
+  // @IsDate()
+  // paydayDueDate?: Date;
+
+  @ApiProperty()
+  @IsOptional()
+  documents?: string;
+}
+export class CreatePayDayLoanDto {
+  // @ApiProperty()
+  // @IsOptional()
+  // @IsDate()
+  // targetDate?: Date;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsDate()
+  startDate: Date;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsDate()
+  endDate: Date;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  amount: number;
+
+  // @ApiProperty()
+  // @IsOptional()
+  // @IsDate()
+  // paydayDueDate?: Date;
+
+  @ApiProperty()
+  @IsOptional()
+  documents?: string;
 }

@@ -28,7 +28,7 @@ model User {
   Location              Location            @relation(fields: [locationId], references: [id], onDelete: Cascade)
   Kyc                   Kyc?
   Loan                  Loan?               @relation(fields: [loanId], references: [id], onDelete: Cascade)
-  loanId                Int                 @unique
+  loanId                Int?                @unique
   profileImageUrl       String?
   dateOfBirth           DateTime?
   LoanWallet            LoanWallet?
@@ -50,15 +50,14 @@ model User {
 //savings model
 
 model Saving {
-  id           Int                @id @default(autoincrement())
-  categoryType SavingCategoryType
-  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId       Int                @unique
+  id           Int            @id @default(autoincrement())
+  User         User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       Int?           @unique
   fixedSaving  FixedSaving[]
   targetSaving TargetSaving[]
   spendAndSave SpendAndSave[]
   Transactions Transaction[]
-  wallet       SavingsWallet      @relation(fields: [savingsWalletId], references: [id])
+  Wallet       SavingsWallet  @relation(fields: [savingsWalletId], references: [id])
 
   createdAt       DateTime  @default(now())
   updatedAt       DateTime?
@@ -68,37 +67,41 @@ model Saving {
 //loans model
 
 model Loan {
-  id           Int                @id @default(autoincrement())
-  categoryType SavingCategoryType
-  user         User?
-  userId       Int                @unique
-  fixedSaving  GoalBasedLoan[]
-  PaydayLoan   PaydayLoan[]
+  id            Int             @id @default(autoincrement())
+  User          User?
+  userId        Int?            @unique
+  GoalBasedLoan GoalBasedLoan[]
+  PaydayLoan    PaydayLoan[]
 
-  Wallet LoanWallet @relation(fields: [loanWalletId], references: [id])
-
-  createdAt    DateTime  @default(now())
+  Wallet       LoanWallet @relation(fields: [loanWalletId], references: [id])
+  active       Boolean    @default(false)
+  createdAt    DateTime   @default(now())
   updatedAt    DateTime?
-  loanWalletId Int       @unique
+  loanWalletId Int        @unique
 }
 
 model SpendAndSave {
-  id      Int      @id @default(autoincrement())
-  ongoing Boolean?
-
-  saving    Saving?   @relation(fields: [savingId], references: [id])
-  savingId  Int       @unique
-  createdAt DateTime  @default(now())
-  updatedAt DateTime?
+  id           Int           @id @default(autoincrement())
+  ongoing      Boolean?      @default(false)
+  percentage   String?
+  Transactions Transaction[]
+  saving       Saving?       @relation(fields: [savingId], references: [id])
+  savingId     Int           @unique
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime?
 }
 
 model TargetSaving {
-  id         Int       @id @default(autoincrement())
-  ongoing    Boolean?
-  targetDate DateTime? // Target date for reaching the savings goal
-  startDate  DateTime?
-  endDate    DateTime?
-  amount     Float? // Target amount for savings goal
+  id               Int                          @id @default(autoincrement())
+  ongoing          Boolean                      @default(false)
+  title            String?
+  startDate        DateTime
+  frequentAmount   Float
+  paymentFrequency TargetSavingPaymentFrequency
+  Transactions     Transaction[]
+  endDate          DateTime
+  targetAmount     Float? // Target amount for savings goal
+  interest         Float
 
   saving    Saving?   @relation(fields: [savingId], references: [id])
   savingId  Int       @unique
@@ -107,11 +110,14 @@ model TargetSaving {
 }
 
 model FixedSaving {
-  id          Int       @id @default(autoincrement())
-  ongoing     Boolean?
-  startAmount Float? // Initial amount for Fixed Savings
-  startDate   DateTime?
-  endDate     DateTime?
+  id           Int           @id @default(autoincrement())
+  ongoing      Boolean       @default(false)
+  amount       Float? // Initial amount for Fixed Savings
+  startDate    DateTime
+  title        String?
+  endDate      DateTime
+  interest     Float
+  Transactions Transaction[]
 
   saving    Saving?   @relation(fields: [savingId], references: [id])
   savingId  Int       @unique
@@ -121,35 +127,39 @@ model FixedSaving {
 
 // loan categories
 model GoalBasedLoan {
-  id            Int       @id @default(autoincrement())
-  ongoing       Boolean?
-  targetDate    DateTime? // Target date for reaching the savings goal
-  startDate     DateTime?
-  endDate       DateTime?
-  amount        Float? // Target amount for savings goal
-  interestRate  Float?
-  paydayDueDate DateTime?
-  documents     String?
-  Loan          Loan?     @relation(fields: [loanId], references: [id])
-  loanId        Int       @unique
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime?
+  id             Int        @id @default(autoincrement())
+  ongoing        Boolean?   @default(false)
+  targetDate     DateTime // Target date for reaching the savings goal
+  startDate      DateTime
+  endDate        DateTime
+  interestAmount Float
+  amount         Float // Target amount for savings goal
+  interestRate   Float
+  status         LoanStatus @default(PENDING)
+  paydayDueDate  DateTime?
+  documents      String?
+  Loan           Loan?      @relation(fields: [loanId], references: [id])
+  loanId         Int        @unique
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime?
 }
 
 model PaydayLoan {
-  id            Int       @id @default(autoincrement())
-  ongoing       Boolean?
-  targetDate    DateTime? // Target date for reaching the savings goal
-  startDate     DateTime?
-  endDate       DateTime?
-  amount        Float? // Target amount for savings goal
-  interestRate  Float?
-  documents     String?
-  paydayDueDate DateTime?
-  Loan          Loan?     @relation(fields: [loanId], references: [id])
-  loanId        Int       @unique
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime?
+  id             Int        @id @default(autoincrement())
+  ongoing        Boolean    @default(false)
+  targetDate     DateTime // Target date for reaching the savings goal
+  startDate      DateTime
+  interestAmount Float
+  endDate        DateTime
+  amount         Float // Target amount for savings goal
+  interestRate   Float
+  documents      String?
+  status         LoanStatus @default(PENDING)
+  paydayDueDate  DateTime?
+  Loan           Loan?      @relation(fields: [loanId], references: [id])
+  loanId         Int        @unique
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime?
 }
 
 model Kyc {
@@ -317,6 +327,12 @@ model Transaction {
   joinContributionId   Int?
   User                 User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId               Int                 @unique
+  SpendAndSave         SpendAndSave?       @relation(fields: [spendAndSaveId], references: [id])
+  spendAndSaveId       Int?
+  TargetSaving         TargetSaving?       @relation(fields: [targetSavingId], references: [id])
+  targetSavingId       Int?
+  FixedSaving          FixedSaving?        @relation(fields: [fixedSavingId], references: [id])
+  fixedSavingId        Int?
 }
 
 /// Contribution model
@@ -460,4 +476,16 @@ enum KycVerificationStatus {
   SUCCESSFUL
   FAILED
   PENDING
+}
+
+enum LoanStatus {
+  PENDING
+  SUCCESSFUL
+  DISAPPROVED
+}
+
+enum TargetSavingPaymentFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
 }
