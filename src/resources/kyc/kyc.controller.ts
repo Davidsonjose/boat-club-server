@@ -40,11 +40,10 @@ export class KycController {
     try {
       const resp = await this.kycService.getKyc(user.id);
 
-      //   return responseOk({
-      //     data: resp,
-      //     message: `Retrieved kyc details`,
-      //   });
-      return resp;
+      return responseOk({
+        data: resp,
+        message: `Retrieved kyc details`,
+      });
     } catch (err: any) {
       const errMsg = safeResponse(err);
 

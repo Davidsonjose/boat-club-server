@@ -37,6 +37,47 @@ export class LoanController {
     private loanService: LoanService,
   ) {}
 
+  @Get('/')
+  @UseGuards(HttpGuard, AuthGuard)
+  async getLoan(@GetUser() user: GetUserDto) {
+    try {
+      const resp = await this.loanService.getLoan(user.id);
+      return responseOk({
+        data: resp,
+        message: `Retrieved loans`,
+      });
+    } catch (err: any) {
+      const errMsg = safeResponse(err);
+
+      Logger.error(err);
+
+      throw responseError({
+        cause: err,
+        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+      });
+    }
+  }
+  // @Post('/')
+  // @UseGuards(HttpGuard, AuthGuard)
+  // async createLoan(@GetUser() user: GetUserDto) {
+  //   try {
+  //     const resp = await this.loanService.getLoan(user.id);
+  //     return responseOk({
+  //       data: resp,
+  //       message: `Retrieved loans`,
+  //     });
+  //   } catch (err: any) {
+  //     const errMsg = safeResponse(err);
+
+  //     Logger.error(err);
+
+  //     throw responseError({
+  //       cause: err,
+  //       message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+  //     });
+  //   }
+  // }
+
   @Get('/status')
   @UseGuards(HttpGuard, AuthGuard)
   async getLoanStatus(@GetUser() user: GetUserDto) {

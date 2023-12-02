@@ -13,33 +13,47 @@ export class LoanService {
     private contributionService: ContributionService,
   ) {}
 
-  async createLoan(userId: number): Promise<void> {
+  async createLoan(userId: number): Promise<any> {
     // Check if the user has an active loan
+
+    const getLoanWallet = await this.databaseService.loanWallet.findFirst({
+      where: { userId },
+    });
     const existingLoan = await this.databaseService.loan.findFirst({
       where: { userId },
     });
 
     if (existingLoan) {
-      throw new Error('User already has an active loan');
+      throw new Error('User already has a loan initialized');
     }
 
     // Create a new loan
     const loan = await this.databaseService.loan.create({
       data: {
         User: { connect: { id: userId } },
-        Wallet: { connect: { userId } },
+        Wallet: { connect: { id: getLoanWallet.id } },
       },
     });
 
-    return;
+    return loan;
+  }
+  async getLoan(userId: number): Promise<any> {
+    // Create a new loan
+    const loan = await this.databaseService.loan.findMany({
+      where: { userId },
+    });
+
+    return loan;
   }
 
   async getMainLoan(userId: number) {
     try {
+      console.log(userId, 'user id');
       const loan = await this.databaseService.loan.findFirst({
         where: { userId },
         include: { PaydayLoan: true, GoalBasedLoan: true },
       });
+      console.log(loan);
       return loan;
     } catch (error) {
       throw error;
@@ -65,11 +79,6 @@ export class LoanService {
     const { amount, startDate, endDate, documents } = dto;
 
     await this.validateLoan(userId);
-    const joinContribution =
-      await this.databaseService.joinContribution.findFirst({
-        where: { userId },
-        include: { Contribution: true },
-      });
 
     // const amount = joinContribution.Contribution.amo
 
@@ -153,6 +162,7 @@ export class LoanService {
   async validateLoan(userId: number) {
     try {
       const loan = await this.getMainLoan(userId);
+      console.log(loan);
       if (loan.active == true) {
         throw new BadRequestException('You have a ongoing loan. ');
       }

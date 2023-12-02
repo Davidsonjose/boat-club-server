@@ -27,8 +27,8 @@ model User {
   pin                   String?
   Location              Location            @relation(fields: [locationId], references: [id], onDelete: Cascade)
   Kyc                   Kyc?
-  Loan                  Loan?               @relation(fields: [loanId], references: [id], onDelete: Cascade)
-  loanId                Int?                @unique
+  Loan                  Loan?
+  loanId                Int?
   profileImageUrl       String?
   dateOfBirth           DateTime?
   LoanWallet            LoanWallet?
@@ -68,16 +68,16 @@ model Saving {
 
 model Loan {
   id            Int             @id @default(autoincrement())
-  User          User?
+  User          User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int?            @unique
   GoalBasedLoan GoalBasedLoan[]
   PaydayLoan    PaydayLoan[]
 
-  Wallet       LoanWallet @relation(fields: [loanWalletId], references: [id])
-  active       Boolean    @default(false)
-  createdAt    DateTime   @default(now())
+  Wallet       LoanWallet? @relation(fields: [loanWalletId], references: [id])
+  active       Boolean     @default(false)
+  createdAt    DateTime    @default(now())
   updatedAt    DateTime?
-  loanWalletId Int        @unique
+  loanWalletId Int?        @unique
 }
 
 model SpendAndSave {
@@ -169,7 +169,6 @@ model Kyc {
   Tier3        Tier3?
   userId       Int      @unique
   User         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  kycId        Int?     @unique
   currentLevel KycLevel @default(Tier1)
 }
 
@@ -227,7 +226,7 @@ model Tier1 {
   kycSubmitted       Boolean               @default(false)
   kycId              Int                   @unique
   Kyc                Kyc?                  @relation(fields: [kycId], references: [id])
-  verificationStatus KycVerificationStatus @default(PENDING)
+  verificationStatus KycVerificationStatus @default(NOT_STARTED)
 }
 
 model Tier2 {
@@ -239,7 +238,7 @@ model Tier2 {
   kycSubmitted        Boolean               @default(false)
   kycId               Int                   @unique
   Kyc                 Kyc?                  @relation(fields: [kycId], references: [id])
-  verificationStatus  KycVerificationStatus @default(PENDING)
+  verificationStatus  KycVerificationStatus @default(NOT_STARTED)
   trial               Int                   @default(0)
 }
 
@@ -250,7 +249,7 @@ model Tier3 {
   kycId              Int                   @unique
   kycSubmitted       Boolean               @default(false)
   Kyc                Kyc?                  @relation(fields: [kycId], references: [id])
-  verificationStatus KycVerificationStatus @default(PENDING)
+  verificationStatus KycVerificationStatus @default(NOT_STARTED)
   trial              Int                   @default(0)
 }
 
@@ -473,6 +472,7 @@ enum ParticipantType {
 }
 
 enum KycVerificationStatus {
+  NOT_STARTED
   SUCCESSFUL
   FAILED
   PENDING

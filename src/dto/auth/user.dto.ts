@@ -437,12 +437,12 @@ export class CreateGoalBasedLoanDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsDate()
+  // @IsDate()
   startDate: Date;
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsDate()
+  // @IsDate()
   endDate: Date;
 
   @ApiProperty()
