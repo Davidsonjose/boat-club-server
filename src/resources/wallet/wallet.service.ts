@@ -38,7 +38,9 @@ export class WalletService {
 
       // Keep generating a new account number until it is unique
       while (!isAccountNumberUnique) {
-        accountNumber = uuidv4().replace(/-/g, '').slice(0, 10); // Generate a 10-character account number
+        accountNumber = uuidv4()
+          .replace(/[^0-9]/g, '')
+          .slice(0, 10); // Generate a 10-digit account number with numbers only
 
         // Check if the generated account number already exists
         const existingWallet = await this.databaseService.mainWallet.findFirst({

@@ -48,7 +48,6 @@ export class LoanService {
 
   async getMainLoan(userId: number) {
     try {
-      console.log(userId, 'user id');
       const loan = await this.databaseService.loan.findFirst({
         where: { userId },
         include: { PaydayLoan: true, GoalBasedLoan: true },
