@@ -26,6 +26,7 @@ import { PinModule } from './resources/pin/pin.module';
 import { KycModule } from './resources/kyc/kyc.module';
 import { LoanModule } from './resources/loan/loan.module';
 import { SavingsModule } from './resources/savings/savings.module';
+import { BillModule } from './resources/bills/bills.module';
 
 @Module({
   providers: [
@@ -73,7 +74,7 @@ import { SavingsModule } from './resources/savings/savings.module';
     TwilioModule,
     LoanModule,
     SavingsModule,
-
+    BillModule,
     JwtModule.register({
       global: true,
       //secret: systemConfig().JWT_SALT, //please change the salt

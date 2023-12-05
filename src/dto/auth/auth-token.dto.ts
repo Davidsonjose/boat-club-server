@@ -11,10 +11,6 @@ export class RefreshTokenDto {
   @ApiProperty()
   @IsString()
   refreshToken: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  companyId: number;
 }
 
 export type IRequestState = {
