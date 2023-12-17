@@ -20,10 +20,12 @@ export class WalletService {
 
   async mainWallet(user: GetUserDto) {
     try {
-      const resp = await this.databaseService.mainWallet.findFirst({
-        where: { userId: user.id },
-        include: { Transactions: true },
-      });
+      const resp = await this.databaseService
+        .getPrismaClient()
+        .mainWallet.findFirst({
+          where: { userId: user.id },
+          include: { Transactions: true },
+        });
       return resp;
     } catch (error) {
       throw error;
@@ -43,23 +45,27 @@ export class WalletService {
           .slice(0, 10); // Generate a 10-digit account number with numbers only
 
         // Check if the generated account number already exists
-        const existingWallet = await this.databaseService.mainWallet.findFirst({
-          where: { accountNumber: accountNumber?.toString() },
-        });
+        const existingWallet = await this.databaseService
+          .getPrismaClient()
+          .mainWallet.findFirst({
+            where: { accountNumber: accountNumber?.toString() },
+          });
 
         isAccountNumberUnique = !existingWallet;
       }
 
-      const resp = await this.databaseService.mainWallet.create({
-        data: {
-          balance: 0,
-          accountName: `${user.firstName} ${user.lastName}`,
-          accountNumber,
-          User: {
-            connect: { id: user.id },
+      const resp = await this.databaseService
+        .getPrismaClient()
+        .mainWallet.create({
+          data: {
+            balance: 0,
+            accountName: `${user.firstName} ${user.lastName}`,
+            accountNumber,
+            User: {
+              connect: { id: user.id },
+            },
           },
-        },
-      });
+        });
 
       return resp;
     } catch (error) {
@@ -69,10 +75,12 @@ export class WalletService {
 
   async loanWallet(user: GetUserDto) {
     try {
-      const resp = await this.databaseService.loanWallet.findFirst({
-        where: { userId: user.id },
-        include: { Transactions: true },
-      });
+      const resp = await this.databaseService
+        .getPrismaClient()
+        .loanWallet.findFirst({
+          where: { userId: user.id },
+          include: { Transactions: true },
+        });
       return resp;
     } catch (error) {
       throw error;
@@ -80,14 +88,16 @@ export class WalletService {
   }
   async createLoanWallet(user: GetUserDto) {
     try {
-      const resp = await this.databaseService.loanWallet.create({
-        data: {
-          User: {
-            connect: { id: user.id },
+      const resp = await this.databaseService
+        .getPrismaClient()
+        .loanWallet.create({
+          data: {
+            User: {
+              connect: { id: user.id },
+            },
+            balance: 0,
           },
-          balance: 0,
-        },
-      });
+        });
       return resp;
     } catch (error) {
       throw error;
@@ -96,10 +106,12 @@ export class WalletService {
 
   async savingsWallet(user: GetUserDto) {
     try {
-      const resp = await this.databaseService.savingsWallet.findFirst({
-        where: { userId: user.id },
-        include: { Transactions: true },
-      });
+      const resp = await this.databaseService
+        .getPrismaClient()
+        .savingsWallet.findFirst({
+          where: { userId: user.id },
+          include: { Transactions: true },
+        });
       return resp;
     } catch (error) {
       throw error;
@@ -107,14 +119,16 @@ export class WalletService {
   }
   async createSavingsWallet(user: GetUserDto) {
     try {
-      const resp = await this.databaseService.savingsWallet.create({
-        data: {
-          User: {
-            connect: { id: user.id },
+      const resp = await this.databaseService
+        .getPrismaClient()
+        .savingsWallet.create({
+          data: {
+            User: {
+              connect: { id: user.id },
+            },
+            balance: 0,
           },
-          balance: 0,
-        },
-      });
+        });
       return resp;
     } catch (error) {
       throw error;

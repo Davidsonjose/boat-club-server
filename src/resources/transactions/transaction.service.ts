@@ -18,12 +18,14 @@ export class TransactionService {
     user: GetUserDto,
   ) {
     try {
-      const resp = await this.databaseService.transaction.findMany({
-        where: { walletType: WalletType.mainWallet, userId: user.id },
-        // include: {},
-        skip: filterDto.skipResults,
-        take: filterDto.takeResultAmount,
-      });
+      const resp = await this.databaseService
+        .getPrismaClient()
+        .transaction.findMany({
+          where: { walletType: WalletType.mainWallet, userId: user.id },
+          // include: {},
+          skip: filterDto.skipResults,
+          take: filterDto.takeResultAmount,
+        });
 
       return resp;
     } catch (error) {
@@ -36,12 +38,14 @@ export class TransactionService {
     user: GetUserDto,
   ) {
     try {
-      const resp = await this.databaseService.transaction.findMany({
-        where: { walletType: WalletType.loanWallet, userId: user.id },
-        // include: {},
-        skip: filterDto.skipResults,
-        take: filterDto.takeResultAmount,
-      });
+      const resp = await this.databaseService
+        .getPrismaClient()
+        .transaction.findMany({
+          where: { walletType: WalletType.loanWallet, userId: user.id },
+          // include: {},
+          skip: filterDto.skipResults,
+          take: filterDto.takeResultAmount,
+        });
       return resp;
     } catch (error) {
       throw error;
@@ -53,11 +57,13 @@ export class TransactionService {
     user: GetUserDto,
   ) {
     try {
-      const resp = await this.databaseService.transaction.findMany({
-        where: { walletType: WalletType.savingWallet, userId: user.id },
-        skip: filterDto.skipResults,
-        take: filterDto.takeResultAmount,
-      });
+      const resp = await this.databaseService
+        .getPrismaClient()
+        .transaction.findMany({
+          where: { walletType: WalletType.savingWallet, userId: user.id },
+          skip: filterDto.skipResults,
+          take: filterDto.takeResultAmount,
+        });
       return resp;
     } catch (error) {
       throw error;
@@ -65,11 +71,13 @@ export class TransactionService {
   }
   async getAllTransactions(filterDto: FilterTransactionsDto, user: GetUserDto) {
     try {
-      const resp = await this.databaseService.transaction.findMany({
-        where: { userId: user.id },
-        skip: filterDto.skipResults,
-        take: filterDto.takeResultAmount,
-      });
+      const resp = await this.databaseService
+        .getPrismaClient()
+        .transaction.findMany({
+          where: { userId: user.id },
+          skip: filterDto.skipResults,
+          take: filterDto.takeResultAmount,
+        });
       return resp;
     } catch (error) {
       throw error;

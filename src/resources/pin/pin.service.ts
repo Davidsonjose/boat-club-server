@@ -39,9 +39,11 @@ export class PinService {
     if (!user) {
       throw new BadRequestException('Invalid user type');
     }
-    const detailedUser = await this.databaseService.user.findFirst({
-      where: { id: user.id },
-    });
+    const detailedUser = await this.databaseService
+      .getPrismaClient()
+      .user.findFirst({
+        where: { id: user.id },
+      });
 
     const singleActivity = await this.activityService.getSingleActivity(
       updatePinDto.activityHash,
@@ -83,7 +85,7 @@ export class PinService {
         console.log(newLoan, 'new loan');
         console.log(newsavings, 'new savings');
         console.log(newKyc, 'new kyc');
-        await this.databaseService.user.update({
+        await this.databaseService.getPrismaClient().user.update({
           where: { id: user.id },
           data: {
             pin: hashedPin,
@@ -93,7 +95,7 @@ export class PinService {
           },
         });
       } else {
-        await this.databaseService.user.update({
+        await this.databaseService.getPrismaClient().user.update({
           where: { id: user.id },
           data: {
             pin: hashedPin,
@@ -113,7 +115,7 @@ export class PinService {
     userdetails: GetUserDto,
     verifyPinDto: VerifyPinDto,
   ): Promise<boolean> {
-    const user = await this.databaseService.user.findUnique({
+    const user = await this.databaseService.getPrismaClient().user.findUnique({
       where: { id: userdetails.id },
     });
     const { activityHash } = verifyPinDto;

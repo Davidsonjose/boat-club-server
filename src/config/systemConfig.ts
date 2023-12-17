@@ -9,6 +9,12 @@ export default function () {
     JWT_REFRESH_EXPIRE: '86400s',
     TWO_WAY_ENCRYPT_SALT:
       '4&%-@(#&!*#(@031604b2c5ef61785yoratrc#*!)$#76eb6c06c1c30b756763f+_@#-#$79=',
+    requestChannelId: 'BANICOOP',
+    requestChannel: 'Api',
+    requestChannelType: 'Integerator',
+    requestApplicationCode: 'POUCHII',
+    requestPartnerCode: 'BACNIOOP',
+    walletId: 50,
   };
 }
 
@@ -26,4 +32,7 @@ export class SystemConfigDto {
   static TWILIO_SID = 'TWILIO_SID';
   static TWILIO_ACCT_TOKEN = 'TWILIO_ACCT_TOKEN';
   static RABBITMQ_SERVICE = 'RABBITMQ_SERVICE';
+  static SYSTEM_SPEC_PIN = 'SYSTEM_SPEC_PIN';
+  static SYSTEM_SPEC_USER = 'SYSTEM_SPEC_USER';
+  static SYSTEM_SPEC_PASS = 'SYSTEM_SPEC_PASS';
 }

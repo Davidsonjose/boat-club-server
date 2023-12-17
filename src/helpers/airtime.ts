@@ -1,0 +1,42 @@
+export const billers = [
+  {
+    billerId: 12,
+    name: '9MOBILE',
+    code: '9mobile',
+    maximumPurchaseAllowed: '0.00',
+    minimumPurchaseAllowedAmount: '0.00',
+    avatar: 'https://d2uuyw1szka6av.cloudfront.net/live/vas/9mobile.png',
+  },
+  {
+    billerId: 13,
+    name: 'MTN',
+    code: 'mtn',
+    maximumPurchaseAllowed: '0.00',
+    minimumPurchaseAllowedAmount: '0.00',
+    avatar: 'https://d2uuyw1szka6av.cloudfront.net/live/vas/mtn.png',
+  },
+  {
+    billerId: 14,
+    name: 'AIRTEL',
+    code: 'airtel',
+    maximumPurchaseAllowed: '0.00',
+    minimumPurchaseAllowedAmount: '0.00',
+    avatar: 'https://d2uuyw1szka6av.cloudfront.net/live/vas/airtel.png',
+  },
+  {
+    billerId: 15,
+    name: 'SMILE',
+    code: 'smile',
+    maximumPurchaseAllowed: '0.00',
+    minimumPurchaseAllowedAmount: '0.00',
+    avatar: 'https://d2uuyw1szka6av.cloudfront.net/live/vas/smile.png',
+  },
+  {
+    billerId: 16,
+    name: 'GLO',
+    code: 'glo',
+    maximumPurchaseAllowed: '0.00',
+    minimumPurchaseAllowedAmount: '0.00',
+    avatar: 'https://d2uuyw1szka6av.cloudfront.net/live/vas/glo.png',
+  },
+];

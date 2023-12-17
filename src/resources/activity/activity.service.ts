@@ -39,16 +39,18 @@ export class ActivityService {
     expiresAt.setMinutes(expiresAt.getMinutes() + 10);
     const usage = this.getActivitiesUsage(activityType);
     const activityHash = await this.generateRandomHash();
-    const newActivity = await this.databaseService.activity.create({
-      data: {
-        User: { connect: { id: user.id } },
-        expiresAt,
-        expectedUsage: usage,
-        activityHash,
-        activityType,
-        usage: 2,
-      },
-    });
+    const newActivity = await this.databaseService
+      .getPrismaClient()
+      .activity.create({
+        data: {
+          User: { connect: { id: user.id } },
+          expiresAt,
+          expectedUsage: usage,
+          activityHash,
+          activityType,
+          usage: 2,
+        },
+      });
     return {
       activityHash: newActivity.activityHash,
       activityType: activityType,
@@ -85,12 +87,14 @@ export class ActivityService {
   }
 
   async getSingleActivity(hash: string, userId: number) {
-    const record = await this.databaseService.activity.findFirst({
-      where: {
-        activityHash: hash,
-        userId: userId,
-      },
-    });
+    const record = await this.databaseService
+      .getPrismaClient()
+      .activity.findFirst({
+        where: {
+          activityHash: hash,
+          userId: userId,
+        },
+      });
 
     if (!record) {
       throw new BadRequestException('Invalid Activity Hash or Expired Hash.');
@@ -113,7 +117,7 @@ export class ActivityService {
 
     if (record) {
       if (record.expectedUsage === ActivityUsageEnum.ONE_AUTHENTICATION) {
-        await this.databaseService.activity.update({
+        await this.databaseService.getPrismaClient().activity.update({
           where: {
             id: record.id,
           },
@@ -126,7 +130,7 @@ export class ActivityService {
         record.expectedUsage ===
         ActivityUsageEnum.TWO_AUTHENTICATION + 1
       ) {
-        await this.databaseService.activity.update({
+        await this.databaseService.getPrismaClient().activity.update({
           where: {
             id: record.id,
           },

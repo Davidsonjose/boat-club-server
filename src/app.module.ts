@@ -27,6 +27,8 @@ import { KycModule } from './resources/kyc/kyc.module';
 import { LoanModule } from './resources/loan/loan.module';
 import { SavingsModule } from './resources/savings/savings.module';
 import { BillModule } from './resources/bills/bills.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { SystemSpecModule } from './services/system-spec/systemSpec.module';
 
 @Module({
   providers: [
@@ -75,10 +77,13 @@ import { BillModule } from './resources/bills/bills.module';
     LoanModule,
     SavingsModule,
     BillModule,
+    SystemSpecModule,
     JwtModule.register({
       global: true,
       //secret: systemConfig().JWT_SALT, //please change the salt
     }),
+
+    CacheModule.register(),
   ],
   controllers: [AppController],
 })

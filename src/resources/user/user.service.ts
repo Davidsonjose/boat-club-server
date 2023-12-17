@@ -55,7 +55,7 @@ export class UserService {
 
     // return {};
     //error will be handled by controller
-    const newUser = await this.databaseService.user.create({
+    const newUser = await this.databaseService.getPrismaClient().user.create({
       data: {
         active: true,
         deleted: false,
@@ -144,7 +144,7 @@ export class UserService {
   }
 
   async findUserWithEmail(email: string) {
-    const user = await this.databaseService.user.findFirst({
+    const user = await this.databaseService.getPrismaClient().user.findFirst({
       where: {
         email,
       },
@@ -156,14 +156,16 @@ export class UserService {
   async emailVerified(email: string) {
     try {
       const userDetails = await this.findUserWithEmail(email);
-      const updatedUser = await this.databaseService.user.update({
-        where: {
-          id: userDetails.id,
-        },
-        data: {
-          emailVerified: true,
-        },
-      });
+      const updatedUser = await this.databaseService
+        .getPrismaClient()
+        .user.update({
+          where: {
+            id: userDetails.id,
+          },
+          data: {
+            emailVerified: true,
+          },
+        });
       console.log('here is the email verified');
       return updatedUser;
     } catch (error) {
@@ -172,7 +174,7 @@ export class UserService {
   }
 
   async findAll(filterDto: any) {
-    const users = await this.databaseService.user.findMany({
+    const users = await this.databaseService.getPrismaClient().user.findMany({
       where: {
         email: filterDto.email,
         id: filterDto.id,
@@ -187,7 +189,7 @@ export class UserService {
 
   //update user profile
   async findOne(id: number) {
-    const user = await this.databaseService.user.findFirst({
+    const user = await this.databaseService.getPrismaClient().user.findFirst({
       where: {
         id,
       },
@@ -216,10 +218,12 @@ export class UserService {
     }
 
     try {
-      const updatedUser = await this.databaseService.user.update({
-        where: { id },
-        data: updateProfileDto,
-      });
+      const updatedUser = await this.databaseService
+        .getPrismaClient()
+        .user.update({
+          where: { id },
+          data: updateProfileDto,
+        });
       const { pass, pin, hash, deleted, ...others } = updatedUser;
       return others;
     } catch (error) {
@@ -247,7 +251,7 @@ export class UserService {
     const hashedPassword = await generatePasswordHash(updatePasswordDto.pwd);
 
     try {
-      await this.databaseService.user.update({
+      await this.databaseService.getPrismaClient().user.update({
         where: {
           id: user.id,
         },
@@ -292,7 +296,7 @@ export class UserService {
     });
 
     try {
-      await this.databaseService.user.update({
+      await this.databaseService.getPrismaClient().user.update({
         where: {
           id: user.id,
         },
@@ -340,7 +344,7 @@ export class UserService {
     });
 
     try {
-      await this.databaseService.user.update({
+      await this.databaseService.getPrismaClient().user.update({
         where: {
           id: user.id,
         },
@@ -363,7 +367,7 @@ export class UserService {
   }
 
   async findUserWithPhone(phone: string) {
-    const user = await this.databaseService.user.findFirst({
+    const user = await this.databaseService.getPrismaClient().user.findFirst({
       where: {
         phoneNumber: phone,
       },
@@ -456,7 +460,7 @@ export class UserService {
     );
 
     try {
-      await this.databaseService.user.update({
+      await this.databaseService.getPrismaClient().user.update({
         where: {
           id: user.id,
         },
@@ -483,12 +487,14 @@ export class UserService {
     user: GetUserDto,
   ): Promise<void> {
     try {
-      const updatedUser = await this.databaseService.user.update({
-        where: { id: user.id },
-        data: {
-          pushNotificationToken: deviceToken,
-        },
-      });
+      const updatedUser = await this.databaseService
+        .getPrismaClient()
+        .user.update({
+          where: { id: user.id },
+          data: {
+            pushNotificationToken: deviceToken,
+          },
+        });
     } catch (error) {
       throw error;
     }

@@ -16,19 +16,23 @@ export class LoanService {
   async createLoan(userId: number): Promise<any> {
     // Check if the user has an active loan
 
-    const getLoanWallet = await this.databaseService.loanWallet.findFirst({
-      where: { userId },
-    });
-    const existingLoan = await this.databaseService.loan.findFirst({
-      where: { userId },
-    });
+    const getLoanWallet = await this.databaseService
+      .getPrismaClient()
+      .loanWallet.findFirst({
+        where: { userId },
+      });
+    const existingLoan = await this.databaseService
+      .getPrismaClient()
+      .loan.findFirst({
+        where: { userId },
+      });
 
     if (existingLoan) {
       throw new Error('User already has a loan initialized');
     }
 
     // Create a new loan
-    const loan = await this.databaseService.loan.create({
+    const loan = await this.databaseService.getPrismaClient().loan.create({
       data: {
         User: { connect: { id: userId } },
         Wallet: { connect: { id: getLoanWallet.id } },
@@ -39,7 +43,7 @@ export class LoanService {
   }
   async getLoan(userId: number): Promise<any> {
     // Create a new loan
-    const loan = await this.databaseService.loan.findMany({
+    const loan = await this.databaseService.getPrismaClient().loan.findMany({
       where: { userId },
     });
 
@@ -48,7 +52,7 @@ export class LoanService {
 
   async getMainLoan(userId: number) {
     try {
-      const loan = await this.databaseService.loan.findFirst({
+      const loan = await this.databaseService.getPrismaClient().loan.findFirst({
         where: { userId },
         include: { PaydayLoan: true, GoalBasedLoan: true },
       });
@@ -61,7 +65,7 @@ export class LoanService {
 
   async loanStatus(userId: number) {
     try {
-      const resp = await this.databaseService.loan.findFirst({
+      const resp = await this.databaseService.getPrismaClient().loan.findFirst({
         where: { active: true, userId },
         include: { PaydayLoan: true, GoalBasedLoan: true },
       });
@@ -88,7 +92,7 @@ export class LoanService {
     const interestRate = 0.2; // 20%
 
     // Create the goal-based loan
-    await this.databaseService.goalBasedLoan.create({
+    await this.databaseService.getPrismaClient().goalBasedLoan.create({
       data: {
         amount,
         interestAmount,
@@ -106,7 +110,7 @@ export class LoanService {
     });
 
     // Set the active status for the user's loan
-    await this.databaseService.loan.update({
+    await this.databaseService.getPrismaClient().loan.update({
       where: { userId },
       data: { active: true },
     });
@@ -119,8 +123,9 @@ export class LoanService {
     const { amount, startDate, endDate, documents } = dto;
 
     await this.validateLoan(userId);
-    const joinContribution =
-      await this.databaseService.joinContribution.findFirst({
+    const joinContribution = await this.databaseService
+      .getPrismaClient()
+      .joinContribution.findFirst({
         where: { userId },
         include: { Contribution: true },
       });
@@ -134,7 +139,7 @@ export class LoanService {
     const interestRate = 0.2; // 20%
 
     // Create the goal-based loan
-    await this.databaseService.paydayLoan.create({
+    await this.databaseService.getPrismaClient().paydayLoan.create({
       data: {
         amount,
         interestAmount,
@@ -152,7 +157,7 @@ export class LoanService {
     });
 
     // Set the active status for the user's loan
-    await this.databaseService.loan.update({
+    await this.databaseService.getPrismaClient().loan.update({
       where: { userId },
       data: { active: true },
     });
@@ -178,7 +183,7 @@ export class LoanService {
   //       dto;
 
   //     const joinContribution =
-  //       await this.databaseService.joinContribution.findFirst({
+  //       await this.databaseService.getPrismaClient().joinContribution.findFirst({
   //         where: { userId },
   //         include: { Contribution: true },
   //       });
@@ -192,7 +197,7 @@ export class LoanService {
   //     const interestRate = 0.2; // 20%
 
   //     // Create the goal-based loan
-  //     await this.databaseService.goalBasedLoan.create({
+  //     await this.databaseService.getPrismaClient().goalBasedLoan.create({
   //       data: {
   //         amount,
   //         interestAmount,
@@ -210,7 +215,7 @@ export class LoanService {
   //     });
 
   //     // Set the active status for the user's loan
-  //     await this.databaseService.loan.update({
+  //     await this.databaseService.getPrismaClient().loan.update({
   //       where: { userId },
   //       data: { active: true },
   //     });

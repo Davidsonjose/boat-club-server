@@ -24,7 +24,7 @@ export class ContributionService {
   constructor(private databaseService: DatabaseService) {}
 
   async getContribution() {
-    return await this.databaseService.contribution.findMany({
+    return await this.databaseService.getPrismaClient().contribution.findMany({
       include: {
         joinContributions: {
           include: {
@@ -37,7 +37,7 @@ export class ContributionService {
     });
   }
   async getContributionDetails(contributionId: number) {
-    return await this.databaseService.contribution.findFirst({
+    return await this.databaseService.getPrismaClient().contribution.findFirst({
       where: { id: contributionId },
       include: {
         joinContributions: {
@@ -91,8 +91,9 @@ export class ContributionService {
 
       const formattedEndMonth = endMonth.toLocaleDateString('en-US');
       // Create the contribution in the database
-      const createdContribution =
-        await this.databaseService.contribution.create({
+      const createdContribution = await this.databaseService
+        .getPrismaClient()
+        .contribution.create({
           data: {
             contributionMonths: {
               create: months.map((month, index) => ({
@@ -118,8 +119,9 @@ export class ContributionService {
       }
 
       // Automatically create joinContribution records for servers
-      const serverParticipants =
-        await this.databaseService.joinContribution.findMany({
+      const serverParticipants = await this.databaseService
+        .getPrismaClient()
+        .joinContribution.findMany({
           where: {
             contributionId: createdContribution.id,
             participantType: 'SERVER',
@@ -137,14 +139,16 @@ export class ContributionService {
           { length: remainingServerSpaces },
           async (_, index) => {
             // Create a new ServerUser
-            const createdServerUser =
-              await this.databaseService.serverUser.create({
+            const createdServerUser = await this.databaseService
+              .getPrismaClient()
+              .serverUser.create({
                 data: { serverUID: `serverUID_${index}` },
               });
 
             // Create the joinContribution record for the server
-            const newServer =
-              await this.databaseService.joinContribution.create({
+            const newServer = await this.databaseService
+              .getPrismaClient()
+              .joinContribution.create({
                 data: {
                   Contribution: { connect: { id: createdContribution.id } },
                   participantType: 'SERVER' as ParticipantType,
@@ -175,14 +179,16 @@ export class ContributionService {
 
   async determineParticipants(contributionId: number): Promise<void> {
     // Fetch contribution details, including joinContributions and related user information
-    const contribution = await this.databaseService.contribution.findUnique({
-      where: { id: contributionId },
-      include: {
-        joinContributions: {
-          include: { User: { include: { PointWallet: true } } },
+    const contribution = await this.databaseService
+      .getPrismaClient()
+      .contribution.findUnique({
+        where: { id: contributionId },
+        include: {
+          joinContributions: {
+            include: { User: { include: { PointWallet: true } } },
+          },
         },
-      },
-    });
+      });
 
     if (!contribution) {
       throw new Error('Contribution not found');
@@ -219,7 +225,7 @@ export class ContributionService {
       }));
 
     // Update participant numbers and types in the database
-    await this.databaseService.joinContribution.updateMany({
+    await this.databaseService.getPrismaClient().joinContribution.updateMany({
       where: {
         OR: updatedJoinContributions.map((participant) => ({
           id: participant.id,
@@ -236,9 +242,11 @@ export class ContributionService {
     const { contributionId, useDetails, dayOfRemittance, displayName } =
       joinContributionDto;
     // Fetch contribution details
-    const contribution = await this.databaseService.contribution.findUnique({
-      where: { id: contributionId },
-    });
+    const contribution = await this.databaseService
+      .getPrismaClient()
+      .contribution.findUnique({
+        where: { id: contributionId },
+      });
 
     const startDatetime = contribution.startDate;
     const endDatetime = contribution.endDate;
@@ -255,8 +263,9 @@ export class ContributionService {
     }
 
     // Check if user has already joined the contribution
-    const existingJoinContribution =
-      await this.databaseService.joinContribution.findFirst({
+    const existingJoinContribution = await this.databaseService
+      .getPrismaClient()
+      .joinContribution.findFirst({
         where: {
           contributionId: contributionId,
           userId: userId,
@@ -269,8 +278,9 @@ export class ContributionService {
 
     // Check if there is space for the user in the contribution
     const totalParticipants = contribution.totalServer + contribution.totalUser;
-    const currentParticipants =
-      await this.databaseService.joinContribution.count({
+    const currentParticipants = await this.databaseService
+      .getPrismaClient()
+      .joinContribution.count({
         where: { contributionId: contributionId },
       });
 
@@ -284,8 +294,9 @@ export class ContributionService {
     const participantType =
       currentParticipants < contribution.totalServer ? 'SERVER' : 'USER';
 
-    const createdJoinContribution =
-      await this.databaseService.joinContribution.create({
+    const createdJoinContribution = await this.databaseService
+      .getPrismaClient()
+      .joinContribution.create({
         data: {
           User: {
             connect: {
@@ -315,8 +326,9 @@ export class ContributionService {
 
   async getUserJoinContributionDetails(contributionId: number, userId: number) {
     try {
-      const userJoinContribution =
-        await this.databaseService.joinContribution.findFirst({
+      const userJoinContribution = await this.databaseService
+        .getPrismaClient()
+        .joinContribution.findFirst({
           where: { contributionId, userId },
           include: { contributionUserMonth: true, Contribution: true },
         });
@@ -331,7 +343,7 @@ export class ContributionService {
     userId: number,
   ): Promise<Transaction[]> {
     try {
-      return await this.databaseService.transaction.findMany({
+      return await this.databaseService.getPrismaClient().transaction.findMany({
         where: { joinContributionId, userId },
       });
     } catch (error) {
@@ -395,8 +407,9 @@ export class ContributionService {
       makePaymentContributionDto;
     // Check if the user has already paid for the specified month
 
-    const joinContribution =
-      await this.databaseService.joinContribution.findFirst({
+    const joinContribution = await this.databaseService
+      .getPrismaClient()
+      .joinContribution.findFirst({
         where: { id: joinContributionId },
         include: { Contribution: true },
       });
@@ -404,14 +417,16 @@ export class ContributionService {
 
     // Check if the user provided a numeric month ID
     if (typeof monthIdentifier === 'number') {
-      contributionUserMonth =
-        await this.databaseService.contributionUserMonth.findUnique({
+      contributionUserMonth = await this.databaseService
+        .getPrismaClient()
+        .contributionUserMonth.findUnique({
           where: { id: monthIdentifier },
         });
     } else {
       // Assume the user provided the month name
-      contributionUserMonth =
-        await this.databaseService.contributionUserMonth.findFirst({
+      contributionUserMonth = await this.databaseService
+        .getPrismaClient()
+        .contributionUserMonth.findFirst({
           where: {
             joinContributionId,
             month: monthIdentifier as string,
@@ -425,33 +440,37 @@ export class ContributionService {
     }
 
     // Update the ContributionUserMonth to mark the payment as true
-    const usermont = await this.databaseService.contributionUserMonth.update({
-      where: {
-        id: contributionUserMonth.id,
-      },
-      data: {
-        paid: true,
-      },
-    });
+    const usermont = await this.databaseService
+      .getPrismaClient()
+      .contributionUserMonth.update({
+        where: {
+          id: contributionUserMonth.id,
+        },
+        data: {
+          paid: true,
+        },
+      });
 
     const transactionRef = uuid.v4();
     // Create a transaction for the payment
-    const transaction = await this.databaseService.transaction.create({
-      data: {
-        amount: joinContribution.Contribution.monthlyAmount,
-        description: `Payment for ${contributionUserMonth.month}`,
-        walletType: WalletType.contributionWallet,
-        transactionType: TransactionType.WITHDRAWAL,
-        transactionStatus: TransactionStatus.SUCCESSFUL,
-        transactionRef: transactionRef,
-        User: {
-          connect: { id: userId },
+    const transaction = await this.databaseService
+      .getPrismaClient()
+      .transaction.create({
+        data: {
+          amount: joinContribution.Contribution.monthlyAmount,
+          description: `Payment for ${contributionUserMonth.month}`,
+          walletType: WalletType.contributionWallet,
+          transactionType: TransactionType.WITHDRAWAL,
+          transactionStatus: TransactionStatus.SUCCESSFUL,
+          transactionRef: transactionRef,
+          User: {
+            connect: { id: userId },
+          },
+          JoinContribution: {
+            connect: { id: joinContribution.id },
+          },
         },
-        JoinContribution: {
-          connect: { id: joinContribution.id },
-        },
-      },
-    });
+      });
 
     return {
       transaction,

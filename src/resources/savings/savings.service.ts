@@ -17,16 +17,18 @@ export class SavingsService {
 
   async initialiseUserSavings(savingsWalletId: number, user: GetUserDto) {
     try {
-      const newsavings = await this.databaseService.saving.create({
-        data: {
-          User: {
-            connect: { id: user.id },
+      const newsavings = await this.databaseService
+        .getPrismaClient()
+        .saving.create({
+          data: {
+            User: {
+              connect: { id: user.id },
+            },
+            Wallet: {
+              connect: { id: savingsWalletId },
+            },
           },
-          Wallet: {
-            connect: { id: savingsWalletId },
-          },
-        },
-      });
+        });
       return newsavings;
     } catch (error) {
       throw error;
@@ -35,10 +37,12 @@ export class SavingsService {
 
   async getUserSavings(userId: number) {
     try {
-      const resp = await this.databaseService.saving.findFirst({
-        where: { userId },
-        include: {},
-      });
+      const resp = await this.databaseService
+        .getPrismaClient()
+        .saving.findFirst({
+          where: { userId },
+          include: {},
+        });
       return resp;
     } catch (error) {
       throw error;
@@ -47,12 +51,14 @@ export class SavingsService {
 
   async getAllTargetSavings(userId: number): Promise<TargetSaving[]> {
     try {
-      // const info = await this.databaseService
+      // const info = await this.databaseService.getPrismaClient()
       const userSavings = await this.getUserSavings(userId);
 
-      const info = await this.databaseService.targetSaving.findMany({
-        where: { savingId: userSavings.id },
-      });
+      const info = await this.databaseService
+        .getPrismaClient()
+        .targetSaving.findMany({
+          where: { savingId: userSavings.id },
+        });
       return info;
     } catch (error) {
       throw error;
@@ -63,9 +69,11 @@ export class SavingsService {
     try {
       const userSavings = await this.getUserSavings(userId);
 
-      const info = await this.databaseService.fixedSaving.findMany({
-        where: { savingId: userSavings.id },
-      });
+      const info = await this.databaseService
+        .getPrismaClient()
+        .fixedSaving.findMany({
+          where: { savingId: userSavings.id },
+        });
       return info;
     } catch (error) {
       throw error;
@@ -75,9 +83,11 @@ export class SavingsService {
     try {
       const userSavings = await this.getUserSavings(userId);
 
-      const info = await this.databaseService.spendAndSave.findMany({
-        where: { savingId: userSavings.id },
-      });
+      const info = await this.databaseService
+        .getPrismaClient()
+        .spendAndSave.findMany({
+          where: { savingId: userSavings.id },
+        });
       return info;
     } catch (error) {
       throw error;
@@ -91,9 +101,11 @@ export class SavingsService {
     try {
       const userSavings = await this.getUserSavings(userId);
 
-      const info = await this.databaseService.spendAndSave.findFirst({
-        where: { savingId: userSavings.id, id },
-      });
+      const info = await this.databaseService
+        .getPrismaClient()
+        .spendAndSave.findFirst({
+          where: { savingId: userSavings.id, id },
+        });
       return info;
     } catch (error) {
       throw error;
@@ -107,9 +119,11 @@ export class SavingsService {
     try {
       const userSavings = await this.getUserSavings(userId);
 
-      const info = await this.databaseService.fixedSaving.findFirst({
-        where: { savingId: userSavings.id, id },
-      });
+      const info = await this.databaseService
+        .getPrismaClient()
+        .fixedSaving.findFirst({
+          where: { savingId: userSavings.id, id },
+        });
       return info;
     } catch (error) {
       throw error;
@@ -122,9 +136,11 @@ export class SavingsService {
     try {
       const userSavings = await this.getUserSavings(userId);
 
-      const info = await this.databaseService.targetSaving.findFirst({
-        where: { savingId: userSavings.id, id },
-      });
+      const info = await this.databaseService
+        .getPrismaClient()
+        .targetSaving.findFirst({
+          where: { savingId: userSavings.id, id },
+        });
       return info;
     } catch (error) {
       throw error;
@@ -174,19 +190,23 @@ export class SavingsService {
     userId: number,
   ) {
     try {
-      const savingsWallet = await this.databaseService.savingsWallet.findFirst({
-        where: { userId },
-        include: { Saving: true },
-      });
-      const info = await this.databaseService.spendAndSave.findFirst({
-        where: { savingId: savingsWallet.id },
-        include: {
-          Transactions: {
-            skip: filterTransactionDto.skipResults,
-            take: filterTransactionDto.takeResultAmount,
+      const savingsWallet = await this.databaseService
+        .getPrismaClient()
+        .savingsWallet.findFirst({
+          where: { userId },
+          include: { Saving: true },
+        });
+      const info = await this.databaseService
+        .getPrismaClient()
+        .spendAndSave.findFirst({
+          where: { savingId: savingsWallet.id },
+          include: {
+            Transactions: {
+              skip: filterTransactionDto.skipResults,
+              take: filterTransactionDto.takeResultAmount,
+            },
           },
-        },
-      });
+        });
       return info.Transactions;
     } catch (error) {
       throw error;
@@ -197,19 +217,23 @@ export class SavingsService {
     userId: number,
   ) {
     try {
-      const savingsWallet = await this.databaseService.savingsWallet.findFirst({
-        where: { userId },
-        include: { Saving: true },
-      });
-      const info = await this.databaseService.fixedSaving.findFirst({
-        where: { savingId: savingsWallet.id },
-        include: {
-          Transactions: {
-            skip: filterTransactionDto.skipResults,
-            take: filterTransactionDto.takeResultAmount,
+      const savingsWallet = await this.databaseService
+        .getPrismaClient()
+        .savingsWallet.findFirst({
+          where: { userId },
+          include: { Saving: true },
+        });
+      const info = await this.databaseService
+        .getPrismaClient()
+        .fixedSaving.findFirst({
+          where: { savingId: savingsWallet.id },
+          include: {
+            Transactions: {
+              skip: filterTransactionDto.skipResults,
+              take: filterTransactionDto.takeResultAmount,
+            },
           },
-        },
-      });
+        });
       return info.Transactions;
     } catch (error) {
       throw error;
@@ -220,19 +244,23 @@ export class SavingsService {
     userId: number,
   ) {
     try {
-      const savingsWallet = await this.databaseService.savingsWallet.findFirst({
-        where: { userId },
-        include: { Saving: true },
-      });
-      const info = await this.databaseService.targetSaving.findFirst({
-        where: { savingId: savingsWallet.id },
-        include: {
-          Transactions: {
-            skip: filterTransactionDto.skipResults,
-            take: filterTransactionDto.takeResultAmount,
+      const savingsWallet = await this.databaseService
+        .getPrismaClient()
+        .savingsWallet.findFirst({
+          where: { userId },
+          include: { Saving: true },
+        });
+      const info = await this.databaseService
+        .getPrismaClient()
+        .targetSaving.findFirst({
+          where: { savingId: savingsWallet.id },
+          include: {
+            Transactions: {
+              skip: filterTransactionDto.skipResults,
+              take: filterTransactionDto.takeResultAmount,
+            },
           },
-        },
-      });
+        });
       return info.Transactions;
     } catch (error) {
       throw error;
@@ -243,17 +271,19 @@ export class SavingsService {
     userId: number,
   ) {
     try {
-      const savingsWallet = await this.databaseService.savingsWallet.findFirst({
-        where: { userId },
-        include: {
-          Saving: true,
-          Transactions: {
-            skip: filterTransactionDto.skipResults,
-            take: filterTransactionDto.takeResultAmount,
+      const savingsWallet = await this.databaseService
+        .getPrismaClient()
+        .savingsWallet.findFirst({
+          where: { userId },
+          include: {
+            Saving: true,
+            Transactions: {
+              skip: filterTransactionDto.skipResults,
+              take: filterTransactionDto.takeResultAmount,
+            },
           },
-        },
-      });
-      // const info = await this.databaseService.savingsWallet.findFirst({
+        });
+      // const info = await this.databaseService.getPrismaClient().savingsWallet.findFirst({
       //   where: { savingId: savingsWallet.id },
       //   include: {
       //     // Transactions: {
@@ -278,16 +308,16 @@ export class SavingsService {
     const { amount, startDate, endDate, title } = dto;
 
     // Check for ongoing fixed savings
-    const ongoingFixedSavings = await this.databaseService.fixedSaving.findMany(
-      {
+    const ongoingFixedSavings = await this.databaseService
+      .getPrismaClient()
+      .fixedSaving.findMany({
         where: {
           ongoing: true,
           saving: {
             userId,
           },
         },
-      },
-    );
+      });
 
     if (ongoingFixedSavings.length > 0) {
       throw new BadRequestException(
@@ -299,7 +329,7 @@ export class SavingsService {
     const interest = 0.07 * amount;
 
     // Create the fixed saving
-    return await this.databaseService.fixedSaving.create({
+    return await this.databaseService.getPrismaClient().fixedSaving.create({
       data: {
         amount,
         interest,
@@ -317,8 +347,9 @@ export class SavingsService {
   //spend and save
   async createSpendAndSave(userId: number): Promise<any> {
     // Check for ongoing fixed savings
-    const ongoingSpendAndSave =
-      await this.databaseService.spendAndSave.findFirst({
+    const ongoingSpendAndSave = await this.databaseService
+      .getPrismaClient()
+      .spendAndSave.findFirst({
         where: {
           ongoing: true,
           saving: {
@@ -334,23 +365,26 @@ export class SavingsService {
     }
 
     // Create the fixed saving
-    const info = await this.databaseService.spendAndSave.create({
-      data: {
-        percentage: '5',
-        ongoing: true,
-        saving: {
-          connect: { userId },
+    const info = await this.databaseService
+      .getPrismaClient()
+      .spendAndSave.create({
+        data: {
+          percentage: '5',
+          ongoing: true,
+          saving: {
+            connect: { userId },
+          },
         },
-      },
-    });
+      });
     return info;
   }
 
   //spend and save
   async deactivateSpendAndSave(userId: number): Promise<any> {
     // Check for ongoing fixed savings
-    const ongoingSpendAndSave =
-      await this.databaseService.spendAndSave.findFirst({
+    const ongoingSpendAndSave = await this.databaseService
+      .getPrismaClient()
+      .spendAndSave.findFirst({
         where: {
           ongoing: true,
           saving: {
@@ -363,7 +397,7 @@ export class SavingsService {
       throw new BadRequestException('Spend and save is currently deactivated');
     }
 
-    await this.databaseService.spendAndSave.update({
+    await this.databaseService.getPrismaClient().spendAndSave.update({
       where: {
         id: ongoingSpendAndSave.id,
       },
@@ -375,8 +409,9 @@ export class SavingsService {
 
   async activateSpendAndSave(userId: number): Promise<any> {
     // Check for ongoing fixed savings
-    const ongoingSpendAndSave =
-      await this.databaseService.spendAndSave.findFirst({
+    const ongoingSpendAndSave = await this.databaseService
+      .getPrismaClient()
+      .spendAndSave.findFirst({
         where: {
           ongoing: true,
           saving: {
@@ -389,7 +424,7 @@ export class SavingsService {
       throw new BadRequestException('Spend and save is currently activated');
     }
 
-    await this.databaseService.spendAndSave.update({
+    await this.databaseService.getPrismaClient().spendAndSave.update({
       where: {
         id: ongoingSpendAndSave.id,
       },
@@ -409,8 +444,9 @@ export class SavingsService {
     const { startDate, endDate, targetAmount, title, paymentFrequency } = dto;
 
     // Check for ongoing fixed savings
-    const ongoingFixedSavings =
-      await this.databaseService.targetSaving.findMany({
+    const ongoingFixedSavings = await this.databaseService
+      .getPrismaClient()
+      .targetSaving.findMany({
         where: {
           ongoing: true,
           saving: {
@@ -437,7 +473,7 @@ export class SavingsService {
     const interest = 0.07 * Number(targetAmount);
 
     // Create the fixed saving
-    return await this.databaseService.targetSaving.create({
+    return await this.databaseService.getPrismaClient().targetSaving.create({
       data: {
         targetAmount: Number(targetAmount),
         interest,

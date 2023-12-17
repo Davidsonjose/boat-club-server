@@ -15,7 +15,7 @@ export class kycService {
 
   async getKyc(userId: number) {
     try {
-      return await this.databaseService.kyc.findFirst({
+      return await this.databaseService.getPrismaClient().kyc.findFirst({
         where: { userId },
         include: {
           Tier1: true,
@@ -30,7 +30,7 @@ export class kycService {
 
   async initializeUserKyc(user: GetUserDto) {
     try {
-      const kyc = await this.databaseService.kyc.create({
+      const kyc = await this.databaseService.getPrismaClient().kyc.create({
         data: {
           //   userId: user.id, // Assuming you have user id in GetUserDto
           User: {
@@ -40,7 +40,7 @@ export class kycService {
       });
 
       // Create Tier1 associated with the Kyc
-      const Tier1 = await this.databaseService.tier1.create({
+      const Tier1 = await this.databaseService.getPrismaClient().tier1.create({
         data: {
           //   phoneNumber: user.phoneNumber,
           email: user.email,
@@ -49,7 +49,7 @@ export class kycService {
       });
 
       // Create Tier2 associated with the Kyc
-      const Tier2 = await this.databaseService.tier2.create({
+      const Tier2 = await this.databaseService.getPrismaClient().tier2.create({
         data: {
           address: '', // Assuming you have address in GetUserDto
           faceVerificationUrl: '', // Assuming you have faceVerificationUrl in GetUserDto
@@ -58,7 +58,7 @@ export class kycService {
       });
 
       // Create Tier3 associated with the Kyc
-      const Tier3 = await this.databaseService.tier3.create({
+      const Tier3 = await this.databaseService.getPrismaClient().tier3.create({
         data: {
           //   bvn: user.bvn, // Assuming you have bvn in GetUserDto
           kycId: kyc.id,
@@ -66,7 +66,7 @@ export class kycService {
       });
 
       // Update Kyc with Tier references
-      await this.databaseService.kyc.update({
+      await this.databaseService.getPrismaClient().kyc.update({
         where: { id: kyc.id },
         data: {
           Tier1: { connect: { id: Tier1.id } },
@@ -106,7 +106,7 @@ export class kycService {
       );
 
       // Update Tier1 associated with the user's Kyc
-      const tier1 = await this.databaseService.tier1.update({
+      const tier1 = await this.databaseService.getPrismaClient().tier1.update({
         where: { kycId: user.Kyc.id },
         data: {
           phoneNumber: phoneNumber,
@@ -143,7 +143,7 @@ export class kycService {
         );
       }
       // Update Tier2 associated with the user's Kyc
-      const Tier2 = await this.databaseService.tier2.update({
+      const Tier2 = await this.databaseService.getPrismaClient().tier2.update({
         where: { kycId: user.Kyc.id },
         data: {
           address: address,
@@ -178,7 +178,7 @@ export class kycService {
       }
 
       // Update Tier3 associated with the user's Kyc
-      const Tier3 = await this.databaseService.tier3.update({
+      const Tier3 = await this.databaseService.getPrismaClient().tier3.update({
         where: { kycId: user.Kyc.id },
         data: {
           bvn: bvn,
@@ -197,14 +197,16 @@ export class kycService {
 
   async getKycDetails(kycId: number) {
     try {
-      const details = await this.databaseService.kyc.findFirst({
-        where: { id: kycId },
-        include: {
-          Tier1: true,
-          Tier2: true,
-          Tier3: true,
-        },
-      });
+      const details = await this.databaseService
+        .getPrismaClient()
+        .kyc.findFirst({
+          where: { id: kycId },
+          include: {
+            Tier1: true,
+            Tier2: true,
+            Tier3: true,
+          },
+        });
       return details;
     } catch (error) {
       throw error;
@@ -291,7 +293,7 @@ export class kycService {
 
   async getUserWithKyc(userId: number) {
     try {
-      const user = await this.databaseService.user.findFirst({
+      const user = await this.databaseService.getPrismaClient().user.findFirst({
         where: { id: userId },
         include: {
           Kyc: { include: { Tier1: true, Tier2: true, Tier3: true } },
