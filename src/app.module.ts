@@ -56,6 +56,23 @@ import { SystemSpecModule } from './services/system-spec/systemSpec.module';
     //   inject: [ConfigService],
     // },
     // IpwhoisService,
+    // {
+    //   provide: DatabaseService,
+    //   useFactory: async (configService: ConfigService) => {
+    //     const dbConnString = configService.get(
+    //       SystemConfigDto.DATABASE_URL,
+    //     );
+
+    //     if (!dbConnString) {
+    //       throw new Error('Failed to load DATABASE_URL value');
+    //     }
+
+    //     const dbService = new DatabaseService();
+
+    //     await dbService.initialize();
+    //     return dbService;
+    //   },
+    // }
   ],
 
   imports: [
