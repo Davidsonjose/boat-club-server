@@ -78,7 +78,7 @@ export class LoanService {
   async createGoalBasedLoan(
     dto: CreateGoalBasedLoanDto,
     userId: number,
-  ): Promise<void> {
+  ): Promise<any> {
     const { amount, startDate, endDate, documents } = dto;
 
     await this.validateLoan(userId);
@@ -92,34 +92,38 @@ export class LoanService {
     const interestRate = 0.2; // 20%
 
     // Create the goal-based loan
-    await this.databaseService.getPrismaClient().goalBasedLoan.create({
-      data: {
-        amount,
-        interestAmount,
-        documents,
-        paydayDueDate: endDate,
-        endDate,
-        startDate,
-        targetDate: endDate,
-        ongoing: false, // Set to true by default, adjust based on your logic
-        interestRate,
-        Loan: {
-          connect: { userId },
+    const resp = await this.databaseService
+      .getPrismaClient()
+      .goalBasedLoan.create({
+        data: {
+          amount,
+          interestAmount,
+          documents,
+          paydayDueDate: endDate,
+          endDate,
+          startDate,
+          targetDate: endDate,
+          ongoing: false, // Set to true by default, adjust based on your logic
+          interestRate,
+          Loan: {
+            connect: { userId },
+          },
         },
-      },
-    });
+      });
 
     // Set the active status for the user's loan
     await this.databaseService.getPrismaClient().loan.update({
       where: { userId },
       data: { active: true },
     });
+
+    return resp;
   }
 
   async createPayDayLoan(
     dto: CreateGoalBasedLoanDto,
     userId: number,
-  ): Promise<void> {
+  ): Promise<any> {
     const { amount, startDate, endDate, documents } = dto;
 
     await this.validateLoan(userId);
@@ -139,28 +143,31 @@ export class LoanService {
     const interestRate = 0.2; // 20%
 
     // Create the goal-based loan
-    await this.databaseService.getPrismaClient().paydayLoan.create({
-      data: {
-        amount,
-        interestAmount,
-        documents,
-        paydayDueDate: endDate,
-        endDate,
-        startDate,
-        targetDate: endDate,
-        ongoing: false, // Set to true by default, adjust based on your logic
-        interestRate,
-        Loan: {
-          connect: { userId },
+    const resp = await this.databaseService
+      .getPrismaClient()
+      .paydayLoan.create({
+        data: {
+          amount,
+          interestAmount,
+          documents,
+          paydayDueDate: endDate,
+          endDate,
+          startDate,
+          targetDate: endDate,
+          ongoing: false, // Set to true by default, adjust based on your logic
+          interestRate,
+          Loan: {
+            connect: { userId },
+          },
         },
-      },
-    });
+      });
 
     // Set the active status for the user's loan
     await this.databaseService.getPrismaClient().loan.update({
       where: { userId },
       data: { active: true },
     });
+    return resp;
   }
 
   async validateLoan(userId: number) {
