@@ -22,12 +22,16 @@ import {
 } from 'src/helpers/http-response';
 import { systemResponses } from 'src/res/systemResponse';
 import { CreateOtpDto, VerifyEmailOtpDto, VerifySmsOtpDto } from 'src/dto/otp';
+import { UserService } from '../user/user.service';
 
 @Controller('otp')
 @ApiTags('otp')
 export class OtpController {
   @Inject()
   private readonly otpService: OtpService;
+
+  @Inject()
+  private userService: UserService;
 
   constructor() {}
 
@@ -56,15 +60,36 @@ export class OtpController {
     }
   }
 
-  @Post('send-sms-otp')
-  @UseGuards(HttpGuard, AuthGuard)
-  async sendSmsOtp(@Body() data: CreateOtpDto) {
+  @Post('test')
+  async sendTestOtp() {
     try {
       // const resp = await this.otpService.sendOtp({
       //   isDeveloper: fastifyRequest.requestState.isDeveloper,
       //   personId: fastifyRequest.requestState.id,
       //   type: data.type,
       // });
+      await this.otpService.sendTest();
+      return responseOk({
+        data: true,
+        message: ` OTP sent!`,
+        status: HttpStatus.OK,
+      });
+    } catch (err: any) {
+      const errMsg = safeResponse(err);
+      Logger.error(err);
+      throw responseError({
+        cause: err,
+        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+      });
+    }
+  }
+
+  @Post('send-sms-otp')
+  @UseGuards(HttpGuard, AuthGuard)
+  async sendSmsOtp(@Body() data: CreateOtpDto, @GetUser() user: GetUserDto) {
+    try {
+      const detailUser = await this.userService.findOne(user.id);
+      const resp = await this.otpService.sendUserSmsOtpRegister(detailUser);
       return responseOk({
         data: true,
         message: ` OTP sent!`,
@@ -90,7 +115,7 @@ export class OtpController {
       const resp = await this.otpService.verifyEmailOtp(
         {
           otp: data.otp,
-          email: data.email,
+          email: user.email,
           verifyEmail: data.verifyEmail,
         },
         user,
@@ -117,12 +142,16 @@ export class OtpController {
 
   @UseGuards(HttpGuard, AuthGuard)
   @Post('verify-sms-otp')
-  async verifySmsOtp(@Body() data: VerifySmsOtpDto) {
+  async verifySmsOtp(
+    @Body() data: VerifySmsOtpDto,
+    @GetUser() user: GetUserDto,
+  ) {
     try {
+      const detailUser = await this.userService.findOne(user.id);
       const resp = await this.otpService.verifySmsOtp({
         otp: data.otp,
-        phoneNumber: data.phoneNumber,
-        dialCode: data.dialCode,
+        phoneNumber: detailUser.phoneNumber,
+        dialCode: detailUser.Location.dialCode,
       });
 
       if (!resp) {

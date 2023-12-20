@@ -3,7 +3,7 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { DatabaseService } from 'src/services/database/database.service';
 import { GetUserDto } from 'src/dto/auth/user.dto';
-import { Kyc, KycVerificationStatus } from '@prisma/client';
+import { Kyc, KycVerificationStatus, User } from '@prisma/client';
 import { KycOneDto, KycThreeDto, KycTwoDto, kycLevelEnum } from 'src/dto/kyc';
 
 @Injectable()
@@ -28,7 +28,7 @@ export class kycService {
     }
   }
 
-  async initializeUserKyc(user: GetUserDto) {
+  async initializeUserKyc(user: User) {
     try {
       const kyc = await this.databaseService.getPrismaClient().kyc.create({
         data: {
@@ -42,7 +42,7 @@ export class kycService {
       // Create Tier1 associated with the Kyc
       const Tier1 = await this.databaseService.getPrismaClient().tier1.create({
         data: {
-          //   phoneNumber: user.phoneNumber,
+          phoneNumber: user.phoneNumber,
           email: user.email,
           kycId: kyc.id,
         },

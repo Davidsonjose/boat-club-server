@@ -199,8 +199,6 @@ export class AuthController {
       } else if (verifyForgotOtp.channel == OtpChannelType.SMS) {
         const info: VerifySmsOtpDto = {
           otp: verifyForgotOtp.otp,
-          phoneNumber: verifyForgotOtp.phone,
-          dialCode: verifyForgotOtp.diaCode,
         };
         return await this.otpService.verifySmsOtp(info);
       }

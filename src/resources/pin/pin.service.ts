@@ -78,7 +78,7 @@ export class PinService {
           savingsWallet.id,
           user,
         );
-        const newKyc = await this.kycService.initializeUserKyc(user);
+        const newKyc = await this.kycService.initializeUserKyc(detailedUser);
 
         console.log(savingsWallet, 'savings wallet');
         console.log(mainWallet, 'main wallet');

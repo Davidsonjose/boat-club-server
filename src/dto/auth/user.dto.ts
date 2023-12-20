@@ -405,6 +405,8 @@ export class GetUserDto {
   uid: string;
   email: string;
   firstName: string;
+  phoneNumber: string;
+  dialCode: string;
   lastName: string;
   clientIp: string;
   active: false;

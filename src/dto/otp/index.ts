@@ -12,26 +12,7 @@ import {
 export class CreateOtpDto {
   user?: User;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  channel: OtpChannelType;
-
-  @ApiProperty()
-  phone?: string;
-
-  @ApiPropertyOptional({
-    type: String,
-    description: 'This is optional if you the channel is set to SMS',
-  })
-  diaCode?: string;
-
-  @ApiProperty()
-  email?: string;
-
-  @ApiProperty()
-  @MinLength(10)
-  @IsNotEmpty()
+  @ApiPropertyOptional()
   activityHash: string;
 }
 
@@ -83,11 +64,6 @@ export class VerifyEmailOtpDto {
   @IsNotEmpty()
   otp: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsEmail()
-  email?: string;
-
   @IsOptional()
   @ApiProperty()
   verifyEmail?: boolean;
@@ -101,14 +77,12 @@ export class VerifySmsOtpDto {
   @IsNotEmpty()
   otp: string;
 
+  @IsOptional()
   @ApiProperty()
-  @IsNotEmpty()
-  @IsPhoneNumber()
-  phoneNumber: string;
+  verifyPhoneNumber?: boolean;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  dialCode: string;
+  @ApiPropertyOptional()
+  activityHash?: string;
 }
 export class VerifyForgotOtpDto {
   @ApiProperty()

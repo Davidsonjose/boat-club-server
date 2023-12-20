@@ -39,6 +39,7 @@ model User {
   createdAt             DateTime            @default(now())
   updatedAt             DateTime?
   pushNotificationToken String?
+  phoneNumberVerified   Boolean?            @default(false)
   locationId            Int                 @unique
   Settings              Settings?
   Activities            Activity[]

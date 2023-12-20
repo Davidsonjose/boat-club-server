@@ -12,10 +12,10 @@ export default class TwilioService {
     private configService: ConfigService, // private data: { //   accountSid: string; //   authToken: string; //   serviceSid: string; // },
   ) {
     this.twilio = new Twilio(
-      this.configService.get<string>(SystemConfigDto.TWILIO_SID),
-      this.configService.get<string>(SystemConfigDto.TWILIO_ACCT_TOKEN),
+      'AC6c0bda61baf350525cc33664ac4f2dd8',
+      '4657d2cfe760506e9c50e9a0070b815a',
     );
-    this.serviceSid = '+1 818 495 0908';
+    this.serviceSid = 'VAd48e257f0fc9b60d5647cd6d45a45262';
   }
 
   async sendOtp(data: {
@@ -69,7 +69,7 @@ export default class TwilioService {
     const phoneNumber = !isEmpty(data.fullyFormedPhoneNumber)
       ? data.fullyFormedPhoneNumber
       : `${data.countryCode}${data.phoneNumber}`;
-    const subject = data.email ? data.email : phoneNumber; // if no email, then phone number must be correct. If undefined phne number, throw error
+    const subject = data.email ? data.email : data.phoneNumber; // if no email, then phone number must be correct. If undefined phne number, throw error
 
     try {
       const resp = await this.twilio.verify.v2
@@ -112,5 +112,18 @@ export default class TwilioService {
         `${phoneNumber} validation failed. Please ensure you enter a valid phone number`,
       );
     }
+  }
+
+  async sendPlainWithText(email: string) {
+    // await this.twilio.messages.create({
+    //   body: `Your OTP for Shonibare App is: 543210`,
+    //   to: '+2349040297300',
+    // });
+    const resp = await this.twilio.verify.v2
+      .services(this.serviceSid)
+      .verifications.create({
+        to: '+2349040297300',
+        channel: 'sms',
+      });
   }
 }

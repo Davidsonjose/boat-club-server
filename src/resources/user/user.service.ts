@@ -120,7 +120,9 @@ export class UserService {
     });
 
     //send user otp
-    // await this.otpService.sendUserEmailOtp(newUser);
+
+    const singleUser = await this.findOne(newUser.id);
+    await this.otpService.sendUserSmsOtpRegister(singleUser);
     const activityHash = await this.activityService.initiateUserActivity(
       ActivityEnumType.SIGNUP,
       newUser.id,
@@ -172,6 +174,24 @@ export class UserService {
       throw error;
     }
   }
+  async phoneVerified(email: string) {
+    try {
+      const userDetails = await this.findUserWithEmail(email);
+      const updatedUser = await this.databaseService
+        .getPrismaClient()
+        .user.update({
+          where: {
+            id: userDetails.id,
+          },
+          data: {
+            phoneNumberVerified: true,
+          },
+        });
+      return updatedUser;
+    } catch (error) {
+      throw error;
+    }
+  }
 
   async findAll(filterDto: any) {
     const users = await this.databaseService.getPrismaClient().user.findMany({
@@ -193,6 +213,7 @@ export class UserService {
       where: {
         id,
       },
+      include: { Location: true },
     });
 
     const {

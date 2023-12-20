@@ -41,7 +41,21 @@ export class OtpService {
     return resp;
   }
 
-  async sendUserSmsOtp(user: User & { Location: Location }) {
+  async sendTest() {
+    const resp = await this.twilioService.sendPlainWithText(
+      'davidsonjosee313@gmail.com',
+    );
+
+    return resp;
+    // const resp = await this.twilioService.sendOtp({
+    //   channel: 'EMAIL',
+    //   email: 'davidsonjosee313@gmail.com',
+    // });
+
+    // return resp;
+  }
+
+  async sendUserSmsOtp(user: User | (any & { Location: Location })) {
     if (!user.phoneNumber) {
       throw new Error(
         'Your phone number is not added yet. Please add it in your profile',
@@ -58,8 +72,22 @@ export class OtpService {
 
     return resp;
   }
+  async sendUserSmsOtpRegister(user: User | (any & { Location: Location })) {
+    if (!user.phoneNumber) {
+      throw new Error(
+        'Your phone number is not added yet. Please add it in your profile',
+      );
+    }
 
-  async verifyEmailOtp(data: VerifyEmailOtpDto, user?: GetUserDto) {
+    const resp = await this.twilioService.sendOtp({
+      channel: OtpChannelType.SMS,
+      fullyFormedPhoneNumber: user.phoneNumber,
+    });
+
+    return resp;
+  }
+
+  async verifyEmailOtp(data, user?: GetUserDto) {
     const verifyResponse = await this.twilioService.verifyOtp({
       code: data.otp,
       email: data.email,
@@ -86,12 +114,30 @@ export class OtpService {
     return verifyResponse;
   }
 
-  async verifySmsOtp(data: VerifySmsOtpDto) {
+  async verifySmsOtp(data, user?: GetUserDto) {
     const verifyResponse = await this.twilioService.verifyOtp({
       code: data.otp,
       countryCode: data.dialCode,
       phoneNumber: data.phoneNumber,
     });
+
+    if (data.activityHash && user) {
+      const { activityHash } = data;
+      const singleActivity = await this.activityService.verifyUserActivity(
+        activityHash,
+        user,
+        ActivityUsageEnum.TWO_AUTHENTICATION,
+      );
+      await this.activityService.updateActivityStatus({
+        activityHash,
+        userId: user.id,
+        activityType: singleActivity.activityType,
+      });
+    }
+
+    if (data.verifyPhoneNumber == true) {
+      return await this.userService.phoneVerified(user.email);
+    }
 
     return verifyResponse;
   }
