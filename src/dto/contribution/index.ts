@@ -1,6 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ContributionUserMonth, Transaction } from '@prisma/client';
-import { IsBoolean, IsDate, IsNotEmpty, IsNumber } from 'class-validator';
+import {
+  IsBoolean,
+  IsDate,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+} from 'class-validator';
 
 export class CreateContributionDto {
   @ApiProperty()
@@ -27,13 +33,14 @@ export class CreateContributionDto {
 export class JoinContributionParamDto {
   @ApiProperty()
   @IsNotEmpty()
-  @IsNumber()
+  // @IsNumber()
   contributionId: number;
 }
 
 export class JoinContributionDto {
   @ApiProperty()
   @IsNotEmpty()
+  @IsString()
   dayOfRemittance: string;
 
   @ApiPropertyOptional()

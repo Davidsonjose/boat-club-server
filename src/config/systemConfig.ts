@@ -11,9 +11,9 @@ export default function () {
       '4&%-@(#&!*#(@031604b2c5ef61785yoratrc#*!)$#76eb6c06c1c30b756763f+_@#-#$79=',
     requestChannelId: 'BANICOOP',
     requestChannel: 'Api',
-    requestChannelType: 'Integerator',
+    requestChannelType: 'Integrator',
     requestApplicationCode: 'POUCHII',
-    requestPartnerCode: 'BACNIOOP',
+    requestPartnerCode: 'BANICOOP',
     walletId: 50,
   };
 }

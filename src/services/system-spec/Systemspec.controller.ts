@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
 import { ConfigService } from '@nestjs/config';
@@ -13,6 +18,7 @@ import { CacheModule, CACHE_MANAGER } from '@nestjs/cache-manager';
 import systemConfig, { SystemConfigDto } from 'src/config/systemConfig';
 import { Cache } from 'cache-manager';
 import { JwtService } from '@nestjs/jwt';
+import fetch from 'node-fetch';
 @Injectable()
 export class SystemSpecSdk {
   baseURL: string;
@@ -35,6 +41,7 @@ export class SystemSpecSdk {
       requestChannel: systemConfig().requestChannel,
       requestChannelId: systemConfig().requestChannelId,
       requestChannelType: systemConfig().requestChannelType,
+      requestApplicationCode: systemConfig().requestApplicationCode,
       requestPartnerCode: systemConfig().requestPartnerCode,
       walletId: systemConfig().walletId,
       transactionPin: this.configService.get(SystemConfigDto.SYSTEM_SPEC_PIN),
@@ -43,20 +50,23 @@ export class SystemSpecSdk {
 
   private async makeRequest(config: AxiosRequestConfig): Promise<any> {
     try {
-      const accessToken = await this.getAccessTokenFromCache();
+      const systemLogin = await this.loginSystemSpec();
       const headers = {
         accept: 'application/json',
-        authorization: `Bearer ${accessToken}`,
+        authorization: `Bearer ${systemLogin.accessToken}`,
       };
       const response: AxiosResponse = await axios({ ...config, headers });
       return response.data.data;
     } catch (error) {
+      console.log(error);
       throw error;
     }
   }
+
   private async makeReques3(config: AxiosRequestConfig): Promise<any> {
     try {
-      const accessToken = await this.getAccessTokenFromCache();
+      // const accessToken = await this.getAccessTokenFromCache();
+
       const headers = {
         accept: 'application/json',
       };
@@ -84,26 +94,35 @@ export class SystemSpecSdk {
   }
 
   private async getAccessTokenFromCache(): Promise<string> {
-    const cachedAccessToken = (await this.cacheManager.get(
-      'access_token',
-    )) as string;
-    const decodedToken = this.decodeToken(cachedAccessToken);
-    if (cachedAccessToken) {
-      // Check if the token is expired, if expired, handle the refresh logic
-      if (decodedToken.exp * 1000 < Date.now()) {
-        const refreshedTokens = await this.refreshToken();
-        return refreshedTokens.accessToken;
-      }
-      return cachedAccessToken;
-    } else {
-      // If no cached token, perform login and store the token in the cache
-      const authDto = await this.loginSystemSpec();
-      await this.cacheManager.set(
+    try {
+      const cachedAccessToken = (await this.cacheManager.get(
         'access_token',
-        authDto.accessToken,
-        decodedToken.exp * 1000 - Date.now(),
-      );
-      return authDto.accessToken;
+      )) as string;
+      const decodedToken = this.decodeToken(cachedAccessToken);
+      if (cachedAccessToken) {
+        // Check if the token is expired, if expired, handle the refresh logic
+        if (decodedToken.exp * 1000 < Date.now()) {
+          Logger.verbose('there is token and refreshing...');
+          const refreshedTokens = await this.refreshToken();
+          return refreshedTokens.accessToken;
+        }
+        return cachedAccessToken;
+      } else {
+        //
+        Logger.verbose('there is no token, generating ...');
+        // If no cached token, perform login and store the token in the cache
+        // const authDto = await this.loginSystemSpec();
+        // console.log(authDto, 'authDto');
+        // await this.cacheManager.set(
+        //   'access_token',
+        //   authDto.accessToken,
+        //   decodedToken.exp * 1000 - Date.now(),
+        // );
+        // return authDto.accessToken;
+        return '';
+      }
+    } catch (error) {
+      console.log(error);
     }
   }
 
@@ -128,16 +147,24 @@ export class SystemSpecSdk {
         username: this.configService.get(SystemConfigDto.SYSTEM_SPEC_USER),
         password: this.configService.get(SystemConfigDto.SYSTEM_SPEC_PASS),
       };
+      console.log(this.companyDetails);
       const info = await this.makeReques3({
         method: AxiosRequestMethodEnum.POST,
         url: `${this.baseURL}${this.loginRoute}`,
         data: {
-          ...others,
-          authdetails,
+          requestChannelId: this.companyDetails.requestChannelId,
+          requestChannel: this.companyDetails.requestChannel,
+          requestChannelType: this.companyDetails.requestChannelType,
+          requestApplicationCode: this.companyDetails.requestApplicationCode,
+          requestPartnerCode: this.companyDetails.requestPartnerCode,
+          username: authdetails.username,
+          password: authdetails.password,
+          rememberMe: true,
         },
       });
-      const accessToken = info?.data?.data?.authorization?.token;
-      const refreshToken = info?.data?.data?.authorization?.refreshToken;
+
+      const accessToken = info?.authorization?.token;
+      const refreshToken = info?.authorization?.refreshToken;
 
       const authDto: LoginExternalSystemSpecPayload = {
         accessToken,
@@ -145,6 +172,7 @@ export class SystemSpecSdk {
       };
       return authDto;
     } catch (error) {
+      console.log(error);
       throw error;
     }
   }
@@ -197,6 +225,20 @@ export class SystemSpecSdk {
     return this.makeRequest({
       method: AxiosRequestMethodEnum.GET,
       url: `${this.baseURL}/vas/rest/api/fetch/${billerId}/data/plans`,
+    });
+  }
+
+  async getAirtimeProviders() {
+    return this.makeRequest({
+      method: AxiosRequestMethodEnum.GET,
+      url: `${this.baseURL}/vas/rest/api/fetch/telco/airtime/billers`,
+    });
+  }
+
+  async getDataProviders() {
+    return this.makeRequest({
+      method: AxiosRequestMethodEnum.GET,
+      url: `${this.baseURL}/vas/rest/api/fetch/telco/data/billers`,
     });
   }
 }

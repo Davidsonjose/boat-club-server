@@ -9,8 +9,27 @@ export class SystemSpecService {
   async getDataPlans(billerId: number): Promise<SpecDataPlansExternal[]> {
     try {
       const info = await this.systemSpec.getDataPlans(billerId);
-      console.log(info.plans);
-      return info.plans;
+      return info;
+      //   return txnFee;
+    } catch (error) {
+      throw new Error(error?.response?.message);
+    }
+  }
+  async getDataProviders(): Promise<SpecDataPlansExternal[]> {
+    try {
+      const info = await this.systemSpec.getDataProviders();
+      // console.log(info);
+      return info.billers;
+      //   return txnFee;
+    } catch (error) {
+      throw new Error(error?.response?.message);
+    }
+  }
+  async getAirtimeProviders(): Promise<SpecDataPlansExternal[]> {
+    try {
+      const info = await this.systemSpec.getAirtimeProviders();
+      // console.log(info);
+      return info.billers;
       //   return txnFee;
     } catch (error) {
       throw new Error(error?.response?.message);

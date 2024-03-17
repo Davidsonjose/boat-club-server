@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Logger, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ContributionService } from './contribution.service';
 import { responseError, safeResponse } from 'src/helpers/http-response';
@@ -13,6 +21,8 @@ import {
 import { Contribution } from '@prisma/client';
 import { GetUser } from 'src/middleware/get-user.decorator';
 import { GetUserDto } from 'src/dto/auth/user.dto';
+import { HttpGuard } from 'src/guards/http.guard';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @Controller('contribution')
 @ApiTags('contribution')
@@ -20,6 +30,7 @@ export class ContributionController {
   constructor(private contributionService: ContributionService) {}
 
   @Post()
+  @UseGuards(HttpGuard, AuthGuard)
   async createContribution(
     @Body() createContributionDto: CreateContributionDto,
   ): Promise<any> {
@@ -38,7 +49,9 @@ export class ContributionController {
       });
     }
   }
+
   @Get()
+  @UseGuards(HttpGuard, AuthGuard)
   async getAllContribution(): Promise<any> {
     try {
       return await this.contributionService.getContribution();
@@ -55,6 +68,7 @@ export class ContributionController {
   }
 
   @Get('/:contributionId')
+  @UseGuards(HttpGuard, AuthGuard)
   async getContributionDetails(
     @Param() joinContributionParamDto: JoinContributionParamDto,
   ): Promise<any> {
@@ -75,6 +89,7 @@ export class ContributionController {
   }
 
   @Get('/joined-transactions/:contributionId')
+  @UseGuards(HttpGuard, AuthGuard)
   async getJoinedContributionDetails(
     @Param() joinContributionParamDto: JoinContributionParamDto,
     @GetUser() user: GetUserDto,
@@ -97,6 +112,7 @@ export class ContributionController {
   }
 
   @Post('/join/:contributionId')
+  @UseGuards(HttpGuard, AuthGuard)
   async join(
     @GetUser() user: GetUserDto,
     @Param() joinContributionParamDto: JoinContributionParamDto,
@@ -105,7 +121,7 @@ export class ContributionController {
     try {
       const info: JoinContributionDto = {
         ...joinContributionDto,
-        contributionId: joinContributionParamDto.contributionId,
+        contributionId: Number(joinContributionParamDto.contributionId),
       };
       return await this.contributionService.joinContribution(info, user.id);
     } catch (err) {
@@ -121,6 +137,7 @@ export class ContributionController {
   }
 
   @Post('/make-payment')
+  @UseGuards(HttpGuard, AuthGuard)
   @ApiOkResponse({ type: MakePaymentResDto })
   async makePayment(
     @GetUser() user: GetUserDto,
