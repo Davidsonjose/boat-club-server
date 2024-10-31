@@ -8,10 +8,7 @@ export class TwilioService {
   private twilioClient: Twilio;
 
   constructor() {
-    this.twilioClient = new Twilio(
-      'AC6c0bda61baf350525cc33664ac4f2dd8',
-      '4657d2cfe760506e9c50e9a0070b815a',
-    );
+    this.twilioClient = new Twilio('', '');
   }
 
   async sendWhatsAppMessage(
