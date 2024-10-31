@@ -120,7 +120,7 @@ export class AppModule {
         'This is the swagger documentation of some of the boat club endpoints.',
       )
       .setVersion('1.0')
-      .addServer('https://quixcel-estates-server-bolt.com') // server url
+      .addServer('https://boat-club-server.onrender.com') // server url
       // .addTag('') // Add tags if needed
       .build();
 
