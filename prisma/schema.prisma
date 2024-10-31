@@ -7,12 +7,12 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgres://ztkqaqvsquzara:392b056971ae218b4547d4fdc3e8842efb5254f838442e0febc49878f8f941f6@ec2-34-248-228-53.eu-west-1.compute.amazonaws.com:5432/dcvbh37gu268gb"
+  url      = "postgresql://bolt_club_user:HMN5PcrufgsQKQLbkuMRQz2sWG2TyxWS@dpg-csgnpvij1k6c73cdtru0-a.frankfurt-postgres.render.com/bolt_club"
 }
 
 model User {
-  id                    Int                 @id @default(autoincrement())
-  uid                   String              @unique
+  id                    Int           @id @default(autoincrement())
+  uid                   String        @unique
   email                 String
   hash                  String?
   pass                  String
@@ -21,38 +21,39 @@ model User {
   lastName              String
   phoneNumber           String?
   active                Boolean
-  emailVerified         Boolean?            @default(false)
-  hasPin                Boolean             @default(false)
+  memberId              String?       @unique
+  emailVerified         Boolean?      @default(false)
+  hasPin                Boolean       @default(false)
+  approved              Boolean       @default(false)
   deleted               Boolean
   pin                   String?
-  Location              Location            @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  Location              Location      @relation(fields: [locationId], references: [id], onDelete: Cascade)
   Kyc                   Kyc?
-  Loan                  Loan?
   loanId                Int?
+  deactivated           Boolean       @default(false)
   profileImageUrl       String?
   dateOfBirth           DateTime?
-  LoanWallet            LoanWallet?
-  ContributionWallet    ContributionWallet?
-  SavingsWallet         SavingsWallet?
+  // SavingsWallet         SavingsWallet?
   MainWallet            MainWallet?
-  Saving                Saving?
-  createdAt             DateTime            @default(now())
+  // Saving                Saving?
+  createdAt             DateTime      @default(now())
   updatedAt             DateTime?
   pushNotificationToken String?
-  phoneNumberVerified   Boolean?            @default(false)
-  locationId            Int                 @unique
+  phoneNumberVerified   Boolean?      @default(false)
+  locationId            Int           @unique
   Settings              Settings?
   Activities            Activity[]
-  JoinContribution      JoinContribution[]
   PointWallet           PointWallet?
   Transaction           Transaction[]
+  visitors              Visitor[]     @relation("UserVisitors")
+  vmsEvents             VmsEvent[]    @relation("UserVmsEvents")
 }
 
 //savings model
 
 model Saving {
   id           Int            @id @default(autoincrement())
-  User         User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // User         User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       Int?           @unique
   fixedSaving  FixedSaving[]
   targetSaving TargetSaving[]
@@ -65,11 +66,156 @@ model Saving {
   savingsWalletId Int
 }
 
+model Event {
+  id          Int          @id @default(autoincrement())
+  name        String
+  description String
+  startDate   DateTime
+  endDate     DateTime
+  coverImage  String
+  images      String[] // Array of image URLs
+  eventStatus EventStatus  @default(SCHEDULED)
+  locationId  Int
+  location    ClubLocation @relation(fields: [locationId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Tour {
+  id             Int            @id @default(autoincrement())
+  title          String
+  description    String
+  deleted        Boolean        @default(false)
+  coverImage     String
+  images         String[] // Array of image URLs
+  tourLocationId Int            @unique
+  location       ClubLocation   @relation("TourLocation", fields: [tourLocationId], references: [id])
+  onTheWay       ClubLocation[] @relation("OtherTourLocations")
+  tourCategoryId Int
+  tourCategory   TourCategory   @relation(fields: [tourCategoryId], references: [id])
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model News {
+  id          Int          @id @default(autoincrement())
+  title       String
+  description String
+  deleted     Boolean      @default(false)
+  coverImage  String
+  images      String[] // Array of image URLs
+  categoryId  Int
+  category    NewsCategory @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model ClubLocation {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  longitude Float
+  latitude  Float
+  tour      Tour?    @relation("TourLocation")
+  tours     Tour[]   @relation("OtherTourLocations")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  event     Event[]
+}
+
+model Events {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  // tour      Tour?    @relation("TourLocation")
+  // tours     Tour[]   @relation("OtherTourLocations")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TourCategory {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  tours     Tour[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model NewsCategory {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  news      News[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 //loans model
+
+//vms start 
+
+model Guest {
+  id          Int        @id @default(autoincrement())
+  fullName    String
+  phoneNumber String?
+  visitors    Visitor[]  @relation("GuestVisitors")
+  events      VmsEvent[]
+}
+
+model Visitor {
+  id             Int           @id @default(autoincrement())
+  code           String
+  expiresAt      DateTime?
+  validFrom      DateTime?
+  codeStatus     CodeStatus?   @default(DEFAULT)
+  inviteStatus   InviteStatus?
+  usage          Int?          @default(0)
+  purposeOfVisit String?
+  adminId        String?
+  oneTime        Boolean?
+  isEvent        Boolean?
+  eventId        Int?
+  entryTime      DateTime?
+  exitTime       DateTime?
+  createdAt      DateTime      @default(now())
+  usageLocation  String?
+  updatedAt      DateTime      @updatedAt
+  isAdmin        Boolean?      @default(false)
+  usageType      String?       @default("")
+  guestId        Int? // Foreign key to Guest
+  guest          Guest?        @relation("GuestVisitors", fields: [guestId], references: [id])
+  vmsEvents      VmsEvent[]    @relation("VisitorVmsEvents")
+  userId         Int?          @unique
+  host           User?         @relation("UserVisitors", fields: [userId], references: [id])
+
+  @@index([guestId], name: "guest_idx")
+  @@index([userId], name: "user_idx")
+}
+
+model VmsEvent {
+  id                 Int            @id @default(autoincrement())
+  description        String
+  address            String
+  expectedGuest      String
+  eventType          String
+  eventStatus        VmsEventStatus @default(PENDING)
+  startFrom          DateTime
+  endAt              DateTime
+  userId             Int?
+  host               User?          @relation("UserVmsEvents", fields: [userId], references: [id])
+  visitorId          Int? // Foreign key to Visitor
+  visitor            Visitor?       @relation("VisitorVmsEvents", fields: [visitorId], references: [id])
+  acceptedGuestEntry String?
+  acceptedGuestExit  String?
+
+  // @@index([userId], name: "user_idx")
+  // @@index([visitorId], name: "visitor_idx")
+  Guest   Guest? @relation(fields: [guestId], references: [id])
+  guestId Int?
+}
+
+//vms end 
 
 model Loan {
   id            Int             @id @default(autoincrement())
-  User          User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // User          User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int?            @unique
   GoalBasedLoan GoalBasedLoan[]
   PaydayLoan    PaydayLoan[]
@@ -206,6 +352,10 @@ model Settings {
   id                      Int       @id @default(autoincrement())
   twoFaEnabledEmail       Boolean
   twoFaEnabledPhone       Boolean
+  notificationSeen        Boolean   @default(false)
+  unSeenNorification      Int       @default(1)
+  todayInvite             Int       @default(0)
+  inviteLimit             String    @default("30")
   enablePushNotification  Boolean   @default(true)
   enableEmailNotification Boolean   @default(true)
   languageCode            String    @default("EN")
@@ -259,7 +409,7 @@ model ContributionWallet {
   balance      Float
   Transactions Transaction[]
   userId       Int           @unique
-  User         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // User         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   // Add other fields as needed
 }
 
@@ -277,7 +427,7 @@ model SavingsWallet {
   balance      Float
   Transactions Transaction[]
   userId       Int           @unique
-  User         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // User         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   // Add other fields as needed
   Saving       Saving[]
 }
@@ -299,7 +449,7 @@ model LoanWallet {
   balance      Float
   Transactions Transaction[]
   userId       Int           @unique
-  User         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // User         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   Loan         Loan?
   // Add other fields as needed
 }
@@ -366,7 +516,7 @@ model ContributionMonth {
 
 model JoinContribution {
   id                Int           @id @default(autoincrement())
-  User              User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // User              User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId            Int?
   Contribution      Contribution? @relation(fields: [contributionId], references: [id])
   contributionId    Int?
@@ -489,4 +639,34 @@ enum TargetSavingPaymentFrequency {
   DAILY
   WEEKLY
   MONTHLY
+}
+
+enum EventStatus {
+  SCHEDULED // Event is planned and scheduled for the future
+  ONGOING // Event is currently happening
+  COMPLETED // Event has finished
+  CANCELLED // Event was cancelled
+}
+
+enum VmsEventStatus {
+  CANCELLED
+  PENDING
+  COMPLETED
+  DISAPPROVED
+  APPROVED
+  ONGOING
+}
+
+enum InviteStatus {
+  INACTIVE
+  CHECKED_IN
+  CHECKED_OUT
+  ACTIVE
+}
+
+enum CodeStatus {
+  DEFAULT
+  EXPIRED
+  CANCELLED
+  COMPLETED
 }

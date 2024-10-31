@@ -66,6 +66,7 @@ export class UserService {
         referralCode: createUserDto.referralCode,
         profileImageUrl: createUserDto.profileImageUrl,
         phoneNumber: createUserDto.phoneNumber,
+        memberId: createUserDto.memberId,
         dateOfBirth: createUserDto.dateOfBirth,
         uid: userUid,
         Location: {
@@ -154,6 +155,16 @@ export class UserService {
 
     //return users.map(user => cleanUserResponse(user)); //TODO: only clean on controller end
     return user;
+  }
+  async getUserSettings(id: number) {
+    const userSettings = await this.databaseService
+      .getPrismaClient()
+      .settings.findFirst({
+        where: { id },
+      });
+
+    //return users.map(user => cleanUserResponse(user)); //TODO: only clean on controller end
+    return userSettings;
   }
   async emailVerified(email: string) {
     try {

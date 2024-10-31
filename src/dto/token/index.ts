@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { InviteStatus } from '@prisma/client';
 import { IsNotEmpty, MinLength } from 'class-validator';
-import { InviteStatus } from '../otp';
 
 export class CreateTokenDto {
   @ApiProperty()
@@ -16,7 +16,7 @@ export class CreateTokenDto {
   oneTime: boolean;
 
   @ApiProperty()
-  @IsNotEmpty()
+  // @IsNotEmpty()
   phoneNumber: string;
 
   @ApiProperty()
@@ -25,6 +25,9 @@ export class CreateTokenDto {
 
   @ApiPropertyOptional()
   purposeOfVisit: string;
+
+  @ApiPropertyOptional()
+  now: boolean;
 }
 
 export enum CodeStatus {
@@ -115,6 +118,31 @@ export class VisitDetails {
   guest: GuestDataPayload;
 }
 
+export class CreateVisitEventDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  eventType: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  expectedGuest: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  address: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  startFrom: Date;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  endAt: Date;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  description: string;
+}
 export class UserVisitPayload {
   @ApiProperty()
   message: 'Otp Sent Successfully';

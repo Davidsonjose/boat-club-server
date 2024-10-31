@@ -29,9 +29,11 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   async initialize() {
     try {
       this.prisma = new PrismaClient({
-        datasourceUrl: this.configService.get(SystemConfigDto.DATABASE_URL),
+        datasourceUrl:
+          'postgresql://bolt_club_user:HMN5PcrufgsQKQLbkuMRQz2sWG2TyxWS@dpg-csgnpvij1k6c73cdtru0-a.frankfurt-postgres.render.com/bolt_club',
       });
       await this.validateConnection();
+      console.log('connected');
     } catch (err: any) {
       throw new InternalServerErrorException('Datastore is offline', {
         cause: err,
@@ -49,5 +51,9 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   }
   getPrismaClient() {
     return this.prisma;
+  }
+
+  prismaDatabase() {
+    return this.getPrismaClient();
   }
 }

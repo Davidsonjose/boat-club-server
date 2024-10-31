@@ -64,37 +64,37 @@ export class TransactionController {
     }
   }
 
-  @Get('/loan')
-  @UseGuards(HttpGuard, AuthGuard)
-  async loanWallet(
-    @Query() filterDto: FilterTransactionsDto,
-    @GetUser() user: GetUserDto,
-  ) {
-    try {
-      const resp = await this.transactionService.getLoanWalletTransactions(
-        filterDto,
-        user,
-      );
+  // @Get('/loan')
+  // @UseGuards(HttpGuard, AuthGuard)
+  // async loanWallet(
+  //   @Query() filterDto: FilterTransactionsDto,
+  //   @GetUser() user: GetUserDto,
+  // ) {
+  //   try {
+  //     const resp = await this.transactionService.getLoanWalletTransactions(
+  //       filterDto,
+  //       user,
+  //     );
 
-      if (!resp) {
-        throw new NotFoundException(`Transactions`);
-      }
+  //     if (!resp) {
+  //       throw new NotFoundException(`Transactions`);
+  //     }
 
-      return responseOk({
-        data: resp,
-        message: `Retrieved loan transactions`,
-      });
-    } catch (err: any) {
-      const errMsg = safeResponse(err);
+  //     return responseOk({
+  //       data: resp,
+  //       message: `Retrieved loan transactions`,
+  //     });
+  //   } catch (err: any) {
+  //     const errMsg = safeResponse(err);
 
-      Logger.error(err);
+  //     Logger.error(err);
 
-      throw responseError({
-        cause: err,
-        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
-      });
-    }
-  }
+  //     throw responseError({
+  //       cause: err,
+  //       message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+  //     });
+  //   }
+  // }
   @Get('/')
   @UseGuards(HttpGuard, AuthGuard)
   async allTransactions(
@@ -127,35 +127,35 @@ export class TransactionController {
     }
   }
 
-  @Get('/savings')
-  @UseGuards(HttpGuard, AuthGuard)
-  async savingsWallet(
-    @Query() filterDto: FilterTransactionsDto,
-    @GetUser() user: GetUserDto,
-  ) {
-    try {
-      const resp = await this.transactionService.getSavingsWalletTransaction(
-        filterDto,
-        user,
-      );
+  // @Get('/savings')
+  // @UseGuards(HttpGuard, AuthGuard)
+  // async savingsWallet(
+  //   @Query() filterDto: FilterTransactionsDto,
+  //   @GetUser() user: GetUserDto,
+  // ) {
+  //   try {
+  //     const resp = await this.transactionService.getSavingsWalletTransaction(
+  //       filterDto,
+  //       user,
+  //     );
 
-      if (!resp) {
-        throw new NotFoundException(`Transactions`);
-      }
+  //     if (!resp) {
+  //       throw new NotFoundException(`Transactions`);
+  //     }
 
-      return responseOk({
-        data: resp,
-        message: `Retrieved savings transactions`,
-      });
-    } catch (err: any) {
-      const errMsg = safeResponse(err);
+  //     return responseOk({
+  //       data: resp,
+  //       message: `Retrieved savings transactions`,
+  //     });
+  //   } catch (err: any) {
+  //     const errMsg = safeResponse(err);
 
-      Logger.error(err);
+  //     Logger.error(err);
 
-      throw responseError({
-        cause: err,
-        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
-      });
-    }
-  }
+  //     throw responseError({
+  //       cause: err,
+  //       message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+  //     });
+  //   }
+  // }
 }

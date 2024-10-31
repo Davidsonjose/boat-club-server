@@ -34,7 +34,8 @@ export class LoanService {
     // Create a new loan
     const loan = await this.databaseService.getPrismaClient().loan.create({
       data: {
-        User: { connect: { id: userId } },
+        // User: { connect: { id: userId } },
+        userId: 3,
         Wallet: { connect: { id: getLoanWallet.id } },
       },
     });

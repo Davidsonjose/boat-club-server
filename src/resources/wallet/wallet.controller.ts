@@ -67,55 +67,55 @@ export class WalletController {
     }
   }
 
-  @Get('/loan')
-  @UseGuards(HttpGuard, AuthGuard)
-  async loanWallet(@Param() id: number, @GetUser() user: GetUserDto) {
-    try {
-      const resp = await this.walletService.loanWallet(user);
+  // @Get('/loan')
+  // @UseGuards(HttpGuard, AuthGuard)
+  // async loanWallet(@Param() id: number, @GetUser() user: GetUserDto) {
+  //   try {
+  //     const resp = await this.walletService.loanWallet(user);
 
-      if (!resp) {
-        throw new NotFoundException(`Wallet  not found`);
-      }
+  //     if (!resp) {
+  //       throw new NotFoundException(`Wallet  not found`);
+  //     }
 
-      return responseOk({
-        data: resp,
-        message: `Retrieved loan wallet detail`,
-      });
-    } catch (err: any) {
-      const errMsg = safeResponse(err);
+  //     return responseOk({
+  //       data: resp,
+  //       message: `Retrieved loan wallet detail`,
+  //     });
+  //   } catch (err: any) {
+  //     const errMsg = safeResponse(err);
 
-      Logger.error(err);
+  //     Logger.error(err);
 
-      throw responseError({
-        cause: err,
-        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
-      });
-    }
-  }
+  //     throw responseError({
+  //       cause: err,
+  //       message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+  //     });
+  //   }
+  // }
 
-  @Get('/savings')
-  @UseGuards(HttpGuard, AuthGuard)
-  async savingsWallet(@Param() id: number, @GetUser() user: GetUserDto) {
-    try {
-      const resp = await this.walletService.savingsWallet(user);
+  // @Get('/savings')
+  // @UseGuards(HttpGuard, AuthGuard)
+  // async savingsWallet(@Param() id: number, @GetUser() user: GetUserDto) {
+  //   try {
+  //     const resp = await this.walletService.savingsWallet(user);
 
-      if (!resp) {
-        throw new NotFoundException(`Wallet  not found`);
-      }
+  //     if (!resp) {
+  //       throw new NotFoundException(`Wallet  not found`);
+  //     }
 
-      return responseOk({
-        data: resp,
-        message: `Retrieved savings wallet detail`,
-      });
-    } catch (err: any) {
-      const errMsg = safeResponse(err);
+  //     return responseOk({
+  //       data: resp,
+  //       message: `Retrieved savings wallet detail`,
+  //     });
+  //   } catch (err: any) {
+  //     const errMsg = safeResponse(err);
 
-      Logger.error(err);
+  //     Logger.error(err);
 
-      throw responseError({
-        cause: err,
-        message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
-      });
-    }
-  }
+  //     throw responseError({
+  //       cause: err,
+  //       message: `${systemResponses.EN.DEFAULT_ERROR_RESPONSE}: ${errMsg}`,
+  //     });
+  //   }
+  // }
 }

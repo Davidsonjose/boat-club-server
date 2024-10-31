@@ -92,9 +92,10 @@ export class WalletService {
         .getPrismaClient()
         .loanWallet.create({
           data: {
-            User: {
-              connect: { id: user.id },
-            },
+            // User: {
+            //   connect: { id: user.id },
+            // },
+            userId: 9,
             balance: 0,
           },
         });
@@ -123,9 +124,10 @@ export class WalletService {
         .getPrismaClient()
         .savingsWallet.create({
           data: {
-            User: {
-              connect: { id: user.id },
-            },
+            // User: {
+            //   connect: { id: user.id },
+            // },
+            userId: 3,
             balance: 0,
           },
         });

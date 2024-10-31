@@ -29,6 +29,10 @@ import { SavingsModule } from './resources/savings/savings.module';
 import { BillModule } from './resources/bills/bills.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { SystemSpecModule } from './services/system-spec/systemSpec.module';
+import { TourModule } from './resources/tour/tour.module';
+import { ClubLocationModule } from './resources/club-location/club-location.module';
+import { EventModule } from './resources/events/events.module';
+import { VisitorModule } from './resources/vms/token/visitor.module';
 
 @Module({
   providers: [
@@ -85,15 +89,19 @@ import { SystemSpecModule } from './services/system-spec/systemSpec.module';
     UserModule,
     PinModule,
     WalletModule,
-    KycModule,
-    ContributionModule,
+    // KycModule,
+    // ContributionModule,
     DatabaseModule,
     TransactionModule,
+    TourModule,
+    ClubLocationModule,
     ActivityModule,
+    VisitorModule,
     TwilioModule,
-    LoanModule,
-    SavingsModule,
-    BillModule,
+    // LoanModule,
+    // SavingsModule,
+    // BillModule,
+    EventModule,
     SystemSpecModule,
     JwtModule.register({
       global: true,
@@ -107,12 +115,12 @@ import { SystemSpecModule } from './services/system-spec/systemSpec.module';
 export class AppModule {
   configureSwagger(app: INestApplication): void {
     const options = new DocumentBuilder()
-      .setTitle('Banicoop Contribution Server Documentation')
+      .setTitle('Boat Club Server Documentation')
       .setDescription(
-        'This is the swagger documentation of some of the banicoop contribution endpoints.',
+        'This is the swagger documentation of some of the boat club endpoints.',
       )
       .setVersion('1.0')
-      .addServer('https://quixcel-estates-server-0a61bd1c8d09.herokuapp.com') // server url
+      .addServer('https://quixcel-estates-server-bolt.com') // server url
       // .addTag('') // Add tags if needed
       .build();
 

@@ -30,7 +30,7 @@ export class ContributionService {
           include: {
             contributionUserMonth: true,
             ServerUser: true,
-            User: true,
+            // User: true,
           },
         },
       },
@@ -44,7 +44,7 @@ export class ContributionService {
           include: {
             contributionUserMonth: true,
             ServerUser: true,
-            User: true,
+            // User: true,
           },
         },
         contributionMonths: true,
@@ -184,9 +184,9 @@ export class ContributionService {
       .contribution.findUnique({
         where: { id: contributionId },
         include: {
-          joinContributions: {
-            include: { User: { include: { PointWallet: true } } },
-          },
+          // joinContributions: {
+          //   include: { User: { include: { PointWallet: true } } },
+          // },
         },
       });
 
@@ -198,18 +198,19 @@ export class ContributionService {
     const totalUser = contribution.totalUser;
 
     // Separate users into servers and users based on banicoop points or alphabetically if no points
-    const sortedUsers = contribution.joinContributions
-      .sort(
-        (a, b) =>
-          Number(a.User.PointWallet.banicoopPoints) -
-            Number(b.User.PointWallet.banicoopPoints) ||
-          a.User.firstName.localeCompare(b.User.firstName),
-      )
-      .map((joinContribution, index) => ({
-        ...joinContribution,
-        participantNumber: index + 1, // 1-indexed position
-        participantType: index < totalServer ? 'SERVER' : 'USER',
-      }));
+    const sortedUsers = [];
+    // const sortedUsers = contribution.joinContributions
+    //   .sort(
+    //     (a, b) =>
+    //       Number(a.User.PointWallet.banicoopPoints) -
+    //         Number(b.User.PointWallet.banicoopPoints) ||
+    //       a.User.firstName.localeCompare(b.User.firstName),
+    //   )
+    //   .map((joinContribution, index) => ({
+    //     ...joinContribution,
+    //     participantNumber: index + 1, // 1-indexed position
+    //     participantType: index < totalServer ? 'SERVER' : 'USER',
+    //   }));
 
     // Determine participant numbers for server and user participants
     const serverParticipants = sortedUsers.slice(0, totalServer);
@@ -298,11 +299,11 @@ export class ContributionService {
       .getPrismaClient()
       .joinContribution.create({
         data: {
-          User: {
-            connect: {
-              id: userId,
-            },
-          },
+          // User: {
+          //   connect: {
+          //     id: userId,
+          //   },
+          // },
           Contribution: {
             connect: {
               id: contributionId,

@@ -21,9 +21,10 @@ export class SavingsService {
         .getPrismaClient()
         .saving.create({
           data: {
-            User: {
-              connect: { id: user.id },
-            },
+            // User: {
+            //   connect: { id: user.id },
+            // },
+            userId: 3,
             Wallet: {
               connect: { id: savingsWalletId },
             },

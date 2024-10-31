@@ -122,6 +122,10 @@ export class CreateUserDto {
   @ApiProperty()
   profileImageUrl?: string;
 
+  @ApiProperty()
+  @IsString()
+  memberId: string;
+
   @IsNotEmpty()
   @IsString()
   @MinLength(6)
