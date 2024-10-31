@@ -11,8 +11,11 @@ export default class TwilioService {
   constructor(
     private configService: ConfigService, // private data: { //   accountSid: string; //   authToken: string; //   serviceSid: string; // },
   ) {
-    this.twilio = new Twilio('', '');
-    this.serviceSid = '';
+    this.twilio = new Twilio(
+      'AC6c0bda61baf350525cc33664ac4f2dd8',
+      '4657d2cfe760506e9c50e9a0070b815a',
+    );
+    this.serviceSid = 'VAd48e257f0fc9b60d5647cd6d45a45262';
   }
 
   async sendOtp(data: {
